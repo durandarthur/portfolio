@@ -35,13 +35,13 @@ const globalOptions = {
 
 const contactRef = ref();
 const contactOptions = {
-  title: 'Test',
+  title: 'Formulaire de contact',
   ...globalOptions
 }
 
 const CVRef = ref();
 const CVOptions = {
-  title: 'Test',
+  title: 'Curriculum Vitae',
   ...globalOptions
 }
 
@@ -81,7 +81,7 @@ function onIconClicked(ref) {
     </VueWinBox>
 
     <VueWinBox ref="CVRef" :options="CVOptions" @onmove="onMove">
-      <div>Test2</div>
+      <iframe src="https://durandarthur.vercel.app/CV_Arthur_Durand_2022.pdf" frameborder="0"></iframe>
     </VueWinBox>
 
     <VueWinBox ref="terminalRef" :options="terminalOptions" @onmove="onMove">
