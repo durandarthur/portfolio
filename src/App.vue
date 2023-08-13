@@ -1,11 +1,32 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { VueWinBox } from 'vue-winbox';
 import DesktopIcon from './components/DesktopIcon.vue';
 import VueCommand, { createQuery, createStdout, newDefaultHistory, textFormatter, listFormatter } from "vue-command";
 import { timelineFormatter } from "./lib/formatters";
 import "vue-command/dist/vue-command.css";
 import { bioHTML, socialsHTML, timeline } from "./data";
+
+// THREE/TROIS.JS STUFF
+
+const renderer = ref(null);
+const box = ref(null);
+
+renderer?.value?.onBeforeRender(() => {
+  box.value.mesh.rotation.x += 0.01;
+})
+
+onMounted(() => {
+  renderer?.value?.onBeforeRender(() => {
+    box.value.mesh.rotation.x = renderer?.value?.three?.pointer?.positionN.y;
+    box.value.mesh.rotation.y = -renderer?.value?.three?.pointer?.positionN.x;
+    // box.value.mesh.rotation.z = renderer?.value?.three?.pointer?.positionN.z / renderer?.value?.three?.pointer?.positionN.y;
+
+    //console.log(renderer?.value?.three?.pointer?.positionN);
+  });
+})
+
+// WINBOX STUFF
 
 const history = ref(newDefaultHistory())
 const commands = {
@@ -51,13 +72,23 @@ const terminalOptions = {
   ...globalOptions
 }
 
+// OTHER STUFF
+
 function onIconClicked(ref) {
   ref?.winbox?.hide(!ref?.winbox?.hidden)
 }
 </script>
 
 <template>
-  <main class="flex flex-col content-start flex-wrap max-h-[85%]">
+  <Renderer ref="renderer" pointer>
+    <Camera :position="{ z: 10 }" :lookAt="renderer?.three?.pointer?.positionN" />
+    <Scene>
+      <Box ref="box" :rotation="{ y: Math.PI / 4, z: Math.PI / 4}">
+        <BasicMaterial :props="{ wireframe: true }" color="#04D9FF" />
+      </Box>
+    </Scene>
+  </Renderer>
+  <main class="flex flex-col content-start flex-wrap">
     <DesktopIcon @iconClicked="onIconClicked(contactRef)">
       <template #text>
         Contact
@@ -96,9 +127,9 @@ function onIconClicked(ref) {
     </VueWinBox>
   </main>
 
-  <footer class="h-[10%] bg-white rounded-2xl m-2 fixed bottom-0">
+  <!-- <footer class="h-[10%] bg-white rounded-2xl m-2 fixed bottom-0">
     <div class="h-full aspect-square border-r-2"></div>
-  </footer>
+  </footer> -->
   
 </template>
 
