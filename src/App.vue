@@ -2,17 +2,23 @@
 import { reactive, ref } from 'vue'
 import { VueWinBox } from 'vue-winbox';
 import DesktopIcon from './components/DesktopIcon.vue';
-import VueCommand, { createQuery, createStdout, newDefaultHistory } from "vue-command";
+import VueCommand, { createQuery, createStdout, newDefaultHistory, textFormatter, listFormatter } from "vue-command";
 import "vue-command/dist/vue-command.css";
+import { bioHTML } from "./data";
 
 const history = ref(newDefaultHistory())
 const commands = {
   "hello-world": () => createStdout("Hello world"),
+  "bio": () => createStdout(textFormatter(bioHTML, true)),
   clear: () => {
     // "splice" is necessary since Vue.js loses its reactivity if array is set to empty
     history.value.splice(0, history.value.length)
     return createQuery()
   },
+  help: () => {
+    const list = Object.keys(commands);
+    return createStdout(listFormatter(...list));
+  }
 }
 
 const globalOptions = {
