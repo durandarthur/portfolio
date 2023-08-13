@@ -12,14 +12,10 @@ import { bioHTML, socialsHTML, timeline } from "./data";
 const renderer = ref(null);
 const box = ref(null);
 
-renderer?.value?.onBeforeRender(() => {
-  box.value.mesh.rotation.x += 0.01;
-})
-
 onMounted(() => {
   renderer?.value?.onBeforeRender(() => {
-    box.value.mesh.rotation.x = renderer?.value?.three?.pointer?.positionN.y;
-    box.value.mesh.rotation.y = -renderer?.value?.three?.pointer?.positionN.x;
+    box.value.mesh.rotation.x = -renderer?.value?.three?.pointer?.positionN.y;
+    box.value.mesh.rotation.y = renderer?.value?.three?.pointer?.positionN.x;
     // box.value.mesh.rotation.z = renderer?.value?.three?.pointer?.positionN.z / renderer?.value?.three?.pointer?.positionN.y;
 
     //console.log(renderer?.value?.three?.pointer?.positionN);
@@ -80,8 +76,8 @@ function onIconClicked(ref) {
 </script>
 
 <template>
-  <Renderer ref="renderer" pointer>
-    <Camera :position="{ z: 10 }" :lookAt="renderer?.three?.pointer?.positionN" />
+  <Renderer ref="renderer" pointer width="1920" height="1080" :resize="'window'">
+    <Camera :position="{ z: 10 }"/>
     <Scene>
       <Box ref="box" :rotation="{ y: Math.PI / 4, z: Math.PI / 4}">
         <BasicMaterial :props="{ wireframe: true }" color="#04D9FF" />
