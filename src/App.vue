@@ -1,7 +1,19 @@
 <script setup>
-import { ref } from 'vue'
+import { reactive, ref } from 'vue'
 import { VueWinBox } from 'vue-winbox';
 import DesktopIcon from './components/DesktopIcon.vue';
+import VueCommand, { createQuery, createStdout, newDefaultHistory } from "vue-command";
+import "vue-command/dist/vue-command.css";
+
+const history = ref(newDefaultHistory())
+const commands = {
+  "hello-world": () => createStdout("Hello world"),
+  clear: () => {
+    // "splice" is necessary since Vue.js loses its reactivity if array is set to empty
+    history.value.splice(0, history.value.length)
+    return createQuery()
+  },
+}
 
 const globalOptions = {
   class: 'modern',
@@ -26,7 +38,7 @@ const CVOptions = {
 
 const terminalRef = ref();
 const terminalOptions = {
-  title: 'Test3',
+  title: 'bash: durandarthur@MONOLITH',
   ...globalOptions
 }
 
@@ -64,7 +76,14 @@ function onIconClicked(ref) {
     </VueWinBox>
 
     <VueWinBox ref="terminalRef" :options="terminalOptions" @onmove="onMove">
-      <div>Test3</div>
+      <vue-command :commands="commands" :history="history" class="w-full h-full">
+        <template #bar>
+          <div></div>
+        </template>
+        <template #prompt>
+          durandarthur@MONOLITH:~/code/personal/portfolio$&nbsp;
+        </template>
+      </vue-command>
     </VueWinBox>
   </main>
 
