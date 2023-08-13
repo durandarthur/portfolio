@@ -26,7 +26,6 @@ onMounted(() => {
 
 const history = ref(newDefaultHistory())
 const commands = {
-  "hello-world": () => createStdout("Hello world"),
   bio: () => createStdout(textFormatter(bioHTML, true)),
   clear: () => {
     // "splice" is necessary since Vue.js loses its reactivity if array is set to empty
@@ -79,7 +78,7 @@ function onIconClicked(ref) {
   <Renderer ref="renderer" pointer width="1920" height="1080" :resize="'window'">
     <Camera :position="{ z: 10 }"/>
     <Scene>
-      <Box ref="box" :rotation="{ y: Math.PI / 4, z: Math.PI / 4}">
+      <Box ref="box" :rotation="{ y: Math.PI / 4, z: Math.PI / 4}" widthSegments="5" heightSegments="5" depthSegments="5">
         <BasicMaterial :props="{ wireframe: true }" color="#04D9FF" />
       </Box>
     </Scene>

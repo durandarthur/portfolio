@@ -6,7 +6,7 @@
     <div class="m-8 w-24">
         <div class="mb-4 hover:cursor-pointer focus:brightness-125 rounded-3xl overflow-hidden aspect-square" @click="$emit('iconClicked')">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1">
-                <path d="M0,0h1v1H0" fill="#008000"/>
+                <path d="M0,0h1v1H0" fill="#04D9FF"/>
             </svg>
         </div>
         <p class="text-xl text-center text-white drop-shadow select-none pointer-events-none"><slot name="text"></slot></p>
