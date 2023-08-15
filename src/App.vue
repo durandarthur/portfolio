@@ -1,11 +1,18 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-import { VueWinBox } from 'vue-winbox';
-import DesktopIcon from './components/DesktopIcon.vue';
-import VueCommand, { createQuery, createStdout, newDefaultHistory, textFormatter, listFormatter } from "vue-command";
+import { ref, onMounted } from "vue";
+import { VueWinBox } from "vue-winbox";
+import DesktopIcon from "./components/DesktopIcon.vue";
+import VueCommand, {
+  createQuery,
+  createStdout,
+  newDefaultHistory,
+  textFormatter,
+  listFormatter,
+} from "vue-command";
 import { timelineFormatter } from "./lib/formatters";
 import "vue-command/dist/vue-command.css";
 import { bioHTML, socialsHTML, timeline } from "./data";
+import ContactForm from "./components/ContactForm.vue";
 
 // THREE/TROIS.JS STUFF
 
@@ -20,17 +27,17 @@ onMounted(() => {
 
     //console.log(renderer?.value?.three?.pointer?.positionN);
   });
-})
+});
 
 // WINBOX STUFF
 
-const history = ref(newDefaultHistory())
+const history = ref(newDefaultHistory());
 const commands = {
   bio: () => createStdout(textFormatter(bioHTML, true)),
   clear: () => {
     // "splice" is necessary since Vue.js loses its reactivity if array is set to empty
-    history.value.splice(0, history.value.length)
-    return createQuery()
+    history.value.splice(0, history.value.length);
+    return createQuery();
   },
   help: () => {
     const list = Object.keys(commands);
@@ -38,80 +45,95 @@ const commands = {
   },
   timeline: () => createStdout(timelineFormatter(timeline)),
   socials: () => createStdout(textFormatter(socialsHTML, true)),
-}
+};
 
 const globalOptions = {
-  class: 'modern',
+  class: "modern",
   hidden: true,
-  onclose: function(force){
+  minwidth: "500px",
+  minheight: "200px",
+  onclose: function (force) {
     this.hide(true);
     return true;
   },
-}
+};
 
 const contactRef = ref();
 const contactOptions = {
-  title: 'Formulaire de contact',
-  ...globalOptions
-}
+  title: "Formulaire de contact",
+  ...globalOptions,
+};
 
 const CVRef = ref();
 const CVOptions = {
-  title: 'Curriculum Vitae',
-  ...globalOptions
-}
+  title: "Curriculum Vitae",
+  ...globalOptions,
+};
 
 const terminalRef = ref();
 const terminalOptions = {
-  title: 'bash: durandarthur@MONOLITH',
-  ...globalOptions
-}
+  title: "bash: durandarthur@MONOLITH",
+  ...globalOptions,
+};
 
 // OTHER STUFF
 
 function onIconClicked(ref) {
-  ref?.winbox?.hide(!ref?.winbox?.hidden)
+  ref?.winbox?.hide(!ref?.winbox?.hidden);
 }
 </script>
 
 <template>
-  <Renderer ref="renderer" pointer width="1920" height="1080" :resize="'window'">
-    <Camera :position="{ z: 10 }"/>
+  <Renderer
+    ref="renderer"
+    pointer
+    width="1920"
+    height="1080"
+    :resize="'window'"
+  >
+    <Camera :position="{ z: 10 }" />
     <Scene>
-      <Box ref="box" :rotation="{ y: Math.PI / 4, z: Math.PI / 4}" widthSegments="5" heightSegments="5" depthSegments="5">
+      <Box
+        ref="box"
+        :rotation="{ y: Math.PI / 4, z: Math.PI / 4 }"
+        widthSegments="5"
+        heightSegments="5"
+        depthSegments="5"
+      >
         <BasicMaterial :props="{ wireframe: true }" color="#04D9FF" />
       </Box>
     </Scene>
   </Renderer>
   <main class="flex flex-col content-start flex-wrap">
     <DesktopIcon @iconClicked="onIconClicked(contactRef)">
-      <template #text>
-        Contact
-      </template>
+      <template #text> Contact </template>
     </DesktopIcon>
 
     <DesktopIcon @iconClicked="onIconClicked(CVRef)">
-      <template #text>
-        CV
-      </template>
+      <template #text> CV </template>
     </DesktopIcon>
 
     <DesktopIcon @iconClicked="onIconClicked(terminalRef)">
-      <template #text>
-        Terminal
-      </template>
+      <template #text> Terminal </template>
     </DesktopIcon>
 
     <VueWinBox ref="contactRef" :options="contactOptions" @onmove="onMove">
-      <div>Test</div>
+      <ContactForm />
     </VueWinBox>
 
     <VueWinBox ref="CVRef" :options="CVOptions" @onmove="onMove">
-      <iframe src="https://durandarthur.vercel.app/CV_Arthur_Durand_2022.pdf" frameborder="0"></iframe>
+      <iframe
+        src="https://durandarthur.vercel.app/CV_Arthur_Durand_2022.pdf"
+        frameborder="0"
+      ></iframe>
     </VueWinBox>
 
     <VueWinBox ref="terminalRef" :options="terminalOptions" @onmove="onMove">
-      <vue-command :commands="commands" :history="history" class="w-full h-full">
+      <vue-command
+        :commands="commands"
+        :history="history"
+        class="w-full h-full"
+      >
         <template #bar>
           <div></div>
         </template>
@@ -125,8 +147,6 @@ function onIconClicked(ref) {
   <!-- <footer class="h-[10%] bg-white rounded-2xl m-2 fixed bottom-0">
     <div class="h-full aspect-square border-r-2"></div>
   </footer> -->
-  
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>
