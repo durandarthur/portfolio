@@ -90,9 +90,10 @@ function onIconClicked(ref) {
     width="1920"
     height="1080"
     :resize="'window'"
+    class="testg"
   >
     <Camera :position="{ z: 10 }" />
-    <Scene>
+    <Scene background="black">
       <Box
         ref="box"
         :rotation="{ y: Math.PI / 4, z: Math.PI / 4 }"

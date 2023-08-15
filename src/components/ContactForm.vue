@@ -1,19 +1,80 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { reactive, ref, type Ref } from "vue";
+import axios from "axios";
+
+type Status = {
+  submitted?: boolean;
+  submitting?: boolean;
+  info: { error: boolean; msg: string };
+};
+
+type MailData = {
+  mailMessage: string;
+  mailFrom: string;
+};
+
+const status = reactive<Status>({
+  submitted: false,
+  submitting: false,
+  info: { error: false, msg: "" },
+});
+
+const handleServerResponse = async (
+  ok: boolean,
+  msg: Status["info"]["msg"]
+) => {
+  if (ok) {
+    status.submitted = true;
+    status.submitting = false;
+    status.info = { error: false, msg: msg };
+    textPlaceholder.value = status.info.msg;
+    mailData.mailMessage = "";
+  } else {
+    status.submitting = false;
+    status.info = { error: true, msg: msg };
+    textPlaceholder.value = `Message d'erreur: "${status.info.msg}"`;
+    mailData.mailMessage = "";
+  }
+};
+
+const mailData = reactive<MailData>({
+  mailFrom: "",
+  mailMessage: "",
+});
+const textPlaceholder = ref("Entrez votre message");
+
+function sendMail() {
+  // alert(mailMessage.value);
+  status.submitting = true;
+  axios({
+    method: "POST",
+    url: import.meta.env.VITE_FORM_ENDPOINT,
+    data: mailData,
+  })
+    .then(() => {
+      handleServerResponse(true, "Merci, votre message a été envoyé.");
+    })
+    .catch((error) => {
+      handleServerResponse(false, error.response.data.error);
+    });
+}
+</script>
 
 <template>
   <div class="h-full w-full contact">
-    <label for="to" class="pl-4">Destinataire: </label>
+    <label for="to" class="pl-4">Expéditeur:</label>
     <input
       class="pl-2"
       type="email"
       name="to"
       id="to"
-      placeholder="durandarthur09@outlook.fr"
-      disabled
+      v-model="mailData.mailFrom"
+      placeholder="votremail@exemple.com"
     />
 
     <div class="flex w-full h-full justify-end pr-4">
-      <button type="submit" class="h-full w-10">
+      <div class="loader mr-2" v-if="status.submitting"></div>
+      <button class="h-full w-10" @click="sendMail" v-else>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -36,7 +97,8 @@
       id="message"
       cols="30"
       rows="10"
-      placeholder="Entrez votre message"
+      :placeholder="textPlaceholder"
+      v-model="mailData.mailMessage"
     ></textarea>
   </div>
 </template>
@@ -45,11 +107,10 @@
 .contact {
   display: grid;
   grid-template-columns: 3fr 24fr 2fr;
-  grid-template-rows: 1fr 10fr;
+  grid-template-rows: 60px auto;
   overflow-x: hidden;
 }
 .contact > * {
-  /* border: 1px solid grey; */
   width: 100%;
   height: 100%;
 }
@@ -69,5 +130,25 @@ textarea {
 * {
   background-color: #111316;
   color: aliceblue;
+}
+
+/* animation that plays on mail sent */
+.loader {
+  margin-block: auto;
+  border-radius: 25%;
+  border: 5px solid #04d9ff;
+  aspect-ratio: 1;
+  height: 50%;
+  min-height: 24px;
+  animation: spinner 1s cubic-bezier(0.5, 0.7, 0.7, 0.5) infinite;
+}
+
+@keyframes spinner {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>
