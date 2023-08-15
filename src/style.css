@@ -38,12 +38,14 @@ html {
   position: absolute;
   background-color: slategray;
   height: 100vh;
+  width: 100vw;
   scrollbar-color: slategray transparent;
   scrollbar-width: thin;
 }
 
 body {
   height: 100%;
+  width: 100%;
 }
 
 #app {

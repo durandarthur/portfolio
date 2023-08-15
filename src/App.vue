@@ -19,13 +19,16 @@ import ContactForm from "./components/ContactForm.vue";
 const renderer = ref(null);
 const box = ref(null);
 
+function handleMouseMove(event) {
+  box.value.mesh.rotation.x =
+    2 * (event.clientY / document.body.clientHeight) - 1;
+  box.value.mesh.rotation.y =
+    2 * (event.clientX / document.body.clientWidth) - 1;
+}
+
 onMounted(() => {
   renderer?.value?.onBeforeRender(() => {
-    box.value.mesh.rotation.x = -renderer?.value?.three?.pointer?.positionN.y;
-    box.value.mesh.rotation.y = renderer?.value?.three?.pointer?.positionN.x;
-    // box.value.mesh.rotation.z = renderer?.value?.three?.pointer?.positionN.z / renderer?.value?.three?.pointer?.positionN.y;
-
-    //console.log(renderer?.value?.three?.pointer?.positionN);
+    document.onmousemove = handleMouseMove;
   });
 });
 
@@ -84,70 +87,72 @@ function onIconClicked(ref) {
 </script>
 
 <template>
-  <Renderer
-    ref="renderer"
-    pointer
-    width="1920"
-    height="1080"
-    :resize="'window'"
-    class="testg"
-  >
-    <Camera :position="{ z: 10 }" />
-    <Scene background="black">
-      <Box
-        ref="box"
-        :rotation="{ y: Math.PI / 4, z: Math.PI / 4 }"
-        widthSegments="5"
-        heightSegments="5"
-        depthSegments="5"
-      >
-        <BasicMaterial :props="{ wireframe: true }" color="#04D9FF" />
-      </Box>
-    </Scene>
-  </Renderer>
-  <main class="flex flex-col content-start flex-wrap">
-    <DesktopIcon @iconClicked="onIconClicked(contactRef)">
-      <template #text> Contact </template>
-    </DesktopIcon>
+  <body>
+    <Renderer
+      ref="renderer"
+      pointer
+      width="1920"
+      height="1080"
+      :resize="'window'"
+      class="testg"
+    >
+      <Camera :position="{ z: 10 }" />
+      <Scene background="black">
+        <Box
+          ref="box"
+          :rotation="{ y: Math.PI / 4, z: Math.PI / 4 }"
+          widthSegments="5"
+          heightSegments="5"
+          depthSegments="5"
+        >
+          <BasicMaterial :props="{ wireframe: true }" color="#04D9FF" />
+        </Box>
+      </Scene>
+    </Renderer>
+    <main class="flex flex-col content-start flex-wrap">
+      <DesktopIcon @iconClicked="onIconClicked(contactRef)">
+        <template #text> Contact </template>
+      </DesktopIcon>
 
-    <DesktopIcon @iconClicked="onIconClicked(CVRef)">
-      <template #text> CV </template>
-    </DesktopIcon>
+      <DesktopIcon @iconClicked="onIconClicked(CVRef)">
+        <template #text> CV </template>
+      </DesktopIcon>
 
-    <DesktopIcon @iconClicked="onIconClicked(terminalRef)">
-      <template #text> Terminal </template>
-    </DesktopIcon>
+      <DesktopIcon @iconClicked="onIconClicked(terminalRef)">
+        <template #text> Terminal </template>
+      </DesktopIcon>
 
-    <VueWinBox ref="contactRef" :options="contactOptions" @onmove="onMove">
-      <ContactForm />
-    </VueWinBox>
+      <VueWinBox ref="contactRef" :options="contactOptions" @onmove="onMove">
+        <ContactForm />
+      </VueWinBox>
 
-    <VueWinBox ref="CVRef" :options="CVOptions" @onmove="onMove">
-      <iframe
-        src="https://durandarthur.vercel.app/CV_Arthur_Durand_2022.pdf"
-        frameborder="0"
-      ></iframe>
-    </VueWinBox>
+      <VueWinBox ref="CVRef" :options="CVOptions" @onmove="onMove">
+        <iframe
+          src="https://durandarthur.vercel.app/CV_Arthur_Durand_2022.pdf"
+          frameborder="0"
+        ></iframe>
+      </VueWinBox>
 
-    <VueWinBox ref="terminalRef" :options="terminalOptions" @onmove="onMove">
-      <vue-command
-        :commands="commands"
-        :history="history"
-        class="w-full h-full"
-      >
-        <template #bar>
-          <div></div>
-        </template>
-        <template #prompt>
-          durandarthur@MONOLITH:~/code/personal/portfolio$&nbsp;
-        </template>
-      </vue-command>
-    </VueWinBox>
-  </main>
+      <VueWinBox ref="terminalRef" :options="terminalOptions" @onmove="onMove">
+        <vue-command
+          :commands="commands"
+          :history="history"
+          class="w-full h-full"
+        >
+          <template #bar>
+            <div></div>
+          </template>
+          <template #prompt>
+            durandarthur@MONOLITH:~/code/personal/portfolio$&nbsp;
+          </template>
+        </vue-command>
+      </VueWinBox>
+    </main>
 
-  <!-- <footer class="h-[10%] bg-white rounded-2xl m-2 fixed bottom-0">
+    <!-- <footer class="h-[10%] bg-white rounded-2xl m-2 fixed bottom-0">
     <div class="h-full aspect-square border-r-2"></div>
   </footer> -->
+  </body>
 </template>
 
 <style scoped></style>
