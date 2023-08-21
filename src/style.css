@@ -34,6 +34,14 @@
   background: transparent;
 }
 
+::selection {
+  background: #04d9ff;
+}
+
+::-moz-selection {
+  background: #04d9ff;
+}
+
 html {
   position: absolute;
   background-color: slategray;
@@ -64,3 +72,73 @@ canvas {
   width: 100vw;
   height: 100vh;
 }
+
+.winbox {
+  background: #111316;
+  /* border: 1px solid transparent;
+  transition: border 1s; */
+}
+
+/* .winbox:focus-within {
+  border: 1px solid #04d9ff;
+  transition: border 1s;
+} */
+
+.wb-header {
+  border-bottom: 1px solid #04d9ff;
+  background-color: black;
+}
+
+/* @keyframes pulseIn {
+  0% {
+    border: 0;
+  }
+  100% {
+    border: 1px solid #04d9ff;
+  }
+}
+
+@keyframes borderPulse {
+  0% {
+    border-radius: 0;
+  }
+  50% {
+    border-radius: 50%;
+  }
+  100% {
+    border-radius: 0;
+  }
+}
+
+@keyframes borderSpin {
+  0% {
+    border-left: 1px solid #04d9ff;
+    border-right: 0;
+    border-bottom: 0;
+    border-top: 0;
+  }
+  25% {
+    border-left: 0;
+    border-right: 0;
+    border-bottom: 0;
+    border-top: 1px solid #04d9ff;
+  }
+  50% {
+    border-left: 0;
+    border-right: 1px solid #04d9ff;
+    border-bottom: 0;
+    border-top: 0;
+  }
+  75% {
+    border-left: 0;
+    border-right: 0;
+    border-bottom: 1px solid #04d9ff;
+    border-top: 0;
+  }
+  100% {
+    border-left: 1px solid #04d9ff;
+    border-right: 0;
+    border-bottom: 0;
+    border-top: 0;
+  }
+} */

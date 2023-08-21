@@ -9,12 +9,15 @@ import VueCommand, {
   textFormatter,
   listFormatter,
 } from "vue-command";
-import { timelineFormatter } from "./lib/formatters";
+import { timelineFormatter, techsFormatter } from "./lib/formatters";
 import "vue-command/dist/vue-command.css";
-import { bioHTML, socialsHTML, timeline } from "./data";
+import { bioHTML, socialsHTML, timeline, techs } from "./data";
 import ContactForm from "./components/ContactForm.vue";
 
 // THREE/TROIS.JS STUFF
+
+const windowWidth = window.innerWidth;
+const windowHeight = window.innerHeight;
 
 const renderer = ref(null);
 const box = ref(null);
@@ -46,6 +49,10 @@ const commands = {
     const list = Object.keys(commands);
     return createStdout(listFormatter(...list));
   },
+  techs: () =>
+    createStdout(
+      textFormatter("<pre>" + techsFormatter(techs) + "</pre>", true)
+    ),
   timeline: () => createStdout(timelineFormatter(timeline)),
   socials: () => createStdout(textFormatter(socialsHTML, true)),
 };
@@ -88,14 +95,7 @@ function onIconClicked(ref) {
 
 <template>
   <body>
-    <Renderer
-      ref="renderer"
-      pointer
-      width="1920"
-      height="1080"
-      :resize="'window'"
-      class="testg"
-    >
+    <Renderer ref="renderer" pointer :resize="'window'" class="testg">
       <Camera :position="{ z: 10 }" />
       <Scene background="black">
         <Box
