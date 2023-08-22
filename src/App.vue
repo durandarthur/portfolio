@@ -2,6 +2,7 @@
 import { ref, onMounted } from "vue";
 import { VueWinBox } from "vue-winbox";
 import DesktopIcon from "./components/DesktopIcon.vue";
+import TechTreeNode from "./components/TechTreeNode.vue";
 import VueCommand, {
   createQuery,
   createStdout,
@@ -86,6 +87,12 @@ const terminalOptions = {
   ...globalOptions,
 };
 
+const techsRef = ref();
+const techsOptions = {
+  title: "Technologies",
+  ...globalOptions,
+};
+
 // OTHER STUFF
 
 function onIconClicked(ref) {
@@ -122,6 +129,10 @@ function onIconClicked(ref) {
         <template #text> Terminal </template>
       </DesktopIcon>
 
+      <DesktopIcon @iconClicked="onIconClicked(techsRef)">
+        <template #text> Technologies </template>
+      </DesktopIcon>
+
       <VueWinBox ref="contactRef" :options="contactOptions" @onmove="onMove">
         <ContactForm />
       </VueWinBox>
@@ -146,6 +157,10 @@ function onIconClicked(ref) {
             durandarthur@MONOLITH:~/code/personal/portfolio$&nbsp;
           </template>
         </vue-command>
+      </VueWinBox>
+
+      <VueWinBox ref="techsRef" :options="techsOptions" @onMove="onMove">
+        <TechTreeNode :node="techs" />
       </VueWinBox>
     </main>
 

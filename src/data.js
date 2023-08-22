@@ -123,6 +123,8 @@ export const techs = {
     SQLMap: null,
     JohnTheRipper: null,
     hashcat: null,
+    nmap: null,
+    netcat: null,
   },
 
   Design: {
