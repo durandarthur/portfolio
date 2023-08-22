@@ -130,7 +130,7 @@ function onIconClicked(ref) {
       </DesktopIcon>
 
       <DesktopIcon @iconClicked="onIconClicked(techsRef)">
-        <template #text> Technologies </template>
+        <template #text> Techs </template>
       </DesktopIcon>
 
       <VueWinBox ref="contactRef" :options="contactOptions" @onmove="onMove">
