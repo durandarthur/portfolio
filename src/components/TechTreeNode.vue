@@ -42,7 +42,7 @@ h2:hover {
 }
 
 p:hover {
-  color: #04d9ff;
+  /* color: #04d9ff; */
   cursor: default;
 }
 </style>

@@ -138,28 +138,36 @@ function onBarIconClicked(ref) {
       <DesktopIcon @iconClicked="onIconClicked(contactRef)">
         <template #text> Contact </template>
         <template #image>
-          <img src="/mail.png" alt="" />
+          <img src="/mail.png" alt="" class="hover:p-4 hover:rounded-3xl" />
         </template>
       </DesktopIcon>
 
       <DesktopIcon @iconClicked="onIconClicked(CVRef)">
         <template #text> CV </template>
         <template #image>
-          <img src="/resume.png" alt="" />
+          <img
+            src="/resume.png"
+            alt=""
+            class="hover:px-[1rem] hover:py-[1.28rem] hover:rounded-3xl"
+          />
         </template>
       </DesktopIcon>
 
       <DesktopIcon @iconClicked="onIconClicked(terminalRef)">
         <template #text> Terminal </template>
         <template #image>
-          <img src="/terminal.png" alt="" />
+          <img src="/terminal.png" alt="" class="hover:p-4 hover:rounded-3xl" />
         </template>
       </DesktopIcon>
 
       <DesktopIcon @iconClicked="onIconClicked(techsRef)">
         <template #text> Techs </template>
         <template #image>
-          <img src="/atomic.png" alt="" />
+          <img
+            src="/atomic.png"
+            alt=""
+            class="hover:px-[1rem] hover:py-[1.14rem] hover:rounded-3xl"
+          />
         </template>
       </DesktopIcon>
 
@@ -195,7 +203,7 @@ function onBarIconClicked(ref) {
     </main>
 
     <footer
-      class="h-[7%] bg-gray-950 rounded-2xl fixed bottom-0 flex h-full w-full justify-center gap-x-10"
+      class="h-[7%] bg-gray-950 rounded-2xl fixed bottom-0 flex w-full justify-center gap-x-10"
     >
       <img
         v-if="!contactRef?.winbox?.hidden"
@@ -231,15 +239,12 @@ img {
     brightness(106%) contrast(100%);
 }
 img:hover {
-  filter: invert(72%) sepia(49%) saturate(4291%) hue-rotate(148deg)
-    brightness(125%) contrast(100%);
+  filter: none;
+  background-color: #04d9ff;
+  overflow: visible;
 }
 
 footer img {
-  /* height: 100%;
-  aspect-ratio: square;
-  margin-right: 10rem;
-  padding-block: 1rem; */
   margin: 10px;
   padding: 1rem;
   background-color: #04d9ff;
@@ -249,6 +254,7 @@ footer img {
 }
 
 footer img:hover {
-  filter: brightness(125%);
+  cursor: pointer;
+  filter: brightness(110%);
 }
 </style>

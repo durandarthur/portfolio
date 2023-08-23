@@ -6,7 +6,7 @@
 ::-webkit-scrollbar {
   width: 3px;
   height: 3px;
-  background: transparent;
+  background: #111316;
 }
 
 /* Track */
@@ -17,14 +17,14 @@
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: slategray;
+  background: #04d9ff;
   border-radius: 5px;
 }
 
 /* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
+/* ::-webkit-scrollbar-thumb:hover {
   background: slategray;
-}
+} */
 
 ::-webkit-scrollbar-corner {
   background: transparent;
