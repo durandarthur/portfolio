@@ -77,7 +77,7 @@ export const techs = {
       "Vite, Rollup": null,
     },
 
-    PHP: { "PHP 7, PHP 8": null, Laravel: null },
+    PHP: { "PHP 7, PHP 8": null, Laravel: null, Inertia: null },
 
     UI: {
       "SASS, postCSS": null,

@@ -36,7 +36,7 @@ onMounted(() => {
   });
 });
 
-// WINBOX STUFF
+// VUE-COMMAND STUFF
 
 const history = ref(newDefaultHistory());
 const commands = {
@@ -58,38 +58,52 @@ const commands = {
   socials: () => createStdout(textFormatter(socialsHTML, true)),
 };
 
+// WINBOX STUFF
+
 const globalOptions = {
   class: "modern",
   hidden: true,
   minwidth: "500px",
   minheight: "200px",
-  onclose: function (force) {
-    this.hide(true);
-    return true;
-  },
 };
 
 const contactRef = ref();
 const contactOptions = {
   title: "Formulaire de contact",
+  onclose: function (force) {
+    contactRef.value.winbox.hide(true);
+    return true;
+  },
   ...globalOptions,
 };
 
 const CVRef = ref();
 const CVOptions = {
   title: "Curriculum Vitae",
+  onclose: function (force) {
+    CVRef.value.winbox.hide(true);
+    return true;
+  },
   ...globalOptions,
 };
 
 const terminalRef = ref();
 const terminalOptions = {
   title: "bash: durandarthur@MONOLITH",
+  onclose: function (force) {
+    terminalRef.value.winbox.hide(true);
+    return true;
+  },
   ...globalOptions,
 };
 
 const techsRef = ref();
 const techsOptions = {
   title: "Technologies",
+  onclose: function (force) {
+    techsRef.value.winbox.hide(true);
+    return true;
+  },
   ...globalOptions,
 };
 
@@ -98,12 +112,16 @@ const techsOptions = {
 function onIconClicked(ref) {
   ref?.winbox?.hide(!ref?.winbox?.hidden);
 }
+
+function onBarIconClicked(ref) {
+  ref?.winbox?.minimize(!ref?.winbox?.min);
+}
 </script>
 
 <template>
   <body>
     <Renderer ref="renderer" pointer :resize="'window'" class="testg">
-      <Camera :position="{ z: 10 }" />
+      <Camera :position="{ z: 7 }" />
       <Scene background="black">
         <Box
           ref="box"
@@ -119,18 +137,30 @@ function onIconClicked(ref) {
     <main class="flex flex-col content-start flex-wrap">
       <DesktopIcon @iconClicked="onIconClicked(contactRef)">
         <template #text> Contact </template>
+        <template #image>
+          <img src="/mail.png" alt="" />
+        </template>
       </DesktopIcon>
 
       <DesktopIcon @iconClicked="onIconClicked(CVRef)">
         <template #text> CV </template>
+        <template #image>
+          <img src="/resume.png" alt="" />
+        </template>
       </DesktopIcon>
 
       <DesktopIcon @iconClicked="onIconClicked(terminalRef)">
         <template #text> Terminal </template>
+        <template #image>
+          <img src="/terminal.png" alt="" />
+        </template>
       </DesktopIcon>
 
       <DesktopIcon @iconClicked="onIconClicked(techsRef)">
         <template #text> Techs </template>
+        <template #image>
+          <img src="/atomic.png" alt="" />
+        </template>
       </DesktopIcon>
 
       <VueWinBox ref="contactRef" :options="contactOptions" @onmove="onMove">
@@ -164,10 +194,61 @@ function onIconClicked(ref) {
       </VueWinBox>
     </main>
 
-    <!-- <footer class="h-[10%] bg-white rounded-2xl m-2 fixed bottom-0">
-    <div class="h-full aspect-square border-r-2"></div>
-  </footer> -->
+    <footer
+      class="h-[7%] bg-gray-950 rounded-2xl fixed bottom-0 flex h-full w-full justify-center gap-x-10"
+    >
+      <img
+        v-if="!contactRef?.winbox?.hidden"
+        src="/mail.png"
+        alt=""
+        @click="onBarIconClicked(contactRef)"
+      />
+      <img
+        v-if="!CVRef?.winbox?.hidden"
+        src="/resume.png"
+        alt=""
+        @click="onBarIconClicked(CVRef)"
+      />
+      <img
+        v-if="!terminalRef?.winbox?.hidden"
+        src="/terminal.png"
+        alt=""
+        @click="onBarIconClicked(terminalRef)"
+      />
+      <img
+        v-if="!techsRef?.winbox?.hidden"
+        src="/atomic.png"
+        alt=""
+        @click="onBarIconClicked(techsRef)"
+      />
+    </footer>
   </body>
 </template>
 
-<style scoped></style>
+<style scoped>
+img {
+  filter: invert(72%) sepia(49%) saturate(4291%) hue-rotate(148deg)
+    brightness(106%) contrast(100%);
+}
+img:hover {
+  filter: invert(72%) sepia(49%) saturate(4291%) hue-rotate(148deg)
+    brightness(125%) contrast(100%);
+}
+
+footer img {
+  /* height: 100%;
+  aspect-ratio: square;
+  margin-right: 10rem;
+  padding-block: 1rem; */
+  margin: 10px;
+  padding: 1rem;
+  background-color: #04d9ff;
+  filter: none;
+  border-radius: 1.2rem;
+  overflow: visible;
+}
+
+footer img:hover {
+  filter: brightness(125%);
+}
+</style>
