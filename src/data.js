@@ -120,6 +120,7 @@ export const techs = {
   Cybersécurité: {
     Hydra: null,
     BurpSuite: null,
+    dirstalk: null,
     SQLMap: null,
     JohnTheRipper: null,
     hashcat: null,
