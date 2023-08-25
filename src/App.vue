@@ -196,7 +196,7 @@ setInterval(() => setTime(), 1000);
 
       <VueWinBox ref="CVRef" :options="CVOptions" @onmove="onMove">
         <iframe
-          src="https://durandarthur.vercel.app/CV_Arthur_Durand_2022.pdf"
+          src="/public/CV_Arthur_Durand_2022.pdf"
           frameborder="0"
         ></iframe>
       </VueWinBox>
