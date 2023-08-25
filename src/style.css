@@ -58,6 +58,7 @@ html {
   width: 100vw;
   scrollbar-color: slategray transparent;
   scrollbar-width: thin;
+  font-family: system-ui;
 }
 
 body {
