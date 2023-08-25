@@ -128,7 +128,7 @@ function onBarIconClicked(ref) {
   ref?.winbox?.minimize(!ref?.winbox?.min);
 }
 
-const time = ref();
+const time = ref(new Date().toLocaleTimeString());
 
 function setTime() {
   time.value = new Date().toLocaleTimeString();
@@ -342,6 +342,9 @@ setInterval(() => setTime(), 1000);
           <p class="mt-16">
             Veuillez me signaler tout bug informatique rencontré sur ce site.
           </p>
+          <p class="absolute bottom-0 right-0 m-4 text-[#04d9ff]">
+            Portfolio version: 1.0
+          </p>
         </div>
       </VueWinBox>
     </main>
@@ -384,7 +387,7 @@ setInterval(() => setTime(), 1000);
       </div>
 
       <div class="w-1/5 !justify-end mr-8">
-        <p class="text-white select-none text-[#04d9ff] text-lg">{{ time }}</p>
+        <p class="select-none text-[#04d9ff] text-lg">{{ time }}</p>
       </div>
     </footer>
   </body>
