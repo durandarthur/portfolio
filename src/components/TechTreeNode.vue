@@ -30,6 +30,7 @@ const props = defineProps({
 * {
   background-color: #111316;
   color: aliceblue;
+  font-family: "Roboto Mono", monospace;
 }
 
 h2 {

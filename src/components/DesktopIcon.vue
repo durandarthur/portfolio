@@ -20,3 +20,9 @@ defineEmits(["iconClicked"]);
     </p>
   </div>
 </template>
+
+<style lang="css" scoped>
+p {
+  font-family: "Roboto Mono", monospace;
+}
+</style>

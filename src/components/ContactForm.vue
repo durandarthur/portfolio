@@ -124,7 +124,7 @@ label {
 label,
 input,
 textarea {
-  font-family: "Consolas";
+  font-family: "Roboto Mono", monospace;
   outline: none;
 }
 * {

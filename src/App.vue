@@ -109,7 +109,7 @@ const techsOptions = {
 
 const creditsRef = ref();
 const creditsOptions = {
-  title: "A propos",
+  title: "À propos",
   modal: true,
   onclose: function (force) {
     creditsRef.value.winbox.hide(true);
@@ -153,42 +153,48 @@ setInterval(() => setTime(), 1000);
         </Box>
       </Scene>
     </Renderer>
-    <main class="flex flex-col content-start flex-wrap">
-      <DesktopIcon @iconClicked="onIconClicked(contactRef)">
-        <template #text> Contact </template>
-        <template #image>
-          <img src="/mail.png" alt="" class="hover:p-4 hover:rounded-3xl" />
-        </template>
-      </DesktopIcon>
+    <main class="flex">
+      <div class="flex flex-col content-start flex-wrap w-screen h-[90vh]">
+        <DesktopIcon @iconClicked="onIconClicked(contactRef)">
+          <template #text> Contact </template>
+          <template #image>
+            <img src="/mail.png" alt="" class="hover:p-4 hover:rounded-3xl" />
+          </template>
+        </DesktopIcon>
 
-      <DesktopIcon @iconClicked="onIconClicked(CVRef)">
-        <template #text> CV </template>
-        <template #image>
-          <img
-            src="/resume.png"
-            alt=""
-            class="hover:px-[1rem] hover:py-[1.28rem] hover:rounded-3xl"
-          />
-        </template>
-      </DesktopIcon>
+        <DesktopIcon @iconClicked="onIconClicked(CVRef)">
+          <template #text> CV </template>
+          <template #image>
+            <img
+              src="/resume.png"
+              alt=""
+              class="hover:px-[1rem] hover:py-[1.28rem] hover:rounded-3xl"
+            />
+          </template>
+        </DesktopIcon>
 
-      <DesktopIcon @iconClicked="onIconClicked(terminalRef)">
-        <template #text> Terminal </template>
-        <template #image>
-          <img src="/terminal.png" alt="" class="hover:p-4 hover:rounded-3xl" />
-        </template>
-      </DesktopIcon>
+        <DesktopIcon @iconClicked="onIconClicked(terminalRef)">
+          <template #text> Terminal </template>
+          <template #image>
+            <img
+              src="/terminal.png"
+              alt=""
+              class="hover:p-4 hover:rounded-3xl"
+            />
+          </template>
+        </DesktopIcon>
 
-      <DesktopIcon @iconClicked="onIconClicked(techsRef)">
-        <template #text> Techs </template>
-        <template #image>
-          <img
-            src="/atomic.png"
-            alt=""
-            class="hover:px-[1rem] hover:py-[1.14rem] hover:rounded-3xl"
-          />
-        </template>
-      </DesktopIcon>
+        <DesktopIcon @iconClicked="onIconClicked(techsRef)">
+          <template #text> Techs </template>
+          <template #image>
+            <img
+              src="/atomic.png"
+              alt=""
+              class="hover:px-[1rem] hover:py-[1.14rem] hover:rounded-3xl"
+            />
+          </template>
+        </DesktopIcon>
+      </div>
 
       <VueWinBox ref="contactRef" :options="contactOptions" @onmove="onMove">
         <ContactForm />
@@ -203,6 +209,7 @@ setInterval(() => setTime(), 1000);
           :commands="commands"
           :history="history"
           class="w-full h-full"
+          font="Roboto Mono"
         >
           <template #bar>
             <div></div>
@@ -226,14 +233,14 @@ setInterval(() => setTime(), 1000);
             <li>
               <a
                 href="https://github.com/wobsoriano/vue-winbox"
-                class="underline hover:text-[#04d9ff]"
+                class="underline underline-offset-2 hover:text-[#04d9ff]"
                 >Vue-WinBox</a
               >
             </li>
             <li>
               <a
                 href="https://github.com/ndabAP/vue-command"
-                class="underline hover:text-[#04d9ff]"
+                class="underline underline-offset-2 hover:text-[#04d9ff]"
                 >Vue-Command</a
               >
             </li>
@@ -246,7 +253,7 @@ setInterval(() => setTime(), 1000);
             </li>
           </ul>
           <h2 class="text-xl mb-4">Mentions légales:</h2>
-          <p class="w-1/2 mb-4">
+          <p class="2xl:w-1/2 mb-4">
             Aucune de vos données ne sont collectées par ce site web, sauf si
             vous décidez d'envoyer votre mail dans le formulaire de contact.<br />
             Ceci est optionnel, et ne sert qu'à vous recontacter.
@@ -273,7 +280,7 @@ setInterval(() => setTime(), 1000);
 
               <a
                 href="mailto:durandarthur09@outlook.fr"
-                class="underline hover:text-[#04d9ff]"
+                class="underline underline-offset-2 hover:text-[#04d9ff]"
                 >durandarthur09@outlook.fr</a
               >
             </li>
@@ -292,7 +299,7 @@ setInterval(() => setTime(), 1000);
                   d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"
                 />
               </svg>
-              06 95 64 96 09
+              +33 6 95 64 96 09
             </li>
             <li class="flex">
               <svg
@@ -331,7 +338,7 @@ setInterval(() => setTime(), 1000);
               </svg>
               <a
                 href="https://www.linkedin.com/in/arthur-durand-developpeur-web/"
-                class="underline hover:text-[#04d9ff]"
+                class="underline underline-offset-2 hover:text-[#04d9ff]"
                 >LinkedIn</a
               >
             </li>
@@ -339,15 +346,21 @@ setInterval(() => setTime(), 1000);
           <p class="mt-16">
             Veuillez me signaler tout bug informatique rencontré sur ce site.
           </p>
-          <p class="absolute bottom-0 right-0 m-4 text-[#04d9ff]">
-            Portfolio version: 1.0
+          <p
+            class="static bottom-0 right-0 m-4 text-[#04d9ff] version text-right"
+          >
+            <a
+              href="https://github.com/durandarthur/portfolio"
+              class="underline underline-offset-2"
+              >Portfolio version: 1.0</a
+            >
           </p>
         </div>
       </VueWinBox>
     </main>
 
     <footer
-      class="h-[7%] bg-gray-900 rounded-2xl fixed bottom-0 flex flex-row w-full justify-center items-center gap-x-10 mx-8 mb-8"
+      class="h-[90px] bg-gray-900 rounded-2xl fixed bottom-0 flex flex-row w-full justify-center items-center gap-x-10 mx-8 mb-8"
     >
       <div class="w-1/5 !justify-start">
         <span
@@ -384,7 +397,7 @@ setInterval(() => setTime(), 1000);
       </div>
 
       <div class="w-1/5 !justify-end mr-8">
-        <p class="select-none text-[#04d9ff] text-lg">{{ time }}</p>
+        <p class="select-none text-[#04d9ff] text-lg time">{{ time }}</p>
       </div>
     </footer>
   </body>
@@ -429,5 +442,11 @@ footer div img {
 footer img:hover {
   cursor: pointer;
   filter: brightness(110%);
+}
+
+ul,
+.time,
+.version {
+  font-family: "Roboto Mono", monospace;
 }
 </style>
