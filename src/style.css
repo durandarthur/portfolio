@@ -110,6 +110,12 @@ canvas {
   background-color: black;
 }
 
+/* .wb-body > div {
+  display: flex;
+  flex-direction: column;
+  justify-items: center;
+} */
+
 /* @keyframes pulseIn {
   0% {
     border: 0;

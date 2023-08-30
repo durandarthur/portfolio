@@ -65,6 +65,8 @@ const globalOptions = {
   hidden: true,
   minwidth: "500px",
   minheight: "200px",
+  width: "60%",
+  height: "60%",
 };
 
 const contactRef = ref();
@@ -105,6 +107,7 @@ const techsOptions = {
     return true;
   },
   ...globalOptions,
+  maxwidth: "1400px",
 };
 
 const creditsRef = ref();
@@ -154,7 +157,7 @@ setInterval(() => setTime(), 1000);
       </Scene>
     </Renderer>
     <main class="flex">
-      <div class="flex flex-col content-start flex-wrap w-screen h-[90vh]">
+      <div class="flex flex-col content-start flex-wrap w-screen h-[85vh]">
         <DesktopIcon @iconClicked="onIconClicked(contactRef)">
           <template #text> Contact </template>
           <template #image>
@@ -352,7 +355,7 @@ setInterval(() => setTime(), 1000);
             <a
               href="https://github.com/durandarthur/portfolio"
               class="underline underline-offset-2"
-              >Portfolio version: 1.0</a
+              >PortfolioOS v.2.1</a
             >
           </p>
         </div>

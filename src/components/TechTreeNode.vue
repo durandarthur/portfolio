@@ -15,11 +15,11 @@ const props = defineProps({
   <div v-for="(value, key, index) in node">
     <h2
       v-if="value"
-      :style="{ 'margin-left': 'calc(40% + ' + spacing * 30 + 'px)' }"
+      :style="{ 'margin-left': 'calc(37% + ' + spacing * 30 + 'px)' }"
     >
       {{ "‣ " + key }}
     </h2>
-    <p v-else :style="{ 'margin-left': 'calc(40% + ' + spacing * 30 + 'px)' }">
+    <p v-else :style="{ 'margin-left': 'calc(37% + ' + spacing * 30 + 'px)' }">
       {{ "• " + key }}
     </p>
     <TechTreeNode :node="node[key]" :spacing="spacing + 1" :key="index" />

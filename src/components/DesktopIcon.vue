@@ -3,9 +3,9 @@ defineEmits(["iconClicked"]);
 </script>
 
 <template>
-  <div class="m-8 w-24">
+  <div class="m-8 flex flex-col items-center">
     <div
-      class="mb-4 hover:cursor-pointer overflow-hidden"
+      class="mb-4 hover:cursor-pointer overflow-hidden select-none w-16 2xl:w-24"
       @click="$emit('iconClicked')"
     >
       <slot name="image"></slot>
