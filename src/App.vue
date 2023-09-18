@@ -367,9 +367,9 @@ setInterval(() => setTime(), 1000);
     >
       <div class="w-1/5 !justify-start">
         <span
-          class="text-5xl rounded-3xl py-4 px-8 aspect-square text-center bg-[#04d9ff] text-gray-900 font-semibold hover:brightness-110 hover:cursor-pointer hover:text-white transition duration-300"
+          class="text-5xl rounded-3xl p-5 aspect-square text-center bg-[#04d9ff] text-gray-900 font-semibold hover:brightness-110 hover:cursor-pointer hover:text-white transition duration-300"
           @click="onIconClicked(creditsRef)"
-          >?</span
+          >ⓘ</span
         >
       </div>
       <div class="w-3/5">
