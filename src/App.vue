@@ -44,11 +44,9 @@ function handleMouseMove(event) {
 				50 &&
 			event.clientX - (particle.position.x + document.body.clientWidth / 2) >
 				-50 &&
-			document.body.clientHeight / (event.clientY + 1) -
-				(particle.position.y + document.body.clientHeight / 2) <
+			event.clientY + (particle.position.y + document.body.clientHeight / 2) <
 				50 &&
-			document.body.clientHeight / (event.clientY + 1) -
-				(particle.position.y + document.body.clientHeight / 2) >
+			event.clientY + (particle.position.y + document.body.clientHeight / 2) >
 				-50
 		) {
 			// console.log("EVENTX: " + event.clientX);
