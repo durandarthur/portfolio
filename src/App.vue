@@ -37,27 +37,26 @@ function handleMouseMove(event) {
 
 onMounted(() => {
 	// alert("en travaux !");
-	let particle;
-	for (let i = 1; i <= particlesAmount - 1; i++) {
-		particle = particles.value[i].mesh;
+	// for (let i = 1; i <= particlesAmount - 1; i++) {
+	// 	const particle = particles.value[i].mesh;
 
-		console.log(particle);
+	// 	console.log(particle);
 
-		// particle.position.x = Math.floor(document.body.clientWidth * Math.random());
-		// particle.position.y = Math.floor(
-		// 	document.body.clientHeight * Math.random()
-		// );
-		// particle.position.z = Math.floor(Math.random() * 10);
+	// 	// particle.position.x = Math.floor(document.body.clientWidth * Math.random());
+	// 	// particle.position.y = Math.floor(
+	// 	// 	document.body.clientHeight * Math.random()
+	// 	// );
+	// 	// particle.position.z = Math.floor(Math.random() * 10);
 
-		// particle.rotation.x = Math.floor(360 * Math.random());
-		// particle.rotation.y = Math.floor(360 * Math.random());
-		// particle.rotation.z = Math.floor(360 * Math.random());
-	}
+	// 	// particle.rotation.x = Math.floor(360 * Math.random());
+	// 	// particle.rotation.y = Math.floor(360 * Math.random());
+	// 	// particle.rotation.z = Math.floor(360 * Math.random());
+	// }
 	renderer?.value?.onBeforeRender(() => {
 		document.onmousemove = handleMouseMove;
 
 		for (let i = 1; i <= particlesAmount - 1; i++) {
-			particle = particles.value[i].mesh;
+			const particle = particles.value[i].mesh;
 
 			console.log(document.body.clientWidth);
 			console.log(document.body.clientHeight);
