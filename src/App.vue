@@ -200,7 +200,7 @@ function setTime() {
 
 setInterval(() => setTime(), 1000);
 
-const particlesAmount = 10;
+const particlesAmount = 100;
 </script>
 
 <template>
@@ -218,7 +218,11 @@ const particlesAmount = 10;
 				>
 					<BasicMaterial :props="{ wireframe: true }" color="#04D9FF" />
 				</Box>
-				<Tetrahedron v-for="i in particlesAmount" :key="i" ref="particles"
+				<Tetrahedron
+					v-for="i in particlesAmount"
+					:key="i"
+					ref="particles"
+					:size="0.2"
 					><BasicMaterial :props="{ wireframe: true }" color="#04D9FF"
 				/></Tetrahedron>
 			</Scene>
