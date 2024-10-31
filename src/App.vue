@@ -47,7 +47,7 @@ onMounted(() => {
 		particle.position.y = Math.floor(
 			document.body.clientHeight * Math.random()
 		);
-		particle.position.z = Math.floor(Math.random() * 5);
+		particle.position.z = Math.floor(Math.random() * 10);
 
 		particle.rotation.x = Math.floor(360 * Math.random());
 		particle.rotation.y = Math.floor(360 * Math.random());
