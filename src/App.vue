@@ -37,17 +37,13 @@ function handleMouseMove(event) {
 
 onMounted(() => {
 	// alert("en travaux !");
-	for (let i = 1; i <= particlesAmount - 1; i++) {
+	for (let i = 0; i < particlesAmount; i++) {
 		const particle = particles.value[i].mesh;
 
 		console.log(particle);
 
-		particles.value[i].mesh.position.x = Math.floor(
-			document.body.clientWidth * Math.random()
-		);
-		particles.value[i].mesh.position.y = Math.floor(
-			document.body.clientHeight * Math.random()
-		);
+		particles.value[i].mesh.position.x = Math.floor(10 * Math.random());
+		particles.value[i].mesh.position.y = Math.floor(10 * Math.random());
 
 		// particle.position.x = Math.floor(document.body.clientWidth * Math.random());
 		// particle.position.y = Math.floor(
