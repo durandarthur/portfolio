@@ -41,6 +41,10 @@ function handleMouseMove(event) {
 			event.clientX - (particle.position.x + document.body.clientWidth / 2) <
 				50 &&
 			event.clientX - (particle.position.x + document.body.clientWidth / 2) >
+				-50 &&
+			event.clientY - (particle.position.y + document.body.clientHeight / 2) <
+				50 &&
+			event.clientY - (particle.position.y + document.body.clientHeight / 2) >
 				-50
 		) {
 			particle.position.x +=
@@ -48,14 +52,6 @@ function handleMouseMove(event) {
 				((event.clientX -
 					(particle.position.x + document.body.clientWidth / 2)) /
 					100);
-		}
-
-		if (
-			event.clientY - (particle.position.y + document.body.clientHeight / 2) <
-				50 &&
-			event.clientY - (particle.position.y + document.body.clientHeight / 2) >
-				-50
-		) {
 			particle.position.y +=
 				10 *
 				((event.clientY -
