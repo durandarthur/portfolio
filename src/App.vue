@@ -43,10 +43,10 @@ onMounted(() => {
 		console.log(particle);
 
 		particles.value[i].mesh.position.x = Math.floor(
-			(document.body.clientWidth / 10) * Math.random()
+			document.body.clientWidth * Math.random()
 		);
 		particles.value[i].mesh.position.y = Math.floor(
-			(document.body.clientHeight / 10) * Math.random()
+			document.body.clientHeight * Math.random()
 		);
 
 		// particle.position.x = Math.floor(document.body.clientWidth * Math.random());
@@ -206,7 +206,7 @@ const particlesAmount = 100;
 <template>
 	<body>
 		<Renderer ref="renderer" pointer :resize="'window'" class="testg">
-			<Camera :position="{ z: 70 }" />
+			<Camera :position="{ z: 2560 }" />
 			<Scene background="black">
 				<PointLight ref="light" color="#00ffff" />
 				<Box
@@ -215,6 +215,7 @@ const particlesAmount = 100;
 					widthSegments="5"
 					heightSegments="5"
 					depthSegments="5"
+					:size="400"
 				>
 					<BasicMaterial :props="{ wireframe: true }" color="#04D9FF" />
 				</Box>
@@ -222,7 +223,7 @@ const particlesAmount = 100;
 					v-for="i in particlesAmount"
 					:key="i"
 					ref="particles"
-					:size="0.2"
+					:size="20"
 					><BasicMaterial :props="{ wireframe: true }" color="#04D9FF"
 				/></Tetrahedron>
 			</Scene>
