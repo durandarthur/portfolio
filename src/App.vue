@@ -33,7 +33,7 @@ function handleMouseMove(event) {
 }
 
 onMounted(() => {
-	alert("en travaux !");
+	// alert("en travaux !");
 	renderer?.value?.onBeforeRender(() => {
 		document.onmousemove = handleMouseMove;
 	});
@@ -166,7 +166,7 @@ const particlesAmount = 100;
 		<Renderer ref="renderer" pointer :resize="'window'" class="testg">
 			<Camera :position="{ z: 7 }" />
 			<Scene background="black">
-				<PointLight ref="light" color="#00FFFF"></PointLight>
+				<PointLight ref="light" color="#00FFFF" />
 				<Box
 					ref="box"
 					:rotation="{ y: Math.PI / 4, z: Math.PI / 4 }"
