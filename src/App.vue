@@ -1,19 +1,19 @@
 <script setup>
-import { ref, onMounted } from "vue";
-import { VueWinBox } from "vue-winbox";
-import DesktopIcon from "./components/DesktopIcon.vue";
-import TechTreeNode from "./components/TechTreeNode.vue";
+import { onMounted, ref } from "vue";
 import VueCommand, {
 	createQuery,
 	createStdout,
+	listFormatter,
 	newDefaultHistory,
 	textFormatter,
-	listFormatter,
 } from "vue-command";
-import { timelineFormatter, techsFormatter } from "./lib/formatters";
 import "vue-command/dist/vue-command.css";
-import { bioHTML, socialsHTML, timeline, techs } from "./data";
+import { VueWinBox } from "vue-winbox";
 import ContactForm from "./components/ContactForm.vue";
+import DesktopIcon from "./components/DesktopIcon.vue";
+import TechTreeNode from "./components/TechTreeNode.vue";
+import { bioHTML, socialsHTML, techs, timeline } from "./data";
+import { techsFormatter, timelineFormatter } from "./lib/formatters";
 
 // THREE/TROIS.JS STUFF
 
@@ -31,6 +31,7 @@ function handleMouseMove(event) {
 }
 
 onMounted(() => {
+	alert("en travaux !");
 	renderer?.value?.onBeforeRender(() => {
 		document.onmousemove = handleMouseMove;
 	});
@@ -138,6 +139,16 @@ function setTime() {
 }
 
 setInterval(() => setTime(), 1000);
+
+function getRandPosition() {
+	return {
+		x: Math.floor(renderer.width * Math.random()),
+		y: Math.floor(renderer.height * Math.random()),
+		z: Math.floor(Math.random() * 100),
+	};
+}
+
+const particlesAmount = 100;
 </script>
 
 <template>
@@ -154,6 +165,14 @@ setInterval(() => setTime(), 1000);
 				>
 					<BasicMaterial :props="{ wireframe: true }" color="#04D9FF" />
 				</Box>
+				<Group>
+					<Tetrahedron
+						v-for="i in particlesAmount"
+						:key="i"
+						:position="getRandPosition()"
+						><LambertMaterial color="#8f8f8f"
+					/></Tetrahedron>
+				</Group>
 			</Scene>
 		</Renderer>
 		<main class="flex">
