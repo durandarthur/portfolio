@@ -206,7 +206,7 @@ const particlesAmount = 100;
 <template>
 	<body>
 		<Renderer ref="renderer" pointer :resize="'window'" class="testg">
-			<Camera :position="{ z: 2560 }" />
+			<Camera :position="{ z: 1900 }" />
 			<Scene background="black">
 				<PointLight ref="light" color="#00ffff" />
 				<Box
