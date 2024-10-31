@@ -182,9 +182,10 @@ const particlesAmount = 100;
 					<Tetrahedron
 						v-for="i in particlesAmount"
 						:key="i"
-						:position="getRandPosition()"
-						:rotation="getRandRotation()"
-						><LambertMaterial color="#8f8f8f"
+						:position="() => getRandPosition()"
+						:rotation="() => getRandRotation()"
+						:radius="5"
+						><BasicMaterial :props="{ wireframe: true }" color="#04D9FF"
 					/></Tetrahedron>
 				</Group>
 			</Scene>
