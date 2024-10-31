@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from "vue";
+import { onBeforeUpdate, onMounted, ref } from "vue";
 import VueCommand, {
 	createQuery,
 	createStdout,
@@ -52,7 +52,7 @@ onMounted(() => {
 			particle.position.y = Math.floor(
 				document.body.clientHeight * Math.random()
 			);
-			particle.position.z = Math.floor(Math.random() * 100);
+			// particle.position.z = Math.floor(Math.random() * 100);
 
 			particle.rotation.x = Math.floor(360 * Math.random());
 			particle.rotation.y = Math.floor(360 * Math.random());
