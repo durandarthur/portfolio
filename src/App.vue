@@ -189,7 +189,7 @@ function setTime() {
 
 setInterval(() => setTime(), 1000);
 
-const particlesAmount = 100;
+const particlesAmount = 10;
 </script>
 
 <template>
