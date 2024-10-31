@@ -29,7 +29,7 @@ function handleMouseMove(event) {
 		2 * (event.clientY / document.body.clientHeight) - 1;
 	box.value.mesh.rotation.y =
 		2 * (event.clientX / document.body.clientWidth) - 1;
-	light.value.position = { x: event.clientX, y: event.clientY, z: 3 };
+	light.value.light.position = { x: event.clientX, y: event.clientY, z: 3 };
 }
 
 onMounted(() => {
@@ -166,7 +166,7 @@ const particlesAmount = 100;
 		<Renderer ref="renderer" pointer :resize="'window'" class="testg">
 			<Camera :position="{ z: 7 }" />
 			<Scene background="black">
-				<PointLight ref="light" color="#00FFFF" />
+				<PointLight ref="light" color="#00ffff" />
 				<Box
 					ref="box"
 					:rotation="{ y: Math.PI / 4, z: Math.PI / 4 }"
