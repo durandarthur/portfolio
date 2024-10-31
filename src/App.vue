@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from "vue";
+import { onBeforeUpdate, onMounted, ref } from "vue";
 import VueCommand, {
 	createQuery,
 	createStdout,
@@ -23,6 +23,7 @@ const windowHeight = window.innerHeight;
 const renderer = ref(null);
 const box = ref(null);
 const light = ref(null);
+const particles = ref([]);
 
 function handleMouseMove(event) {
 	box.value.mesh.rotation.x =
@@ -40,7 +41,7 @@ onMounted(() => {
 		document.onmousemove = handleMouseMove;
 		let particle;
 		for (let i = 1; i <= particlesAmount; i++) {
-			particle = this.$refs["mesh" + i].mesh;
+			particle = particles[i].value.mesh;
 
 			particle.position.x = Math.floor(renderer.width * Math.random());
 			particle.position.y = Math.floor(renderer.height * Math.random());
@@ -51,6 +52,10 @@ onMounted(() => {
 			particle.rotation.z = Math.floor(360 * Math.random());
 		}
 	});
+});
+
+onBeforeUpdate(() => {
+	particles.value = [];
 });
 
 function getRandPosition() {
@@ -194,7 +199,11 @@ const particlesAmount = 100;
 					<Tetrahedron
 						v-for="i in particlesAmount"
 						:key="i"
-						:ref="`particle${i}`"
+						:ref="
+							(particle) => {
+								particles[i] = particle;
+							}
+						"
 						><BasicMaterial :props="{ wireframe: true }" color="#04D9FF"
 					/></Tetrahedron>
 				</Group>
