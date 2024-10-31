@@ -37,6 +37,8 @@ function handleMouseMove(event) {
 	for (let i = 0; i < particlesAmount; i++) {
 		const particle = particles.value[i].mesh;
 
+		console.log(particle);
+
 		if (
 			event.clientX - (particle.position.x + document.body.clientWidth / 2) <
 				50 &&
