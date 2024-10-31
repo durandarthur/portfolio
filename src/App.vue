@@ -44,6 +44,11 @@ onMounted(() => {
 		document.onmousemove = handleMouseMove;
 		let particle;
 		for (let i = 1; i <= particlesAmount - 1; i++) {
+			console.log(Math.random());
+
+			console.log(renderer.value.renderer.width);
+			console.log(renderer.value.renderer.height);
+
 			particle = particles.value[i].mesh;
 
 			particle.position.x = Math.floor(
