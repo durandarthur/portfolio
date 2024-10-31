@@ -38,11 +38,11 @@ function handleMouseMove(event) {
 onMounted(() => {
 	// alert("en travaux !");
 	renderer?.value?.onBeforeRender(() => {
-		console.log(particles.value);
+		// console.log(particles.value);
 		document.onmousemove = handleMouseMove;
 		let particle;
 		for (let i = 1; i <= particlesAmount; i++) {
-			particle = particles[i].value.mesh;
+			particle = particles.value[i].mesh;
 
 			particle.position.x = Math.floor(renderer.width * Math.random());
 			particle.position.y = Math.floor(renderer.height * Math.random());
