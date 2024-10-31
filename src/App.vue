@@ -47,22 +47,25 @@ function handleMouseMove(event) {
 			event.clientY - (particle.position.y + document.body.clientHeight / 2) >
 				-50
 		) {
-			console.log("EVENTX: " + event.clientX);
-			console.log("EVENTY: " + event.clientY);
-			console.log("PARTICLEX: " + particle.position.x);
-			console.log("PARTICLEY: " + particle.position.y);
-			console.log("DOCUMENTWIDTH: " + document.body.clientWidth);
-			console.log("DOCUMENTHEIGHT: " + document.body.clientHeight);
-			particle.position.x +=
-				10 *
-				((event.clientX -
-					(particle.position.x + document.body.clientWidth / 2)) /
-					100);
-			particle.position.y +=
-				-10 *
-				((event.clientY -
-					(particle.position.y + document.body.clientHeight / 2)) /
-					100);
+			// console.log("EVENTX: " + event.clientX);
+			// console.log("EVENTY: " + event.clientY);
+			// console.log("PARTICLEX: " + particle.position.x);
+			// console.log("PARTICLEY: " + particle.position.y);
+			// console.log("DOCUMENTWIDTH: " + document.body.clientWidth);
+			// console.log("DOCUMENTHEIGHT: " + document.body.clientHeight);
+			// particle.position.x +=
+			// 	10 *
+			// 	((event.clientX -
+			// 		(particle.position.x + document.body.clientWidth / 2)) /
+			// 		100);
+			// particle.position.y +=
+			// 	-10 *
+			// 	((event.clientY -
+			// 		(particle.position.y + document.body.clientHeight / 2)) /
+			// 		100);
+			particle.size = 70;
+		} else {
+			particle.size = 20;
 		}
 	}
 }
