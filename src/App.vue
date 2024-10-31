@@ -1,11 +1,11 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import VueCommand, {
-	createQuery,
-	createStdout,
-	listFormatter,
-	newDefaultHistory,
-	textFormatter,
+createQuery,
+createStdout,
+listFormatter,
+newDefaultHistory,
+textFormatter,
 } from "vue-command";
 import "vue-command/dist/vue-command.css";
 import { VueWinBox } from "vue-winbox";
@@ -29,7 +29,7 @@ function handleMouseMove(event) {
 		2 * (event.clientY / document.body.clientHeight) - 1;
 	box.value.mesh.rotation.y =
 		2 * (event.clientX / document.body.clientWidth) - 1;
-	light.position.set(event.clientX, event.clientY, 3);
+	light.position.set() = { x: event.clientX, y: event.clientY, z: 3 };
 }
 
 onMounted(() => {
