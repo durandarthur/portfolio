@@ -26,7 +26,8 @@ const light = ref(null);
 const particles = ref([]);
 
 const particlesAmount = 100;
-const mouseEffectRange = 500;
+const mouseEffectRange = 100;
+const mouseEffectAmplitude = 1;
 
 function handleMouseMove(event) {
 	box.value.mesh.rotation.x =
@@ -59,12 +60,12 @@ function handleMouseMove(event) {
 			// console.log("DOCUMENTWIDTH: " + document.body.clientWidth);
 			// console.log("DOCUMENTHEIGHT: " + document.body.clientHeight);
 			particle.position.x +=
-				-10 *
+				-mouseEffectAmplitude *
 				((event.clientX -
 					(particle.position.x + document.body.clientWidth / 2)) /
 					100);
 			particle.position.y +=
-				10 *
+				mouseEffectAmplitude *
 				((event.clientY -
 					(-particle.position.y + document.body.clientHeight / 2)) /
 					100);
