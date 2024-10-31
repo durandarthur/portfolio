@@ -70,17 +70,17 @@ onMounted(() => {
 			// console.log(document.body.clientHeight);
 
 			// console.log(particle);
-			// if (particle.position.x >= document.body.clientWidth) {
-			// 	particle.position.x -= document.body.clientWidth;
-			// } else {
-			// 	particle.position.x += 0.01;
-			// }
+			if (particle.position.x >= document.body.clientWidth / 2) {
+				particle.position.x = -document.body.clientWidth / 2;
+			} else {
+				particle.position.x += 0.01 * i;
+			}
 
-			// if (particle.position.y >= document.body.clientHeight) {
-			// 	particle.position.y -= document.body.clientHeight;
-			// } else {
-			// 	particle.position.y += 0.01;
-			// }
+			if (particle.position.y >= document.body.clientHeight / 2) {
+				particle.position.y = -document.body.clientHeight / 2;
+			} else {
+				particle.position.y += 0.01 * i;
+			}
 
 			// particles.value[i].mesh.position.x += i / 100;
 			// particles.value[i].mesh.position.y += i / 100;
