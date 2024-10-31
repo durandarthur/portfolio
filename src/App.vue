@@ -61,9 +61,9 @@ onMounted(() => {
 	});
 });
 
-// onBeforeUpdate(() => {
-// 	particles.value = [];
-// });
+onBeforeUpdate(() => {
+	particles.value = [];
+});
 
 // VUE-COMMAND STUFF
 
