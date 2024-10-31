@@ -82,8 +82,9 @@ onMounted(() => {
 			// } else {
 			// 	particle.position.y += 0.01;
 			// }
-			particles.value[i].mesh.position.x += i / 100;
-			particles.value[i].mesh.position.y += i / 100;
+
+			// particles.value[i].mesh.position.x += i / 100;
+			// particles.value[i].mesh.position.y += i / 100;
 
 			particle.rotation.x += 0.01;
 			particle.rotation.y += 0.01;
