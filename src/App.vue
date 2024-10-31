@@ -57,23 +57,25 @@ onMounted(() => {
 
 		for (let i = 0; i < particlesAmount; i++) {
 			console.log(particles);
-			const particle = particles.value[i].mesh;
+			// const particle = particles.value[i].mesh;
 
-			console.log(document.body.clientWidth);
-			console.log(document.body.clientHeight);
+			// console.log(document.body.clientWidth);
+			// console.log(document.body.clientHeight);
 
-			console.log(particle);
-			if (particle.position.x >= document.body.clientWidth) {
-				particle.position.x -= document.body.clientWidth;
-			} else {
-				particle.position.x += 0.01;
-			}
+			// console.log(particle);
+			// if (particle.position.x >= document.body.clientWidth) {
+			// 	particle.position.x -= document.body.clientWidth;
+			// } else {
+			// 	particle.position.x += 0.01;
+			// }
 
-			if (particle.position.y >= document.body.clientHeight) {
-				particle.position.y -= document.body.clientHeight;
-			} else {
-				particle.position.y += 0.01;
-			}
+			// if (particle.position.y >= document.body.clientHeight) {
+			// 	particle.position.y -= document.body.clientHeight;
+			// } else {
+			// 	particle.position.y += 0.01;
+			// }
+			particles.value[i].mesh.position.x += i / 100;
+			particles.value[i].mesh.position.y += i / 100;
 
 			particle.rotation.x += 0.01;
 			particle.rotation.y += 0.01;
