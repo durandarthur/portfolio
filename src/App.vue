@@ -47,7 +47,7 @@ onMounted(() => {
 		particle.position.y = Math.floor(
 			document.body.clientHeight * Math.random()
 		);
-		particle.position.z = Math.floor(Math.random() * 100);
+		particle.position.z = Math.floor(Math.random() * 5);
 
 		particle.rotation.x = Math.floor(360 * Math.random());
 		particle.rotation.y = Math.floor(360 * Math.random());
@@ -55,6 +55,27 @@ onMounted(() => {
 	}
 	renderer?.value?.onBeforeRender(() => {
 		document.onmousemove = handleMouseMove;
+
+		for (let i = 1; i <= particlesAmount - 1; i++) {
+			particle = particles.value[i].mesh;
+
+			console.log(particle);
+			if (particle.position.x >= document.body.clientWidth) {
+				particle.position.x -= document.body.clientWidth;
+			} else {
+				particle.position.x += 0.01;
+			}
+
+			if (particle.position.y >= document.body.clientHeight) {
+				particle.position.y -= document.body.clientHeight;
+			} else {
+				particle.position.y += 0.01;
+			}
+
+			particle.rotation.x += 0.01;
+			particle.rotation.y += 0.01;
+			particle.rotation.z += 0.01;
+		}
 	});
 });
 
