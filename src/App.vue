@@ -43,11 +43,13 @@ onMounted(() => {
 
 		console.log(particle);
 
-		particle.position.x = Math.floor(document.body.clientWidth * Math.random());
-		particle.position.y = Math.floor(
-			document.body.clientHeight * Math.random()
+		particle.position.x = Math.floor(
+			-(document.body.clientWidth * Math.random())
 		);
-		particle.position.z = Math.floor(Math.random() * 10);
+		particle.position.y = Math.floor(
+			-(document.body.clientHeight * Math.random())
+		);
+		particle.position.z = Math.floor(Math.random() * -10);
 
 		particle.rotation.x = Math.floor(360 * Math.random());
 		particle.rotation.y = Math.floor(360 * Math.random());
@@ -61,15 +63,15 @@ onMounted(() => {
 
 			console.log(particle);
 			if (particle.position.x >= document.body.clientWidth) {
-				particle.position.x -= document.body.clientWidth;
+				particle.position.x += document.body.clientWidth;
 			} else {
-				particle.position.x += 0.01;
+				particle.position.x -= 0.01;
 			}
 
 			if (particle.position.y >= document.body.clientHeight) {
-				particle.position.y -= document.body.clientHeight;
+				particle.position.y += document.body.clientHeight;
 			} else {
-				particle.position.y += 0.01;
+				particle.position.y -= 0.01;
 			}
 
 			particle.rotation.x += 0.01;
@@ -204,11 +206,9 @@ const particlesAmount = 100;
 				>
 					<BasicMaterial :props="{ wireframe: true }" color="#04D9FF" />
 				</Box>
-				<Group>
-					<Tetrahedron v-for="i in particlesAmount" :key="i" ref="particles"
-						><BasicMaterial :props="{ wireframe: true }" color="#04D9FF"
-					/></Tetrahedron>
-				</Group>
+				<Tetrahedron v-for="i in particlesAmount" :key="i" ref="particles"
+					><BasicMaterial :props="{ wireframe: true }" color="#04D9FF"
+				/></Tetrahedron>
 			</Scene>
 		</Renderer>
 		<main class="flex">
