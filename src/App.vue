@@ -33,6 +33,26 @@ function handleMouseMove(event) {
 	light.value.light.position.x = event.clientX;
 	light.value.light.position.y = event.clientY;
 	light.value.light.position.z = 3;
+
+	for (let i = 0; i < particlesAmount; i++) {
+		const particle = particles.value[i].mesh;
+
+		if (
+			event.clientX - particle.position.x < 50 &&
+			event.clientX - particle.position.x > -50
+		) {
+			particle.position.x +=
+				0.1 * ((event.clientX - particle.position.x) / 100);
+		}
+
+		if (
+			event.clientY - particle.position.y < 50 &&
+			event.clientY - particle.position.y > -50
+		) {
+			particle.position.y +=
+				0.1 * ((event.clientY - particle.position.y) / 100);
+		}
+	}
 }
 
 onMounted(() => {
