@@ -205,7 +205,7 @@ const particlesAmount = 100;
 <template>
 	<body>
 		<Renderer ref="renderer" pointer :resize="'window'" class="testg">
-			<Camera :position="{ z: 1900 }" :aspect="16 / 9" />
+			<Camera :position="{ z: 1500 }" :aspect="16 / 9" />
 			<Scene background="black">
 				<PointLight ref="light" color="#00ffff" />
 				<Box
@@ -214,7 +214,7 @@ const particlesAmount = 100;
 					widthSegments="5"
 					heightSegments="5"
 					depthSegments="5"
-					:size="400"
+					:size="100"
 				>
 					<BasicMaterial :props="{ wireframe: true }" color="#04D9FF" />
 				</Box>
