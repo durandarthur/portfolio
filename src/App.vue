@@ -55,7 +55,7 @@ onMounted(() => {
 	renderer?.value?.onBeforeRender(() => {
 		document.onmousemove = handleMouseMove;
 
-		for (let i = 1; i <= particlesAmount - 1; i++) {
+		for (let i = 0; i < particlesAmount; i++) {
 			console.log(particles);
 			const particle = particles.value[i].mesh;
 
