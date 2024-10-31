@@ -192,7 +192,7 @@ const particlesAmount = 100;
 <template>
 	<body>
 		<Renderer ref="renderer" pointer :resize="'window'" class="testg">
-			<Camera :position="{ z: 7 }" />
+			<Camera :position="{ z: 70 }" />
 			<Scene background="black">
 				<PointLight ref="light" color="#00ffff" />
 				<Box
@@ -204,12 +204,7 @@ const particlesAmount = 100;
 				>
 					<BasicMaterial :props="{ wireframe: true }" color="#04D9FF" />
 				</Box>
-				<Tetrahedron
-					v-for="(tetra, i) in particlesAmount"
-					:key="i"
-					ref="particles"
-					:position="[tetra.x, tetra.y, tetra.z]"
-					:size="1"
+				<Tetrahedron v-for="i in particlesAmount" :key="i" ref="particles"
 					><BasicMaterial :props="{ wireframe: true }" color="#04D9FF"
 				/></Tetrahedron>
 			</Scene>
