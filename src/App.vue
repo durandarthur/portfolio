@@ -56,6 +56,7 @@ onMounted(() => {
 		document.onmousemove = handleMouseMove;
 
 		for (let i = 1; i <= particlesAmount - 1; i++) {
+			console.log(particles);
 			const particle = particles.value[i].mesh;
 
 			console.log(document.body.clientWidth);
@@ -206,11 +207,7 @@ const particlesAmount = 10;
 				>
 					<BasicMaterial :props="{ wireframe: true }" color="#04D9FF" />
 				</Box>
-				<Tetrahedron
-					v-for="(tetra, i) in particlesAmount"
-					:key="i"
-					ref="particles"
-					:position="{ x: tetra.x, y: tetra.y, z: tetra.z }"
+				<Tetrahedron v-for="i in particlesAmount" :key="i" ref="particles"
 					><BasicMaterial :props="{ wireframe: true }" color="#04D9FF"
 				/></Tetrahedron>
 			</Scene>
