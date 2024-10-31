@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeUpdate, onMounted, ref } from "vue";
+import { onMounted, ref } from "vue";
 import VueCommand, {
 	createQuery,
 	createStdout,
@@ -61,9 +61,9 @@ onMounted(() => {
 	});
 });
 
-onBeforeUpdate(() => {
-	particles.value = [];
-});
+// onBeforeUpdate(() => {
+// 	particles.value = [];
+// });
 
 // VUE-COMMAND STUFF
 
