@@ -25,6 +25,9 @@ const box = ref(null);
 const light = ref(null);
 const particles = ref([]);
 
+const particlesAmount = 100;
+const mouseEffectRange = 500;
+
 function handleMouseMove(event) {
 	box.value.mesh.rotation.x =
 		2 * (event.clientY / document.body.clientHeight) - 1;
@@ -41,13 +44,13 @@ function handleMouseMove(event) {
 
 		if (
 			event.clientX - (particle.position.x + document.body.clientWidth / 2) <
-				50 &&
+				mouseEffectRange &&
 			event.clientX - (particle.position.x + document.body.clientWidth / 2) >
-				-50 &&
+				-mouseEffectRange &&
 			event.clientY - (-particle.position.y + document.body.clientHeight / 2) <
-				50 &&
+				mouseEffectRange &&
 			event.clientY - (-particle.position.y + document.body.clientHeight / 2) >
-				-50
+				-mouseEffectRange
 		) {
 			// console.log("EVENTX: " + event.clientX);
 			// console.log("EVENTY: " + event.clientY);
@@ -237,8 +240,6 @@ function setTime() {
 }
 
 setInterval(() => setTime(), 1000);
-
-const particlesAmount = 100;
 </script>
 
 <template>
