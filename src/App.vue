@@ -57,7 +57,7 @@ onMounted(() => {
 
 		for (let i = 0; i < particlesAmount; i++) {
 			console.log(particles);
-			// const particle = particles.value[i].mesh;
+			const particle = particles.value[i].mesh;
 
 			// console.log(document.body.clientWidth);
 			// console.log(document.body.clientHeight);
