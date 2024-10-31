@@ -26,6 +26,9 @@ const light = ref(null);
 const particles = ref([]);
 
 function handleMouseMove(event) {
+	console.log(event.clientX);
+	console.log(event.clientY);
+
 	box.value.mesh.rotation.x =
 		2 * (event.clientY / document.body.clientHeight) - 1;
 	box.value.mesh.rotation.y =
@@ -60,8 +63,6 @@ onMounted(() => {
 	for (let i = 0; i < particlesAmount; i++) {
 		const particle = particles.value[i].mesh;
 
-		console.log(particle);
-
 		particles.value[i].mesh.position.x =
 			document.body.clientWidth * Math.random() - document.body.clientWidth / 2;
 		particles.value[i].mesh.position.y =
@@ -83,7 +84,6 @@ onMounted(() => {
 		document.onmousemove = handleMouseMove;
 
 		for (let i = 0; i < particlesAmount; i++) {
-			console.log(particles);
 			const particle = particles.value[i].mesh;
 
 			// console.log(document.body.clientWidth);
