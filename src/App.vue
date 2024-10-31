@@ -46,17 +46,13 @@ onMounted(() => {
 		for (let i = 1; i <= particlesAmount - 1; i++) {
 			console.log(Math.random());
 
-			console.log(renderer.value.renderer.width);
-			console.log(renderer.value.renderer.height);
+			console.log(renderer.value.width);
+			console.log(renderer.value.height);
 
 			particle = particles.value[i].mesh;
 
-			particle.position.x = Math.floor(
-				renderer.value.renderer.width * Math.random()
-			);
-			particle.position.y = Math.floor(
-				renderer.value.renderer.height * Math.random()
-			);
+			particle.position.x = Math.floor(renderer.value.width * Math.random());
+			particle.position.y = Math.floor(renderer.value.height * Math.random());
 			particle.position.z = Math.floor(Math.random() * 100);
 
 			particle.rotation.x = Math.floor(360 * Math.random());
