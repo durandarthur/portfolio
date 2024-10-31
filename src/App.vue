@@ -42,12 +42,11 @@ onMounted(() => {
 
 		console.log(particle);
 
-		particles.value[i].mesh.position.x = Math.floor(
-			document.body.clientWidth * Math.random()
-		);
-		particles.value[i].mesh.position.y = Math.floor(
-			document.body.clientHeight * Math.random()
-		);
+		particles.value[i].mesh.position.x =
+			document.body.clientWidth * Math.random() - document.body.clientWidth / 2;
+		particles.value[i].mesh.position.y =
+			document.body.clientHeight * Math.random() -
+			document.body.clientHeight / 2;
 
 		// particle.position.x = Math.floor(document.body.clientWidth * Math.random());
 		// particle.position.y = Math.floor(
