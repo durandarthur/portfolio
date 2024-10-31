@@ -29,7 +29,7 @@ function handleMouseMove(event) {
 		2 * (event.clientY / document.body.clientHeight) - 1;
 	box.value.mesh.rotation.y =
 		2 * (event.clientX / document.body.clientWidth) - 1;
-	light.value.position = { x: event.clientX, y: event.clientY, z: 3 };
+	light.position.set(event.clientX, event.clientY, 3);
 }
 
 onMounted(() => {
