@@ -38,21 +38,18 @@ function handleMouseMove(event) {
 onMounted(() => {
 	// alert("en travaux !");
 	renderer?.value?.onBeforeRender(() => {
-		// console.log(particles.value);
-		// console.log(particles.value[1]);
-		// console.log(particles.value[1].mesh);
 		document.onmousemove = handleMouseMove;
+
 		let particle;
 		for (let i = 1; i <= particlesAmount - 1; i++) {
-			console.log(Math.random());
-
-			console.log(renderer.value.width);
-			console.log(renderer.value.height);
-
 			particle = particles.value[i].mesh;
 
-			particle.position.x = Math.floor(renderer.value.width * Math.random());
-			particle.position.y = Math.floor(renderer.value.height * Math.random());
+			particle.position.x = Math.floor(
+				document.body.clientWidth * Math.random()
+			);
+			particle.position.y = Math.floor(
+				document.body.clientHeight * Math.random()
+			);
 			particle.position.z = Math.floor(Math.random() * 100);
 
 			particle.rotation.x = Math.floor(360 * Math.random());
@@ -65,22 +62,6 @@ onMounted(() => {
 // onBeforeUpdate(() => {
 // 	particles.value = [];
 // });
-
-function getRandPosition() {
-	return {
-		x: Math.floor(renderer.width * Math.random()),
-		y: Math.floor(renderer.height * Math.random()),
-		z: Math.floor(Math.random() * 100),
-	};
-}
-
-function getRandRotation() {
-	return {
-		x: Math.floor(360 * Math.random()),
-		y: Math.floor(360 * Math.random()),
-		z: Math.floor(360 * Math.random()),
-	};
-}
 
 // VUE-COMMAND STUFF
 
