@@ -44,7 +44,7 @@ function handleMouseMove(event) {
 				-50
 		) {
 			particle.position.x +=
-				1 *
+				10 *
 				((event.clientX -
 					(particle.position.x + document.body.clientWidth / 2)) /
 					100);
@@ -57,7 +57,7 @@ function handleMouseMove(event) {
 				-50
 		) {
 			particle.position.y +=
-				1 *
+				10 *
 				((event.clientY -
 					(particle.position.y + document.body.clientHeight / 2)) /
 					100);
