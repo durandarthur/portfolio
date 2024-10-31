@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeUpdate, onMounted, ref } from "vue";
+import { onMounted, ref } from "vue";
 import VueCommand, {
 	createQuery,
 	createStdout,
@@ -38,6 +38,7 @@ function handleMouseMove(event) {
 onMounted(() => {
 	// alert("en travaux !");
 	renderer?.value?.onBeforeRender(() => {
+		console.log(particles.value);
 		document.onmousemove = handleMouseMove;
 		let particle;
 		for (let i = 1; i <= particlesAmount; i++) {
@@ -54,9 +55,9 @@ onMounted(() => {
 	});
 });
 
-onBeforeUpdate(() => {
-	particles.value = [];
-});
+// onBeforeUpdate(() => {
+// 	particles.value = [];
+// });
 
 function getRandPosition() {
 	return {
@@ -196,14 +197,7 @@ const particlesAmount = 100;
 					<BasicMaterial :props="{ wireframe: true }" color="#04D9FF" />
 				</Box>
 				<Group>
-					<Tetrahedron
-						v-for="i in particlesAmount"
-						:key="i"
-						:ref="
-							(particle) => {
-								particles[i] = particle;
-							}
-						"
+					<Tetrahedron v-for="i in particlesAmount" :key="i" ref="particles"
 						><BasicMaterial :props="{ wireframe: true }" color="#04D9FF"
 					/></Tetrahedron>
 				</Group>
