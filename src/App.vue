@@ -206,7 +206,11 @@ const particlesAmount = 10;
 				>
 					<BasicMaterial :props="{ wireframe: true }" color="#04D9FF" />
 				</Box>
-				<Tetrahedron v-for="i in particlesAmount" :key="i" ref="particles"
+				<Tetrahedron
+					v-for="(tetra, i) in particlesAmount"
+					:key="i"
+					ref="particles"
+					:position="{ x: tetra.x, y: tetra.y, z: tetra.z }"
 					><BasicMaterial :props="{ wireframe: true }" color="#04D9FF"
 				/></Tetrahedron>
 			</Scene>
