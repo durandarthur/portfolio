@@ -56,7 +56,7 @@ function handleMouseMove(event) {
 			// console.log("DOCUMENTWIDTH: " + document.body.clientWidth);
 			// console.log("DOCUMENTHEIGHT: " + document.body.clientHeight);
 			particle.position.x +=
-				10 *
+				-10 *
 				((event.clientX -
 					(particle.position.x + document.body.clientWidth / 2)) /
 					100);
