@@ -38,8 +38,36 @@ onMounted(() => {
 	// alert("en travaux !");
 	renderer?.value?.onBeforeRender(() => {
 		document.onmousemove = handleMouseMove;
+		let particle;
+		for (let i = 1; i <= particlesAmount; i++) {
+			particle = this.$refs["mesh" + i].mesh;
+
+			particle.position.x = Math.floor(renderer.width * Math.random());
+			particle.position.y = Math.floor(renderer.height * Math.random());
+			particle.position.z = Math.floor(Math.random() * 100);
+
+			particle.rotation.x = Math.floor(360 * Math.random());
+			particle.rotation.y = Math.floor(360 * Math.random());
+			particle.rotation.z = Math.floor(360 * Math.random());
+		}
 	});
 });
+
+function getRandPosition() {
+	return {
+		x: Math.floor(renderer.width * Math.random()),
+		y: Math.floor(renderer.height * Math.random()),
+		z: Math.floor(Math.random() * 100),
+	};
+}
+
+function getRandRotation() {
+	return {
+		x: Math.floor(360 * Math.random()),
+		y: Math.floor(360 * Math.random()),
+		z: Math.floor(360 * Math.random()),
+	};
+}
 
 // VUE-COMMAND STUFF
 
@@ -144,22 +172,6 @@ function setTime() {
 
 setInterval(() => setTime(), 1000);
 
-function getRandPosition() {
-	return {
-		x: Math.floor(renderer.width * Math.random()),
-		y: Math.floor(renderer.height * Math.random()),
-		z: Math.floor(Math.random() * 100),
-	};
-}
-
-function getRandRotation() {
-	return {
-		x: Math.floor(360 * Math.random()),
-		y: Math.floor(360 * Math.random()),
-		z: Math.floor(360 * Math.random()),
-	};
-}
-
 const particlesAmount = 100;
 </script>
 
@@ -182,9 +194,7 @@ const particlesAmount = 100;
 					<Tetrahedron
 						v-for="i in particlesAmount"
 						:key="i"
-						:position="() => getRandPosition()"
-						:rotation="() => getRandRotation()"
-						:radius="5"
+						:ref="`particle${i}`"
 						><BasicMaterial :props="{ wireframe: true }" color="#04D9FF"
 					/></Tetrahedron>
 				</Group>
