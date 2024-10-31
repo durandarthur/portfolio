@@ -22,12 +22,14 @@ const windowHeight = window.innerHeight;
 
 const renderer = ref(null);
 const box = ref(null);
+const light = ref(null);
 
 function handleMouseMove(event) {
 	box.value.mesh.rotation.x =
 		2 * (event.clientY / document.body.clientHeight) - 1;
 	box.value.mesh.rotation.y =
 		2 * (event.clientX / document.body.clientWidth) - 1;
+	light.value.position = { x: event.clientX, y: event.clientY, z: 3 };
 }
 
 onMounted(() => {
@@ -148,6 +150,14 @@ function getRandPosition() {
 	};
 }
 
+function getRandRotation() {
+	return {
+		x: Math.floor(360 * Math.random()),
+		y: Math.floor(360 * Math.random()),
+		z: Math.floor(360 * Math.random()),
+	};
+}
+
 const particlesAmount = 100;
 </script>
 
@@ -156,6 +166,7 @@ const particlesAmount = 100;
 		<Renderer ref="renderer" pointer :resize="'window'" class="testg">
 			<Camera :position="{ z: 7 }" />
 			<Scene background="black">
+				<PointLight ref="light" color="#00FFFF"></PointLight>
 				<Box
 					ref="box"
 					:rotation="{ y: Math.PI / 4, z: Math.PI / 4 }"
@@ -170,6 +181,7 @@ const particlesAmount = 100;
 						v-for="i in particlesAmount"
 						:key="i"
 						:position="getRandPosition()"
+						:rotation="getRandRotation()"
 						><LambertMaterial color="#8f8f8f"
 					/></Tetrahedron>
 				</Group>
