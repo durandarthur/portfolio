@@ -44,6 +44,8 @@ onMounted(() => {
 		for (let i = 1; i <= particlesAmount - 1; i++) {
 			particle = particles.value[i].mesh;
 
+			console.log(particle);
+
 			particle.position.x = Math.floor(
 				document.body.clientWidth * Math.random()
 			);
