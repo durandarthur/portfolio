@@ -65,9 +65,13 @@ function handleMouseMove(event) {
 			// 	((event.clientY -
 			// 		(particle.position.y + document.body.clientHeight / 2)) /
 			// 		100);
-			particle.size = 70;
+			particle.scale.x = 100;
+			particle.scale.y = 100;
+			particle.scale.z = 100;
 		} else {
-			particle.size = 20;
+			particle.scale.x = 20;
+			particle.scale.y = 20;
+			particle.scale.z = 20;
 		}
 	}
 }
