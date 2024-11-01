@@ -25,9 +25,9 @@ const box = ref(null);
 const light = ref(null);
 const particles = ref([]);
 
-const particlesAmount = 100;
-const mouseEffectRange = 100;
-const mouseEffectAmplitude = 1;
+const particlesAmount = ref(100);
+const mouseEffectRange = ref(100);
+const mouseEffectAmplitude = ref(1);
 
 function handleMouseMove(event) {
 	box.value.mesh.rotation.x =
@@ -470,6 +470,44 @@ setInterval(() => setTime(), 1000);
 							>PortfolioOS v.2.1</a
 						>
 					</p>
+				</div>
+				<div>
+					<div>
+						<input
+							type="range"
+							name="particlesAmount"
+							id="particlesAmount"
+							min="10"
+							max="1000"
+							:value="particlesAmount"
+							@input="(event) => (particlesAmount = event.target.value)"
+						/>
+						<label for="particlesAmount">Nombre de particules</label>
+					</div>
+					<div>
+						<input
+							type="range"
+							name="mouseEffectRange"
+							id="mouseEffectRange"
+							min="10"
+							max="500"
+							:value="mouseEffectRange"
+							@input="(event) => (mouseEffectRange = event.target.value)"
+						/>
+						<label for="particlesAmount">Rayon de l'effet curseur</label>
+					</div>
+					<div>
+						<input
+							type="range"
+							name="mouseEffectAmplitude"
+							id="mouseEffectAmplitude"
+							min="0"
+							max="10"
+							:value="mouseEffectAmplitude"
+							@input="(event) => (mouseEffectAmplitude = event.target.value)"
+						/>
+						<label for="particlesAmount">Amplitude de l'effet curseur</label>
+					</div>
 				</div>
 			</VueWinBox>
 		</main>
