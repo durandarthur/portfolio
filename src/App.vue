@@ -113,11 +113,11 @@ onMounted(() => {
 	}));
 	console.log("THIS IS THE PARTICLES STATES ARRAY: " + particlesStates);
 
-	particlesStates.value.forEach((state, i) => {
-		dummy.position.set(state.position.x, state.position.y, state.position.z);
-		dummy.updateMatrix();
-		particles.value.mesh.setMatrixAt(i, dummy.matrix);
-	});
+	// particlesStates.value.forEach((state, i) => {
+	// 	dummy.position.set(state.position.x, state.position.y, state.position.z);
+	// 	dummy.updateMatrix();
+	// 	particles.value.mesh.setMatrixAt(i, dummy.matrix);
+	// });
 
 	particles.value.mesh.instanceMatrix.needsUpdate = true;
 
