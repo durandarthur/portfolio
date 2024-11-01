@@ -30,19 +30,7 @@ const particlesAmount = ref(100);
 const mouseEffectRange = ref(100);
 const mouseEffectAmplitude = ref(1);
 
-const particlesStates = ref(
-	Array.from({ length: particlesAmount }, () => ({
-		position: {
-			x:
-				document.body.clientWidth * Math.random() -
-				document.body.clientWidth / 2,
-			y:
-				document.body.clientHeight * Math.random() -
-				document.body.clientHeight / 2,
-			z: 0,
-		},
-	}))
-);
+const particlesStates = ref([]);
 
 // function handleMouseMove(event) {
 // 	box.value.mesh.rotation.x =
@@ -112,6 +100,19 @@ const particlesStates = ref(
 const dummy = new THREE.Object3D();
 
 onMounted(() => {
+	particlesStates.value.push(
+		Array.from({ length: particlesAmount }, () => ({
+			position: {
+				x:
+					document.body.clientWidth * Math.random() -
+					document.body.clientWidth / 2,
+				y:
+					document.body.clientHeight * Math.random() -
+					document.body.clientHeight / 2,
+				z: 0,
+			},
+		}))
+	);
 	console.log(particlesStates);
 
 	particlesStates.value.forEach((state, i) => {
