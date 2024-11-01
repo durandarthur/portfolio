@@ -45,13 +45,13 @@ function handleMouseMove(event) {
 
 		if (
 			event.clientX - (particle.position.x + document.body.clientWidth / 2) <
-				mouseEffectRange &&
+				mouseEffectRange.value &&
 			event.clientX - (particle.position.x + document.body.clientWidth / 2) >
-				-mouseEffectRange &&
+				-mouseEffectRange.value &&
 			event.clientY - (-particle.position.y + document.body.clientHeight / 2) <
-				mouseEffectRange &&
+				mouseEffectRange.value &&
 			event.clientY - (-particle.position.y + document.body.clientHeight / 2) >
-				-mouseEffectRange
+				-mouseEffectRange.value
 		) {
 			// console.log("EVENTX: " + event.clientX);
 			// console.log("EVENTY: " + event.clientY);
@@ -60,12 +60,12 @@ function handleMouseMove(event) {
 			// console.log("DOCUMENTWIDTH: " + document.body.clientWidth);
 			// console.log("DOCUMENTHEIGHT: " + document.body.clientHeight);
 			particle.position.x +=
-				-mouseEffectAmplitude *
+				-mouseEffectAmplitude.value *
 				((event.clientX -
 					(particle.position.x + document.body.clientWidth / 2)) /
 					100);
 			particle.position.y +=
-				mouseEffectAmplitude *
+				mouseEffectAmplitude.value *
 				((event.clientY -
 					(-particle.position.y + document.body.clientHeight / 2)) /
 					100);
@@ -83,7 +83,7 @@ function handleMouseMove(event) {
 
 onMounted(() => {
 	// alert("en travaux !");
-	for (let i = 0; i < particlesAmount; i++) {
+	for (let i = 0; i < particlesAmount.value; i++) {
 		// const particle = particles.value[i].mesh;
 
 		particles.value[i].mesh.position.x =
@@ -106,7 +106,7 @@ onMounted(() => {
 	renderer?.value?.onBeforeRender(() => {
 		document.onmousemove = handleMouseMove;
 
-		for (let i = 0; i < particlesAmount; i++) {
+		for (let i = 0; i < particlesAmount.value; i++) {
 			const particle = particles.value[i].mesh;
 
 			// console.log(document.body.clientWidth);
