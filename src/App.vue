@@ -41,11 +41,11 @@ function handleMouseMove(event) {
 	for (let i = 0; i < Number(particlesAmount.value); i++) {
 		const particle = particles.value[i].mesh;
 
-		console.log(particle);
-		console.log(Number(mouseEffectRange.value));
-		console.log(Number(mouseEffectRange));
-		console.log(Number(mouseEffectAmplitude.value));
-		console.log(Number(mouseEffectAmplitude));
+		// console.log(particle);
+		// console.log(Number(mouseEffectRange.value));
+		// console.log(Number(mouseEffectRange));
+		// console.log(Number(mouseEffectAmplitude.value));
+		// console.log(Number(mouseEffectAmplitude));
 
 		if (
 			event.clientX - (particle.position.x + document.body.clientWidth / 2) <
@@ -85,9 +85,17 @@ function handleMouseMove(event) {
 	}
 }
 
+function handleChangeParticlesAmount(event) {
+	console.log(particles);
+	particles.value = [];
+	console.log(particles);
+	particlesAmount.value = event.target.value;
+	console.log(particlesAmount.value);
+}
+
 onMounted(() => {
 	// alert("en travaux !");
-	for (let i = 0; i < particlesAmount.value; i++) {
+	for (let i = 0; i < Number(particlesAmount.value); i++) {
 		// const particle = particles.value[i].mesh;
 
 		particles.value[i].mesh.position.x =
@@ -110,7 +118,7 @@ onMounted(() => {
 	renderer?.value?.onBeforeRender(() => {
 		document.onmousemove = handleMouseMove;
 
-		for (let i = 0; i < particlesAmount.value; i++) {
+		for (let i = 0; i < Number(particlesAmount.value); i++) {
 			const particle = particles.value[i].mesh;
 
 			// console.log(document.body.clientWidth);
@@ -484,7 +492,7 @@ setInterval(() => setTime(), 1000);
 							min="10"
 							max="1000"
 							:value="particlesAmount"
-							@input="(event) => (particlesAmount = event.target.value)"
+							@input="handleChangeParticlesAmount(event)"
 						/>
 						<label for="particlesAmount">Nombre de particules</label>
 					</div>
