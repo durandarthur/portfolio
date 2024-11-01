@@ -1,6 +1,6 @@
 <script setup>
 import * as THREE from "three";
-import { onMounted, ref } from "vue";
+import { onMounted, onUnmounted, ref, watch } from "vue";
 import VueCommand, {
 	createQuery,
 	createStdout,
@@ -18,89 +18,77 @@ import { techsFormatter, timelineFormatter } from "./lib/formatters";
 
 // THREE/TROIS.JS STUFF
 
-const windowWidth = window.innerWidth;
-const windowHeight = window.innerHeight;
-
 const renderer = ref(null);
+const camera = ref(null);
 const box = ref(null);
 const light = ref(null);
 const particles = ref(null);
+const meshKey = ref(0);
 
-const particlesAmount = ref(100);
-const mouseEffectRange = ref(100);
+const particlesAmount = ref(1000);
+const mouseEffectRange = ref(250);
 const mouseEffectAmplitude = ref(1);
 
 const particlesStates = ref([]);
 
-// function handleMouseMove(event) {
-// 	box.value.mesh.rotation.x =
-// 		2 * (event.clientY / document.body.clientHeight) - 1;
-// 	box.value.mesh.rotation.y =
-// 		2 * (event.clientX / document.body.clientWidth) - 1;
-// 	light.value.light.position.x = event.clientX;
-// 	light.value.light.position.y = event.clientY;
-// 	light.value.light.position.z = 3;
+function handleMouseMove(event) {
+	box.value.mesh.rotation.x =
+		2 * (event.clientY / document.body.clientHeight) - 1;
+	box.value.mesh.rotation.y =
+		2 * (event.clientX / document.body.clientWidth) - 1;
 
-// 	for (let i = 0; i < Number(particlesAmount.value); i++) {
-// 		const particle = particles.value[i].mesh;
+	light.value.light.position.x = event.clientX;
+	light.value.light.position.y = event.clientY;
+	light.value.light.position.z = 3;
 
-// 		// console.log(particle);
-// 		// console.log(Number(mouseEffectRange.value));
-// 		// console.log(Number(mouseEffectRange));
-// 		// console.log(Number(mouseEffectAmplitude.value));
-// 		// console.log(Number(mouseEffectAmplitude));
+	const mouseX = event.clientX - document.body.clientWidth / 2;
+	const mouseY = -(event.clientY - document.body.clientHeight / 2);
+	const rangeSquared = Math.pow(Number(mouseEffectRange.value), 2);
+	const amplitude = Number(mouseEffectAmplitude.value) / 100;
 
-// 		if (
-// 			event.clientX - (particle.position.x + document.body.clientWidth / 2) <
-// 				Number(mouseEffectRange.value) &&
-// 			event.clientX - (particle.position.x + document.body.clientWidth / 2) >
-// 				-Number(mouseEffectRange.value) &&
-// 			event.clientY - (-particle.position.y + document.body.clientHeight / 2) <
-// 				Number(mouseEffectRange.value) &&
-// 			event.clientY - (-particle.position.y + document.body.clientHeight / 2) >
-// 				-Number(mouseEffectRange.value)
-// 		) {
-// 			// console.log("EVENTX: " + event.clientX);
-// 			// console.log("EVENTY: " + event.clientY);
-// 			// console.log("PARTICLEX: " + particle.position.x);
-// 			// console.log("PARTICLEY: " + particle.position.y);
-// 			// console.log("DOCUMENTWIDTH: " + document.body.clientWidth);
-// 			// console.log("DOCUMENTHEIGHT: " + document.body.clientHeight);
-// 			particle.position.x +=
-// 				-Number(mouseEffectAmplitude.value) *
-// 				((event.clientX -
-// 					(particle.position.x + document.body.clientWidth / 2)) /
-// 					100);
-// 			particle.position.y +=
-// 				Number(mouseEffectAmplitude.value) *
-// 				((event.clientY -
-// 					(-particle.position.y + document.body.clientHeight / 2)) /
-// 					100);
-// 			// particle.scale.x = 100;
-// 			// particle.scale.y = 100;
-// 			// particle.scale.z = 100;
-// 		}
-// 		// else {
-// 		// 	particle.scale.x = 20;
-// 		// 	particle.scale.y = 20;
-// 		// 	particle.scale.z = 20;
-// 		// }
-// 	}
-// }
+	const particlesMesh = particles.value.mesh;
+	particlesStates.value.forEach((state, i) => {
+		// Calculate squared distance between particle and mouse position
+		const dx = mouseX - state.position.x;
+		const dy = mouseY - state.position.y;
+		const distanceSquared = dx * dx + dy * dy;
 
-// function handleChangeParticlesAmount(event) {
-// 	console.log(particles);
-// 	particles.value = [];
-// 	console.log(particles);
-// 	console.log(event.target.value);
-// 	particlesAmount.value = event.target.value;
-// 	console.log(particlesAmount.value);
-// }
+		// Check if particle is within the mouse effect range
+		if (distanceSquared < rangeSquared) {
+			// Apply amplitude to move particle away from cursor
+			const effectStrength = amplitude * (1 - distanceSquared / rangeSquared);
+			// console.log(effectStrength);
+			state.position.x -= dx * effectStrength;
+			state.position.y -= dy * effectStrength;
+		}
+
+		// Update dummy object and instance matrix
+		dummy.position.set(state.position.x, state.position.y, state.position.z);
+		dummy.updateMatrix();
+		particlesMesh.setMatrixAt(i, dummy.matrix);
+	});
+
+	// Update InstanceMatrix only once
+	particlesMesh.instanceMatrix.needsUpdate = true;
+}
+
+const handleCameraResize = () => {
+	const { innerWidth, innerHeight } = window;
+	particlesAmount.value = ((innerWidth * innerHeight) / (2560 * 1440)) * 1000;
+	camera.value.camera.aspect = innerWidth / innerHeight;
+	camera.value.camera.position.z = calculateCameraZ(50, innerHeight);
+	camera.value.camera.updateProjectionMatrix();
+};
+
+function calculateCameraZ(fov = 50, height) {
+	const vFOV = (fov * Math.PI) / 180; // Convert FOV to radians
+	return height / (2 * Math.tan(vFOV / 2)); // Calculate Z distance for the camera
+}
 
 const dummy = new THREE.Object3D();
 
-onMounted(() => {
-	particlesStates.value = Array.from({ length: particlesAmount }, () => ({
+const initParticles = () => {
+	particlesStates.value = Array.from({ length: particlesAmount.value }, () => ({
 		position: {
 			x:
 				document.body.clientWidth * Math.random() -
@@ -110,114 +98,65 @@ onMounted(() => {
 				document.body.clientHeight / 2,
 			z: 0,
 		},
+		rotation: {
+			x: 0,
+			y: 0,
+			z: 0,
+		},
 	}));
-	console.log("THIS IS THE PARTICLES STATES ARRAY: " + particlesStates);
 
-	// particlesStates.value.forEach((state, i) => {
-	// 	dummy.position.set(state.position.x, state.position.y, state.position.z);
-	// 	dummy.updateMatrix();
-	// 	particles.value.mesh.setMatrixAt(i, dummy.matrix);
-	// });
+	particlesStates.value.forEach((state, i) => {
+		dummy.position.set(state.position.x, state.position.y, state.position.z);
+		dummy.updateMatrix();
+		particles.value.mesh.setMatrixAt(i, dummy.matrix);
+	});
 
 	particles.value.mesh.instanceMatrix.needsUpdate = true;
+};
 
-	// for (let i = 0; i < Number(particlesAmount.value); i++) {
-	// 	console.log(dummy);
-	// 	dummy.position.set(
-	// 		document.body.clientWidth * Math.random() - document.body.clientWidth / 2,
-	// 		document.body.clientHeight * Math.random() -
-	// 			document.body.clientHeight / 2,
-	// 		0
-	// 	);
+onMounted(() => {
+	handleCameraResize();
+	initParticles();
 
-	// 	// dummy.scale.set(1, 1, 1)
-
-	// 	dummy.updateMatrix();
-	// 	particles.value.mesh.setMatrixAt(i, dummy.matrix);
-	// }
-
-	// for (let i = 0; i < Number(particlesAmount.value); i++) {
-	// 	// const particle = particles.value.mesh.getMatrixAt(i, dummy.matrix);
-
-	// 	particles.value[i].mesh.position.x =
-	// 		document.body.clientWidth * Math.random() - document.body.clientWidth / 2;
-	// 	particles.value[i].mesh.position.y =
-	// 		document.body.clientHeight * Math.random() -
-	// 		document.body.clientHeight / 2;
-
-	// 	// particle.position.x = Math.floor(document.body.clientWidth * Math.random());
-	// 	// particle.position.y = Math.floor(
-	// 	// 	document.body.clientHeight * Math.random()
-	// 	// );
-	// 	// particle.position.z = Math.floor(Math.random() * 10);
-
-	// 	// particle.rotation.x = Math.floor(360 * Math.random());
-	// 	// particle.rotation.y = Math.floor(360 * Math.random());
-	// 	// particle.rotation.z = Math.floor(360 * Math.random());
-	// }
+	window.addEventListener("resize", handleCameraResize);
 
 	renderer?.value?.onBeforeRender(() => {
-		// document.onmousemove = handleMouseMove;
+		document.onmousemove = handleMouseMove;
 
-		// console.log(particles);
-
-		particlesStates.value.forEach((state, i) => {
+		particlesStates.value.forEach((state, i, array) => {
 			if (state.position.x >= document.body.clientWidth / 2) {
 				state.position.x = -document.body.clientWidth / 2;
 			} else {
-				state.position.x += 0.01 * i;
+				state.position.x += (1 / array.length) * i;
 			}
 
 			if (state.position.y >= document.body.clientHeight / 2) {
 				state.position.y = -document.body.clientHeight / 2;
 			} else {
-				state.position.y += 0.01 * i;
+				state.position.y += (1 / array.length) * i;
 			}
 
+			state.rotation.x += 0.01;
+			state.rotation.y += 0.01;
+			state.rotation.z += 0.01;
+
 			dummy.position.set(state.position.x, state.position.y, state.position.z);
+			dummy.rotation.set(state.rotation.x, state.rotation.y, state.rotation.z);
 			dummy.updateMatrix();
 			particles.value.mesh.setMatrixAt(i, dummy.matrix);
 		});
 		particles.value.mesh.instanceMatrix.needsUpdate = true;
-
-		// for (let i = 0; i < Number(particlesAmount.value); i++) {
-		// 	// const particle = particles.value[i].mesh;
-
-		// 	dummy.position.add(new THREE.Vector3(0.01, 0.01));
-		// 	dummy.updateMatrix();
-		// 	particles.value.mesh.setMatrixAt(i, dummy.matrix);
-
-		// 	particles.value.mesh.instanceMatrix.needsUpdate = true;
-
-		// 	// console.log(document.body.clientWidth);
-		// 	// console.log(document.body.clientHeight);
-
-		// 	// console.log(particle);
-		// 	// if (particle.position.x >= document.body.clientWidth / 2) {
-		// 	// 	particle.position.x = -document.body.clientWidth / 2;
-		// 	// } else {
-		// 	// 	particle.position.x += 0.01 * i;
-		// 	// }
-
-		// 	// if (particle.position.y >= document.body.clientHeight / 2) {
-		// 	// 	particle.position.y = -document.body.clientHeight / 2;
-		// 	// } else {
-		// 	// 	particle.position.y += 0.01 * i;
-		// 	// }
-
-		// 	// particles.value[i].mesh.position.x += i / 100;
-		// 	// particles.value[i].mesh.position.y += i / 100;
-
-		// 	// particle.rotation.x += 0.01;
-		// 	// particle.rotation.y += 0.01;
-		// 	// particle.rotation.z += 0.01;
-		// }
 	});
 });
 
-// onBeforeUpdate(() => {
-// 	particles.value = [];
-// });
+onUnmounted(() => {
+	window.removeEventListener("resize", handleCameraResize);
+});
+
+watch(particlesAmount, () => {
+	meshKey.value++;
+	initParticles();
+});
 
 // VUE-COMMAND STUFF
 
@@ -325,8 +264,8 @@ setInterval(() => setTime(), 1000);
 
 <template>
 	<body>
-		<Renderer ref="renderer" pointer :resize="'window'" class="testg">
-			<Camera :position="{ z: 1500 }" :aspect="16 / 9" />
+		<Renderer ref="renderer" :resize="'window'" pointer class="testg">
+			<Camera ref="camera" :position="{ z: 1500 }" :aspect="16 / 9" />
 			<Scene background="black">
 				<PointLight ref="light" color="#00ffff" />
 				<Box
@@ -339,7 +278,11 @@ setInterval(() => setTime(), 1000);
 				>
 					<BasicMaterial :props="{ wireframe: true }" color="#04D9FF" />
 				</Box>
-				<InstancedMesh ref="particles" :count="particlesAmount">
+				<InstancedMesh
+					:key="meshKey"
+					ref="particles"
+					:count="Number(particlesAmount)"
+				>
 					<TetrahedronGeometry />
 					<BasicMaterial :props="{ wireframe: true }" color="#04D9FF" />
 				</InstancedMesh>
@@ -562,7 +505,7 @@ setInterval(() => setTime(), 1000);
 							name="particlesAmount"
 							id="particlesAmount"
 							min="10"
-							max="1000"
+							max="10000"
 							v-model="particlesAmount"
 						/>
 						<label for="particlesAmount">Nombre de particules</label>
