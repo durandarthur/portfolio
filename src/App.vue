@@ -25,6 +25,19 @@ const renderer = ref(null);
 const box = ref(null);
 const light = ref(null);
 const particles = ref(null);
+const particlesStates = ref(
+	Array.from({ length: particlesAmount }, () => ({
+		position: {
+			x:
+				document.body.clientWidth * Math.random() -
+				document.body.clientWidth / 2,
+			y:
+				document.body.clientHeight * Math.random() -
+				document.body.clientHeight / 2,
+			z: 0,
+		},
+	}))
+);
 
 const particlesAmount = ref(100);
 const mouseEffectRange = ref(100);
@@ -95,25 +108,31 @@ const mouseEffectAmplitude = ref(1);
 // 	console.log(particlesAmount.value);
 // }
 
+const dummy = new THREE.Object3D();
+
 onMounted(() => {
-	const dummy = new THREE.Object3D();
-
-	for (let i = 0; i < Number(particlesAmount.value); i++) {
-		console.log(dummy);
-		dummy.position.set(
-			document.body.clientWidth * Math.random() - document.body.clientWidth / 2,
-			document.body.clientHeight * Math.random() -
-				document.body.clientHeight / 2,
-			0
-		);
-
-		// dummy.scale.set(1, 1, 1)
-
+	particlesStates.value.forEach((state, i) => {
+		dummy.position.set(state.position.x, state.position.y, state.position.z);
 		dummy.updateMatrix();
 		particles.value.mesh.setMatrixAt(i, dummy.matrix);
-	}
+	});
 
 	particles.value.mesh.instanceMatrix.needsUpdate = true;
+
+	// for (let i = 0; i < Number(particlesAmount.value); i++) {
+	// 	console.log(dummy);
+	// 	dummy.position.set(
+	// 		document.body.clientWidth * Math.random() - document.body.clientWidth / 2,
+	// 		document.body.clientHeight * Math.random() -
+	// 			document.body.clientHeight / 2,
+	// 		0
+	// 	);
+
+	// 	// dummy.scale.set(1, 1, 1)
+
+	// 	dummy.updateMatrix();
+	// 	particles.value.mesh.setMatrixAt(i, dummy.matrix);
+	// }
 
 	// for (let i = 0; i < Number(particlesAmount.value); i++) {
 	// 	// const particle = particles.value.mesh.getMatrixAt(i, dummy.matrix);
@@ -140,38 +159,57 @@ onMounted(() => {
 
 		console.log(particles);
 
-		for (let i = 0; i < Number(particlesAmount.value); i++) {
-			// const particle = particles.value[i].mesh;
+		particlesStates.value.forEach((state, i) => {
+			if (state.position.x >= document.body.clientWidth / 2) {
+				state.position.x = -document.body.clientWidth / 2;
+			} else {
+				state.position.x += 0.01 * i;
+			}
 
-			dummy.position.add(new THREE.Vector3(0.01, 0.01));
+			if (state.position.y >= document.body.clientHeight / 2) {
+				state.position.y = -document.body.clientHeight / 2;
+			} else {
+				state.position.y += 0.01 * i;
+			}
+
+			dummy.position.set(state.position.x, state.position.y, state.position.z);
 			dummy.updateMatrix();
 			particles.value.mesh.setMatrixAt(i, dummy.matrix);
+		});
+		particles.value.mesh.instanceMatrix.needsUpdate = true;
 
-			particles.value.mesh.instanceMatrix.needsUpdate = true;
+		// for (let i = 0; i < Number(particlesAmount.value); i++) {
+		// 	// const particle = particles.value[i].mesh;
 
-			// console.log(document.body.clientWidth);
-			// console.log(document.body.clientHeight);
+		// 	dummy.position.add(new THREE.Vector3(0.01, 0.01));
+		// 	dummy.updateMatrix();
+		// 	particles.value.mesh.setMatrixAt(i, dummy.matrix);
 
-			// console.log(particle);
-			// if (particle.position.x >= document.body.clientWidth / 2) {
-			// 	particle.position.x = -document.body.clientWidth / 2;
-			// } else {
-			// 	particle.position.x += 0.01 * i;
-			// }
+		// 	particles.value.mesh.instanceMatrix.needsUpdate = true;
 
-			// if (particle.position.y >= document.body.clientHeight / 2) {
-			// 	particle.position.y = -document.body.clientHeight / 2;
-			// } else {
-			// 	particle.position.y += 0.01 * i;
-			// }
+		// 	// console.log(document.body.clientWidth);
+		// 	// console.log(document.body.clientHeight);
 
-			// particles.value[i].mesh.position.x += i / 100;
-			// particles.value[i].mesh.position.y += i / 100;
+		// 	// console.log(particle);
+		// 	// if (particle.position.x >= document.body.clientWidth / 2) {
+		// 	// 	particle.position.x = -document.body.clientWidth / 2;
+		// 	// } else {
+		// 	// 	particle.position.x += 0.01 * i;
+		// 	// }
 
-			// particle.rotation.x += 0.01;
-			// particle.rotation.y += 0.01;
-			// particle.rotation.z += 0.01;
-		}
+		// 	// if (particle.position.y >= document.body.clientHeight / 2) {
+		// 	// 	particle.position.y = -document.body.clientHeight / 2;
+		// 	// } else {
+		// 	// 	particle.position.y += 0.01 * i;
+		// 	// }
+
+		// 	// particles.value[i].mesh.position.x += i / 100;
+		// 	// particles.value[i].mesh.position.y += i / 100;
+
+		// 	// particle.rotation.x += 0.01;
+		// 	// particle.rotation.y += 0.01;
+		// 	// particle.rotation.z += 0.01;
+		// }
 	});
 });
 
