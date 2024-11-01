@@ -1,4 +1,5 @@
 <script setup>
+import { Object3D } from "troisjs";
 import { onMounted, ref } from "vue";
 import VueCommand, {
 	createQuery,
@@ -23,7 +24,7 @@ const windowHeight = window.innerHeight;
 const renderer = ref(null);
 const box = ref(null);
 const light = ref(null);
-const particles = ref([]);
+const particles = ref(null);
 
 const particlesAmount = ref(100);
 const mouseEffectRange = ref(100);
@@ -95,58 +96,75 @@ function handleMouseMove(event) {
 // }
 
 onMounted(() => {
-	// alert("en travaux !");
+	const dummy = new Object3D();
+
 	for (let i = 0; i < Number(particlesAmount.value); i++) {
-		// const particle = particles.value[i].mesh;
-
-		particles.value[i].mesh.position.x =
-			document.body.clientWidth * Math.random() - document.body.clientWidth / 2;
-		particles.value[i].mesh.position.y =
+		dummy.position.set(
+			document.body.clientWidth * Math.random() - document.body.clientWidth / 2,
 			document.body.clientHeight * Math.random() -
-			document.body.clientHeight / 2;
+				document.body.clientHeight / 2,
+			0
+		);
 
-		// particle.position.x = Math.floor(document.body.clientWidth * Math.random());
-		// particle.position.y = Math.floor(
-		// 	document.body.clientHeight * Math.random()
-		// );
-		// particle.position.z = Math.floor(Math.random() * 10);
+		// dummy.scale.set(1, 1, 1)
 
-		// particle.rotation.x = Math.floor(360 * Math.random());
-		// particle.rotation.y = Math.floor(360 * Math.random());
-		// particle.rotation.z = Math.floor(360 * Math.random());
+		dummy.updateMatrix();
+		particles.setMatrixAt(i, dummy.matrix);
 	}
+
+	particles.instanceMatrix.needsUpdate = true;
+
+	// for (let i = 0; i < Number(particlesAmount.value); i++) {
+	// 	// const particle = particles.value[i].mesh;
+
+	// 	particles.value[i].mesh.position.x =
+	// 		document.body.clientWidth * Math.random() - document.body.clientWidth / 2;
+	// 	particles.value[i].mesh.position.y =
+	// 		document.body.clientHeight * Math.random() -
+	// 		document.body.clientHeight / 2;
+
+	// 	// particle.position.x = Math.floor(document.body.clientWidth * Math.random());
+	// 	// particle.position.y = Math.floor(
+	// 	// 	document.body.clientHeight * Math.random()
+	// 	// );
+	// 	// particle.position.z = Math.floor(Math.random() * 10);
+
+	// 	// particle.rotation.x = Math.floor(360 * Math.random());
+	// 	// particle.rotation.y = Math.floor(360 * Math.random());
+	// 	// particle.rotation.z = Math.floor(360 * Math.random());
+	// }
 
 	renderer?.value?.onBeforeRender(() => {
 		document.onmousemove = handleMouseMove;
 
 		console.log(particles);
 
-		for (let i = 0; i < Number(particlesAmount.value); i++) {
-			const particle = particles.value[i].mesh;
+		// for (let i = 0; i < Number(particlesAmount.value); i++) {
+		// 	const particle = particles.value[i].mesh;
 
-			// console.log(document.body.clientWidth);
-			// console.log(document.body.clientHeight);
+		// 	// console.log(document.body.clientWidth);
+		// 	// console.log(document.body.clientHeight);
 
-			// console.log(particle);
-			if (particle.position.x >= document.body.clientWidth / 2) {
-				particle.position.x = -document.body.clientWidth / 2;
-			} else {
-				particle.position.x += 0.01 * i;
-			}
+		// 	// console.log(particle);
+		// 	if (particle.position.x >= document.body.clientWidth / 2) {
+		// 		particle.position.x = -document.body.clientWidth / 2;
+		// 	} else {
+		// 		particle.position.x += 0.01 * i;
+		// 	}
 
-			if (particle.position.y >= document.body.clientHeight / 2) {
-				particle.position.y = -document.body.clientHeight / 2;
-			} else {
-				particle.position.y += 0.01 * i;
-			}
+		// 	if (particle.position.y >= document.body.clientHeight / 2) {
+		// 		particle.position.y = -document.body.clientHeight / 2;
+		// 	} else {
+		// 		particle.position.y += 0.01 * i;
+		// 	}
 
-			// particles.value[i].mesh.position.x += i / 100;
-			// particles.value[i].mesh.position.y += i / 100;
+		// 	// particles.value[i].mesh.position.x += i / 100;
+		// 	// particles.value[i].mesh.position.y += i / 100;
 
-			particle.rotation.x += 0.01;
-			particle.rotation.y += 0.01;
-			particle.rotation.z += 0.01;
-		}
+		// 	particle.rotation.x += 0.01;
+		// 	particle.rotation.y += 0.01;
+		// 	particle.rotation.z += 0.01;
+		// }
 	});
 });
 
@@ -274,13 +292,17 @@ setInterval(() => setTime(), 1000);
 				>
 					<BasicMaterial :props="{ wireframe: true }" color="#04D9FF" />
 				</Box>
-				<Tetrahedron
+				<InstancedMesh ref="particles" :count="particlesAmount">
+					<TetrahedronGeometry :radius="20" />
+					<BasicMaterial :props="{ wireframe: true }" color="#04D9FF" />
+				</InstancedMesh>
+				<!-- <Tetrahedron
 					v-for="i in particlesAmount"
 					:key="i"
 					ref="particles"
 					:size="20"
 					><BasicMaterial :props="{ wireframe: true }" color="#04D9FF"
-				/></Tetrahedron>
+				/></Tetrahedron> -->
 			</Scene>
 		</Renderer>
 		<main class="flex">
