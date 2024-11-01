@@ -143,7 +143,7 @@ onMounted(() => {
 		for (let i = 0; i < Number(particlesAmount.value); i++) {
 			// const particle = particles.value[i].mesh;
 
-			dummy.position.add(1, 1, 1);
+			dummy.position.add(new THREE.Vector3(1, 1));
 			dummy.updateMatrix();
 			particles.value.mesh.setMatrixAt(i, dummy.matrix);
 
