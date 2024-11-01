@@ -1,5 +1,7 @@
 <script setup>
+import { gsap } from "gsap";
 import * as THREE from "three";
+import { SVGLoader } from "three/examples/jsm/loaders/SVGLoader";
 import { onMounted, onUnmounted, ref, watch } from "vue";
 import VueCommand, {
 	createQuery,
@@ -30,6 +32,8 @@ const mouseEffectRange = ref(250);
 const mouseEffectAmplitude = ref(1);
 
 const particlesStates = ref([]);
+const targetPositions = ref([]);
+const isHovering = ref(false);
 
 function handleMouseMove(event) {
 	box.value.mesh.rotation.x =
@@ -74,7 +78,9 @@ function handleMouseMove(event) {
 
 const handleCameraResize = () => {
 	const { innerWidth, innerHeight } = window;
-	particlesAmount.value = ((innerWidth * innerHeight) / (2560 * 1440)) * 1000;
+	particlesAmount.value = Math.ceil(
+		((innerWidth * innerHeight) / (2560 * 1440)) * 1000
+	);
 	camera.value.camera.aspect = innerWidth / innerHeight;
 	camera.value.camera.position.z = calculateCameraZ(50, innerHeight);
 	camera.value.camera.updateProjectionMatrix();
@@ -114,9 +120,109 @@ const initParticles = () => {
 	particles.value.mesh.instanceMatrix.needsUpdate = true;
 };
 
+const loadSVGShape = async (svgPath) => {
+	const loader = new SVGLoader();
+	loader.load(svgPath, (data) => {
+		const paths = data.paths;
+		targetPositions.value = []; // Clear previous positions if any
+
+		const boundingBox = new THREE.Box2();
+
+		paths.forEach((path) => {
+			const shapes = SVGLoader.createShapes(path);
+			shapes.forEach((shape) => {
+				// Get the points for each shape
+				const points = shape.getPoints();
+
+				// Push points to target positions
+				points.forEach((point) => {
+					boundingBox.expandByPoint(point);
+					targetPositions.value.push({
+						x: point.x,
+						y: point.y,
+						z: 0,
+					});
+				});
+			});
+		});
+
+		const width = boundingBox.max.x - boundingBox.min.x;
+		const height = boundingBox.max.y - boundingBox.min.y;
+
+		const desiredSize = 200;
+		const scaleFactor = desiredSize / Math.max(width, height);
+
+		const centerOffsetX = -(boundingBox.min.x + boundingBox.max.x) / 2;
+		const centerOffsetY = -(boundingBox.min.y + boundingBox.max.y) / 2;
+
+		targetPositions.value = targetPositions.value.map(({ x, y, z }) => ({
+			x: (x + centerOffsetX) * scaleFactor,
+			y: (y + centerOffsetY) * scaleFactor,
+			z,
+		}));
+	});
+};
+
+const onHoverIcon = () => {
+	isHovering.value = true;
+	const targetDummy = new THREE.Object3D();
+	for (let i = 0; i < targetPositions.value.length; i++) {
+		const { x, y, z } = targetPositions.value[i];
+		gsap.to(particlesStates.value[i].position, {
+			duration: 1.5,
+			x,
+			y,
+			z,
+			onUpdate: () => {
+				targetDummy.position.set(
+					particlesStates.value[i].position.x,
+					particlesStates.value[i].position.y,
+					particlesStates.value[i].position.z
+				);
+				targetDummy.updateMatrix();
+				particles.value.mesh.setMatrixAt(i, targetDummy.matrix);
+			},
+			ease: "power3.out",
+		});
+	}
+	// particles.value.mesh.instanceMatrix.needsUpdate = true;
+};
+
+const onLeaveIcon = () => {
+	isHovering.value = false;
+
+	for (let i = 0; i < particlesAmount.value; i++) {
+		gsap.killTweensOf(particlesStates.value[i].position);
+	}
+
+	// const targetDummy = new THREE.Object3D();
+	// for (let i = 0; i < particlesAmount.value; i++) {
+	// 	const { x, y, z } = particlesStates.value[i].position;
+	// 	gsap.to(particlesStates.value[i].position, {
+	// 		duration: 1.5,
+	// 		x,
+	// 		y,
+	// 		z,
+	// 		onUpdate: () => {
+	// 			targetDummy.position.set(
+	// 				particlesStates.value[i].position.x,
+	// 				particlesStates.value[i].position.y,
+	// 				particlesStates.value[i].position.z
+	// 			);
+	// 			targetDummy.updateMatrix();
+	// 			particles.value.mesh.setMatrixAt(i, targetDummy.matrix);
+	// 		},
+	// 		ease: "power3.out",
+	// 	});
+	// }
+	// particles.value.instanceMatrix.needsUpdate = true;
+};
+
 onMounted(() => {
 	handleCameraResize();
 	initParticles();
+	// defineTargetPositions(); this was for an example
+	loadSVGShape("/visible-status.svg");
 
 	window.addEventListener("resize", handleCameraResize);
 
@@ -124,16 +230,18 @@ onMounted(() => {
 		document.onmousemove = handleMouseMove;
 
 		particlesStates.value.forEach((state, i, array) => {
-			if (state.position.x >= document.body.clientWidth / 2) {
-				state.position.x = -document.body.clientWidth / 2;
-			} else {
-				state.position.x += (1 / array.length) * i;
-			}
+			if (!isHovering.value) {
+				if (state.position.x >= document.body.clientWidth / 2) {
+					state.position.x = -document.body.clientWidth / 2;
+				} else {
+					state.position.x += (1 / array.length) * i;
+				}
 
-			if (state.position.y >= document.body.clientHeight / 2) {
-				state.position.y = -document.body.clientHeight / 2;
-			} else {
-				state.position.y += (1 / array.length) * i;
+				if (state.position.y >= document.body.clientHeight / 2) {
+					state.position.y = -document.body.clientHeight / 2;
+				} else {
+					state.position.y += (1 / array.length) * i;
+				}
 			}
 
 			state.rotation.x += 0.01;
@@ -271,6 +379,7 @@ setInterval(() => setTime(), 1000);
 				<Box
 					ref="box"
 					:rotation="{ y: Math.PI / 4, z: Math.PI / 4 }"
+					:position="{ z: 100000 }"
 					widthSegments="5"
 					heightSegments="5"
 					depthSegments="5"
@@ -297,7 +406,11 @@ setInterval(() => setTime(), 1000);
 		</Renderer>
 		<main class="flex">
 			<div class="flex flex-col content-start flex-wrap w-screen h-[85vh]">
-				<DesktopIcon @iconClicked="onIconClicked(contactRef)">
+				<DesktopIcon
+					@iconClicked="onIconClicked(contactRef)"
+					@mouseenter="onHoverIcon"
+					@mouseleave="onLeaveIcon"
+				>
 					<template #text> Contact </template>
 					<template #image>
 						<img src="/mail.png" alt="" class="hover:p-4 hover:rounded-3xl" />

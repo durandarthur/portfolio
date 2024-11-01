@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "axios": "^1.4.0",
+    "gsap": "^3.12.5",
+    "svg-path-parser": "^1.1.0",
     "three": "^0.134.0",
     "treeify": "^1.1.0",
     "troisjs": "^0.3.4",
