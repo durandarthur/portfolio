@@ -99,6 +99,7 @@ onMounted(() => {
 	const dummy = new Object3D();
 
 	for (let i = 0; i < Number(particlesAmount.value); i++) {
+		console.log(dummy);
 		dummy.position.set(
 			document.body.clientWidth * Math.random() - document.body.clientWidth / 2,
 			document.body.clientHeight * Math.random() -
