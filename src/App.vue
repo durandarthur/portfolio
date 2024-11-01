@@ -112,6 +112,19 @@ onMounted(() => {
 		},
 	}));
 	console.log(particlesStates);
+	console.log(
+		Array.from({ length: particlesAmount }, () => ({
+			position: {
+				x:
+					document.body.clientWidth * Math.random() -
+					document.body.clientWidth / 2,
+				y:
+					document.body.clientHeight * Math.random() -
+					document.body.clientHeight / 2,
+				z: 0,
+			},
+		}))
+	);
 
 	particlesStates.value.forEach((state, i) => {
 		dummy.position.set(state.position.x, state.position.y, state.position.z);
