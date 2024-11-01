@@ -42,6 +42,10 @@ function handleMouseMove(event) {
 		const particle = particles.value[i].mesh;
 
 		console.log(particle);
+		console.log(Number(mouseEffectRange.value));
+		console.log(Number(mouseEffectRange));
+		console.log(Number(mouseEffectAmplitude.value));
+		console.log(Number(mouseEffectAmplitude));
 
 		if (
 			event.clientX - (particle.position.x + document.body.clientWidth / 2) <
