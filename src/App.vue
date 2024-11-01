@@ -30,61 +30,61 @@ const particlesAmount = ref(100);
 const mouseEffectRange = ref(100);
 const mouseEffectAmplitude = ref(1);
 
-function handleMouseMove(event) {
-	box.value.mesh.rotation.x =
-		2 * (event.clientY / document.body.clientHeight) - 1;
-	box.value.mesh.rotation.y =
-		2 * (event.clientX / document.body.clientWidth) - 1;
-	light.value.light.position.x = event.clientX;
-	light.value.light.position.y = event.clientY;
-	light.value.light.position.z = 3;
+// function handleMouseMove(event) {
+// 	box.value.mesh.rotation.x =
+// 		2 * (event.clientY / document.body.clientHeight) - 1;
+// 	box.value.mesh.rotation.y =
+// 		2 * (event.clientX / document.body.clientWidth) - 1;
+// 	light.value.light.position.x = event.clientX;
+// 	light.value.light.position.y = event.clientY;
+// 	light.value.light.position.z = 3;
 
-	for (let i = 0; i < Number(particlesAmount.value); i++) {
-		const particle = particles.value[i].mesh;
+// 	for (let i = 0; i < Number(particlesAmount.value); i++) {
+// 		const particle = particles.value[i].mesh;
 
-		// console.log(particle);
-		// console.log(Number(mouseEffectRange.value));
-		// console.log(Number(mouseEffectRange));
-		// console.log(Number(mouseEffectAmplitude.value));
-		// console.log(Number(mouseEffectAmplitude));
+// 		// console.log(particle);
+// 		// console.log(Number(mouseEffectRange.value));
+// 		// console.log(Number(mouseEffectRange));
+// 		// console.log(Number(mouseEffectAmplitude.value));
+// 		// console.log(Number(mouseEffectAmplitude));
 
-		if (
-			event.clientX - (particle.position.x + document.body.clientWidth / 2) <
-				Number(mouseEffectRange.value) &&
-			event.clientX - (particle.position.x + document.body.clientWidth / 2) >
-				-Number(mouseEffectRange.value) &&
-			event.clientY - (-particle.position.y + document.body.clientHeight / 2) <
-				Number(mouseEffectRange.value) &&
-			event.clientY - (-particle.position.y + document.body.clientHeight / 2) >
-				-Number(mouseEffectRange.value)
-		) {
-			// console.log("EVENTX: " + event.clientX);
-			// console.log("EVENTY: " + event.clientY);
-			// console.log("PARTICLEX: " + particle.position.x);
-			// console.log("PARTICLEY: " + particle.position.y);
-			// console.log("DOCUMENTWIDTH: " + document.body.clientWidth);
-			// console.log("DOCUMENTHEIGHT: " + document.body.clientHeight);
-			particle.position.x +=
-				-Number(mouseEffectAmplitude.value) *
-				((event.clientX -
-					(particle.position.x + document.body.clientWidth / 2)) /
-					100);
-			particle.position.y +=
-				Number(mouseEffectAmplitude.value) *
-				((event.clientY -
-					(-particle.position.y + document.body.clientHeight / 2)) /
-					100);
-			// particle.scale.x = 100;
-			// particle.scale.y = 100;
-			// particle.scale.z = 100;
-		}
-		// else {
-		// 	particle.scale.x = 20;
-		// 	particle.scale.y = 20;
-		// 	particle.scale.z = 20;
-		// }
-	}
-}
+// 		if (
+// 			event.clientX - (particle.position.x + document.body.clientWidth / 2) <
+// 				Number(mouseEffectRange.value) &&
+// 			event.clientX - (particle.position.x + document.body.clientWidth / 2) >
+// 				-Number(mouseEffectRange.value) &&
+// 			event.clientY - (-particle.position.y + document.body.clientHeight / 2) <
+// 				Number(mouseEffectRange.value) &&
+// 			event.clientY - (-particle.position.y + document.body.clientHeight / 2) >
+// 				-Number(mouseEffectRange.value)
+// 		) {
+// 			// console.log("EVENTX: " + event.clientX);
+// 			// console.log("EVENTY: " + event.clientY);
+// 			// console.log("PARTICLEX: " + particle.position.x);
+// 			// console.log("PARTICLEY: " + particle.position.y);
+// 			// console.log("DOCUMENTWIDTH: " + document.body.clientWidth);
+// 			// console.log("DOCUMENTHEIGHT: " + document.body.clientHeight);
+// 			particle.position.x +=
+// 				-Number(mouseEffectAmplitude.value) *
+// 				((event.clientX -
+// 					(particle.position.x + document.body.clientWidth / 2)) /
+// 					100);
+// 			particle.position.y +=
+// 				Number(mouseEffectAmplitude.value) *
+// 				((event.clientY -
+// 					(-particle.position.y + document.body.clientHeight / 2)) /
+// 					100);
+// 			// particle.scale.x = 100;
+// 			// particle.scale.y = 100;
+// 			// particle.scale.z = 100;
+// 		}
+// 		// else {
+// 		// 	particle.scale.x = 20;
+// 		// 	particle.scale.y = 20;
+// 		// 	particle.scale.z = 20;
+// 		// }
+// 	}
+// }
 
 // function handleChangeParticlesAmount(event) {
 // 	console.log(particles);
@@ -135,7 +135,7 @@ onMounted(() => {
 	// }
 
 	renderer?.value?.onBeforeRender(() => {
-		document.onmousemove = handleMouseMove;
+		// document.onmousemove = handleMouseMove;
 
 		console.log(particles);
 
