@@ -85,14 +85,14 @@ function handleMouseMove(event) {
 	}
 }
 
-function handleChangeParticlesAmount(event) {
-	console.log(particles);
-	particles.value = [];
-	console.log(particles);
-	console.log(event.target.value);
-	particlesAmount.value = event.target.value;
-	console.log(particlesAmount.value);
-}
+// function handleChangeParticlesAmount(event) {
+// 	console.log(particles);
+// 	particles.value = [];
+// 	console.log(particles);
+// 	console.log(event.target.value);
+// 	particlesAmount.value = event.target.value;
+// 	console.log(particlesAmount.value);
+// }
 
 onMounted(() => {
 	// alert("en travaux !");
@@ -494,8 +494,7 @@ setInterval(() => setTime(), 1000);
 							id="particlesAmount"
 							min="10"
 							max="1000"
-							:value="particlesAmount"
-							@input="handleChangeParticlesAmount"
+							v-model="particlesAmount"
 						/>
 						<label for="particlesAmount">Nombre de particules</label>
 					</div>
