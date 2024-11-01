@@ -110,10 +110,10 @@ onMounted(() => {
 		// dummy.scale.set(1, 1, 1)
 
 		dummy.updateMatrix();
-		particles.setMatrixAt(i, dummy.matrix);
+		particles.value.mesh.setMatrixAt(i, dummy.matrix);
 	}
 
-	particles.instanceMatrix.needsUpdate = true;
+	particles.value.mesh.instanceMatrix.needsUpdate = true;
 
 	// for (let i = 0; i < Number(particlesAmount.value); i++) {
 	// 	// const particle = particles.value[i].mesh;
