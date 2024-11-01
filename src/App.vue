@@ -45,13 +45,13 @@ function handleMouseMove(event) {
 
 		if (
 			event.clientX - (particle.position.x + document.body.clientWidth / 2) <
-				mouseEffectRange &&
+				Number(mouseEffectRange.value) &&
 			event.clientX - (particle.position.x + document.body.clientWidth / 2) >
-				-mouseEffectRange &&
+				-Number(mouseEffectRange.value) &&
 			event.clientY - (-particle.position.y + document.body.clientHeight / 2) <
-				mouseEffectRange &&
+				Number(mouseEffectRange.value) &&
 			event.clientY - (-particle.position.y + document.body.clientHeight / 2) >
-				-mouseEffectRange
+				-Number(mouseEffectRange.value)
 		) {
 			// console.log("EVENTX: " + event.clientX);
 			// console.log("EVENTY: " + event.clientY);
@@ -60,12 +60,12 @@ function handleMouseMove(event) {
 			// console.log("DOCUMENTWIDTH: " + document.body.clientWidth);
 			// console.log("DOCUMENTHEIGHT: " + document.body.clientHeight);
 			particle.position.x +=
-				-mouseEffectAmplitude *
+				-Number(mouseEffectAmplitude.value) *
 				((event.clientX -
 					(particle.position.x + document.body.clientWidth / 2)) /
 					100);
 			particle.position.y +=
-				mouseEffectAmplitude *
+				Number(mouseEffectAmplitude.value) *
 				((event.clientY -
 					(-particle.position.y + document.body.clientHeight / 2)) /
 					100);
