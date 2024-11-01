@@ -89,6 +89,7 @@ function handleChangeParticlesAmount(event) {
 	console.log(particles);
 	particles.value = [];
 	console.log(particles);
+	console.log(event.target.value);
 	particlesAmount.value = event.target.value;
 	console.log(particlesAmount.value);
 }
@@ -492,7 +493,7 @@ setInterval(() => setTime(), 1000);
 							min="10"
 							max="1000"
 							:value="particlesAmount"
-							@input="handleChangeParticlesAmount(event)"
+							@input="handleChangeParticlesAmount"
 						/>
 						<label for="particlesAmount">Nombre de particules</label>
 					</div>
