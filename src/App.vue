@@ -1,5 +1,4 @@
 <script setup>
-import { Object3D } from "troisjs";
 import { onMounted, ref } from "vue";
 import VueCommand, {
 	createQuery,
@@ -96,7 +95,7 @@ const mouseEffectAmplitude = ref(1);
 // }
 
 onMounted(() => {
-	const dummy = Object3D();
+	const dummy = new Object3D();
 
 	for (let i = 0; i < Number(particlesAmount.value); i++) {
 		console.log(dummy);
