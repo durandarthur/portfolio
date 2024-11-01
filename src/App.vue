@@ -25,6 +25,11 @@ const renderer = ref(null);
 const box = ref(null);
 const light = ref(null);
 const particles = ref(null);
+
+const particlesAmount = ref(100);
+const mouseEffectRange = ref(100);
+const mouseEffectAmplitude = ref(1);
+
 const particlesStates = ref(
 	Array.from({ length: particlesAmount }, () => ({
 		position: {
@@ -38,10 +43,6 @@ const particlesStates = ref(
 		},
 	}))
 );
-
-const particlesAmount = ref(100);
-const mouseEffectRange = ref(100);
-const mouseEffectAmplitude = ref(1);
 
 // function handleMouseMove(event) {
 // 	box.value.mesh.rotation.x =
@@ -111,6 +112,8 @@ const mouseEffectAmplitude = ref(1);
 const dummy = new THREE.Object3D();
 
 onMounted(() => {
+	console.log(particlesStates);
+
 	particlesStates.value.forEach((state, i) => {
 		dummy.position.set(state.position.x, state.position.y, state.position.z);
 		dummy.updateMatrix();
