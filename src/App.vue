@@ -95,26 +95,25 @@ const mouseEffectAmplitude = ref(1);
 // 	console.log(particlesAmount.value);
 // }
 
+const dummy = new Object3D();
+
+for (let i = 0; i < Number(particlesAmount.value); i++) {
+	console.log(dummy);
+	dummy.position.set(
+		document.body.clientWidth * Math.random() - document.body.clientWidth / 2,
+		document.body.clientHeight * Math.random() - document.body.clientHeight / 2,
+		0
+	);
+
+	// dummy.scale.set(1, 1, 1)
+
+	dummy.updateMatrix();
+	particles.setMatrixAt(i, dummy.matrix);
+}
+
+particles.instanceMatrix.needsUpdate = true;
+
 onMounted(() => {
-	const dummy = new Object3D();
-
-	for (let i = 0; i < Number(particlesAmount.value); i++) {
-		console.log(dummy);
-		dummy.position.set(
-			document.body.clientWidth * Math.random() - document.body.clientWidth / 2,
-			document.body.clientHeight * Math.random() -
-				document.body.clientHeight / 2,
-			0
-		);
-
-		// dummy.scale.set(1, 1, 1)
-
-		dummy.updateMatrix();
-		particles.setMatrixAt(i, dummy.matrix);
-	}
-
-	particles.instanceMatrix.needsUpdate = true;
-
 	// for (let i = 0; i < Number(particlesAmount.value); i++) {
 	// 	// const particle = particles.value[i].mesh;
 
