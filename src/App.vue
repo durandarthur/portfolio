@@ -111,7 +111,7 @@ onMounted(() => {
 			z: 0,
 		},
 	}));
-	console.log("THIS IS THE PARTICLES STATES ARRAY: " + particlesStates);
+	console.log("vercel i swear to god: " + particlesStates);
 
 	particlesStates.value.forEach((state, i) => {
 		dummy.position.set(state.position.x, state.position.y, state.position.z);
