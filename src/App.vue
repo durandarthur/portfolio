@@ -116,7 +116,7 @@ onMounted(() => {
 	particles.value.mesh.instanceMatrix.needsUpdate = true;
 
 	// for (let i = 0; i < Number(particlesAmount.value); i++) {
-	// 	// const particle = particles.value[i].mesh;
+	// 	// const particle = particles.value.mesh.getMatrixAt(i, dummy.matrix);
 
 	// 	particles.value[i].mesh.position.x =
 	// 		document.body.clientWidth * Math.random() - document.body.clientWidth / 2;
@@ -140,32 +140,38 @@ onMounted(() => {
 
 		console.log(particles);
 
-		// for (let i = 0; i < Number(particlesAmount.value); i++) {
-		// 	const particle = particles.value[i].mesh;
+		for (let i = 0; i < Number(particlesAmount.value); i++) {
+			// const particle = particles.value[i].mesh;
 
-		// 	// console.log(document.body.clientWidth);
-		// 	// console.log(document.body.clientHeight);
+			dummy.position.add(1, 1, 1);
+			dummy.updateMatrix();
+			particles.value.mesh.setMatrixAt(i, dummy.matrix);
 
-		// 	// console.log(particle);
-		// 	if (particle.position.x >= document.body.clientWidth / 2) {
-		// 		particle.position.x = -document.body.clientWidth / 2;
-		// 	} else {
-		// 		particle.position.x += 0.01 * i;
-		// 	}
+			particles.value.mesh.instanceMatrix.needsUpdate = true;
 
-		// 	if (particle.position.y >= document.body.clientHeight / 2) {
-		// 		particle.position.y = -document.body.clientHeight / 2;
-		// 	} else {
-		// 		particle.position.y += 0.01 * i;
-		// 	}
+			// console.log(document.body.clientWidth);
+			// console.log(document.body.clientHeight);
 
-		// 	// particles.value[i].mesh.position.x += i / 100;
-		// 	// particles.value[i].mesh.position.y += i / 100;
+			// console.log(particle);
+			// if (particle.position.x >= document.body.clientWidth / 2) {
+			// 	particle.position.x = -document.body.clientWidth / 2;
+			// } else {
+			// 	particle.position.x += 0.01 * i;
+			// }
 
-		// 	particle.rotation.x += 0.01;
-		// 	particle.rotation.y += 0.01;
-		// 	particle.rotation.z += 0.01;
-		// }
+			// if (particle.position.y >= document.body.clientHeight / 2) {
+			// 	particle.position.y = -document.body.clientHeight / 2;
+			// } else {
+			// 	particle.position.y += 0.01 * i;
+			// }
+
+			// particles.value[i].mesh.position.x += i / 100;
+			// particles.value[i].mesh.position.y += i / 100;
+
+			// particle.rotation.x += 0.01;
+			// particle.rotation.y += 0.01;
+			// particle.rotation.z += 0.01;
+		}
 	});
 });
 
@@ -294,7 +300,7 @@ setInterval(() => setTime(), 1000);
 					<BasicMaterial :props="{ wireframe: true }" color="#04D9FF" />
 				</Box>
 				<InstancedMesh ref="particles" :count="particlesAmount">
-					<TetrahedronGeometry :radius="20" />
+					<TetrahedronGeometry />
 					<BasicMaterial :props="{ wireframe: true }" color="#04D9FF" />
 				</InstancedMesh>
 				<!-- <Tetrahedron
