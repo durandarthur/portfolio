@@ -1,4 +1,5 @@
 <script setup>
+import * as THREE from "three";
 import { onMounted, ref } from "vue";
 import VueCommand, {
 	createQuery,
@@ -95,7 +96,7 @@ const mouseEffectAmplitude = ref(1);
 // }
 
 onMounted(() => {
-	const dummy = new Object3D();
+	const dummy = new THREE.Object3D();
 
 	for (let i = 0; i < Number(particlesAmount.value); i++) {
 		console.log(dummy);
