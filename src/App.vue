@@ -130,6 +130,9 @@ const loadSVGShape = async (svgPath) => {
 
 	const boundingBox = new THREE.Box2();
 
+	// let holesCounter = 0;
+	// let shapesCounter = 0;
+
 	paths.forEach((path, i, a) => {
 		const shapes = SVGLoader.createShapes(path);
 		shapes.forEach((shape, i, b) => {
@@ -137,6 +140,9 @@ const loadSVGShape = async (svgPath) => {
 			const outerPoints = shape.getSpacedPoints(
 				Math.floor(particlesAmount.value / 2 / a.length / b.length) - 1
 			);
+
+			// shapesCounter +=
+			// 	Math.floor(particlesAmount.value / 2 / a.length / b.length) - 1;
 
 			// Push points to target positions
 			outerPoints.forEach((point) => {
@@ -149,6 +155,10 @@ const loadSVGShape = async (svgPath) => {
 			});
 
 			shape.holes.forEach((hole, i, c) => {
+				// holesCounter +=
+				// 	Math.floor(
+				// 		particlesAmount.value / 2 / a.length / b.length / c.length
+				// 	) - 1;
 				const holePoints = hole.getSpacedPoints(
 					Math.floor(
 						particlesAmount.value / 2 / a.length / b.length / c.length
@@ -160,6 +170,11 @@ const loadSVGShape = async (svgPath) => {
 			});
 		});
 	});
+
+	// console.log("HOLES: " + holesCounter);
+	// console.log("SHAPES: " + shapesCounter);
+	// console.log("TOTAL POINTS: " + (holesCounter + shapesCounter));
+	// console.log("TOTAL PARTICLES: " + particlesAmount.value);
 
 	const width = boundingBox.max.x - boundingBox.min.x;
 	const height = boundingBox.max.y - boundingBox.min.y;
@@ -200,7 +215,8 @@ const moveParticlesToTarget = () => {
 			ease: "power1.out",
 		});
 	}
-	particles.value.mesh.instanceMatrix.needsUpdate = true;
+	// not needed: already in render loop
+	// particles.value.mesh.instanceMatrix.needsUpdate = true;
 };
 
 const onHoverIcon = async (iconRef) => {
@@ -260,7 +276,8 @@ const onLeaveIcon = () => {
 			ease: "none",
 		});
 	}
-	particles.value.instanceMatrix.needsUpdate = true;
+	// not needed: already in render loop
+	// particles.value.mesh.instanceMatrix.needsUpdate = true;
 };
 
 onMounted(() => {
