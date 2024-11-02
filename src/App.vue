@@ -447,15 +447,24 @@ const creditsOptions = {
 
 function onIconClicked(ref) {
 	if (!isMobile()) {
+		if (ref?.winbox?.id === creditsRef?.value?.winbox?.id) {
+			ref?.winbox?.hide(!ref?.winbox?.hidden);
+			if (!ref?.winbox?.hidden) {
+				ref?.winbox?.resize(
+					Math.max(0.6 * window.innerWidth, 500),
+					Math.max(0.6 * window.innerHeight, 200)
+				);
+
+				ref?.winbox?.move("center", "center");
+				creditsRef.value.winbox.resize = false;
+				creditsRef.value.winbox.move = false;
+			}
+			return;
+		}
 		ref?.winbox?.resize(
 			Math.max(0.6 * window.innerWidth, 500),
 			Math.max(0.6 * window.innerHeight, 200)
 		);
-		if (ref?.winbox?.id === creditsRef?.value?.winbox?.id) {
-			ref?.winbox?.move("center", "center");
-			creditsRef.value.winbox.resize = false;
-			creditsRef.value.winbox.move = false;
-		}
 	}
 
 	lastOpened = ref.winbox.id;
