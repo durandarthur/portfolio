@@ -35,6 +35,7 @@ const particlesStates = ref([]);
 const targetPositions = ref([]);
 
 let hoverInterval;
+let hoverTimeout;
 
 function handleMouseMove(event) {
 	box.value.mesh.rotation.x =
@@ -62,7 +63,6 @@ function handleMouseMove(event) {
 		if (distanceSquared < rangeSquared) {
 			// Apply amplitude to move particle away from cursor
 			const effectStrength = amplitude * (1 - distanceSquared / rangeSquared);
-			// console.log(effectStrength);
 			state.position.x -= dx * effectStrength;
 			state.position.y -= dy * effectStrength;
 		}
@@ -164,7 +164,9 @@ const loadSVGShape = async (svgPath) => {
 	const width = boundingBox.max.x - boundingBox.min.x;
 	const height = boundingBox.max.y - boundingBox.min.y;
 
-	const desiredSize = 200;
+	const desiredSize = Math.ceil(
+		Math.min(window.innerHeight, window.innerWidth) / 2
+	);
 	const scaleFactor = desiredSize / Math.max(width, height);
 
 	const centerOffsetX = -(boundingBox.min.x + boundingBox.max.x) / 2;
@@ -178,12 +180,11 @@ const loadSVGShape = async (svgPath) => {
 };
 
 const moveParticlesToTarget = () => {
-	console.log("bruh");
 	const targetDummy = new THREE.Object3D();
 	for (let i = 0; i < targetPositions.value.length; i++) {
 		const { x, y, z } = targetPositions.value[i];
 		gsap.to(particlesStates.value[i].position, {
-			duration: 1,
+			duration: 0.5,
 			x,
 			y,
 			z,
@@ -196,7 +197,7 @@ const moveParticlesToTarget = () => {
 				targetDummy.updateMatrix();
 				particles.value.mesh.setMatrixAt(i, targetDummy.matrix);
 			},
-			ease: "elastic.out(0.5,0.95)",
+			ease: "power1.out",
 		});
 	}
 	particles.value.mesh.instanceMatrix.needsUpdate = true;
@@ -222,11 +223,15 @@ const onHoverIcon = async (iconRef) => {
 	}
 
 	moveParticlesToTarget();
-	hoverInterval = setInterval(() => moveParticlesToTarget(), 1000);
+	hoverTimeout = setTimeout(() => {
+		moveParticlesToTarget();
+		hoverInterval = setInterval(() => moveParticlesToTarget(), 150);
+	}, "500");
 };
 
 const onLeaveIcon = () => {
 	clearInterval(hoverInterval);
+	clearTimeout(hoverTimeout);
 
 	for (let i = 0; i < particlesAmount.value; i++) {
 		gsap.killTweensOf(particlesStates.value[i].position);
@@ -261,7 +266,6 @@ const onLeaveIcon = () => {
 onMounted(() => {
 	handleCameraResize();
 	initParticles();
-	// defineTargetPositions(); this was for an example
 
 	window.addEventListener("resize", handleCameraResize);
 
@@ -280,7 +284,6 @@ onMounted(() => {
 			} else {
 				state.position.y += (1 / array.length) * i;
 			}
-			// if (isHovering === true) debouncedMoveParticlesToTarget();
 
 			state.rotation.x += 0.01;
 			state.rotation.y += 0.01;
