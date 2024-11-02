@@ -33,7 +33,8 @@ const mouseEffectAmplitude = ref(1);
 
 const particlesStates = ref([]);
 const targetPositions = ref([]);
-const isHovering = ref(false);
+
+let hoverInterval;
 
 function handleMouseMove(event) {
 	box.value.mesh.rotation.x =
@@ -122,54 +123,67 @@ const initParticles = () => {
 
 const loadSVGShape = async (svgPath) => {
 	const loader = new SVGLoader();
-	loader.load(svgPath, (data) => {
-		const paths = data.paths;
-		targetPositions.value = []; // Clear previous positions if any
+	const data = await loader.loadAsync(svgPath);
 
-		const boundingBox = new THREE.Box2();
+	const paths = data.paths;
+	targetPositions.value = []; // Clear previous positions if any
 
-		paths.forEach((path) => {
-			const shapes = SVGLoader.createShapes(path);
-			shapes.forEach((shape) => {
-				// Get the points for each shape
-				const points = shape.getPoints();
+	const boundingBox = new THREE.Box2();
 
-				// Push points to target positions
-				points.forEach((point) => {
-					boundingBox.expandByPoint(point);
-					targetPositions.value.push({
-						x: point.x,
-						y: point.y,
-						z: 0,
-					});
+	paths.forEach((path, i, a) => {
+		const shapes = SVGLoader.createShapes(path);
+		shapes.forEach((shape, i, b) => {
+			// Get the points for each shape
+			const outerPoints = shape.getSpacedPoints(
+				Math.floor(particlesAmount.value / 2 / a.length / b.length) - 1
+			);
+
+			// Push points to target positions
+			outerPoints.forEach((point) => {
+				boundingBox.expandByPoint(point);
+				targetPositions.value.push({
+					x: point.x,
+					y: -point.y,
+					z: 0,
 				});
 			});
+
+			shape.holes.forEach((hole, i, c) => {
+				const holePoints = hole.getSpacedPoints(
+					Math.floor(
+						particlesAmount.value / 2 / a.length / b.length / c.length
+					) - 1
+				);
+				targetPositions.value.push(
+					...holePoints.map((pt) => ({ x: pt.x, y: -pt.y, z: 0 }))
+				);
+			});
 		});
-
-		const width = boundingBox.max.x - boundingBox.min.x;
-		const height = boundingBox.max.y - boundingBox.min.y;
-
-		const desiredSize = 200;
-		const scaleFactor = desiredSize / Math.max(width, height);
-
-		const centerOffsetX = -(boundingBox.min.x + boundingBox.max.x) / 2;
-		const centerOffsetY = -(boundingBox.min.y + boundingBox.max.y) / 2;
-
-		targetPositions.value = targetPositions.value.map(({ x, y, z }) => ({
-			x: (x + centerOffsetX) * scaleFactor,
-			y: (y + centerOffsetY) * scaleFactor,
-			z,
-		}));
 	});
+
+	const width = boundingBox.max.x - boundingBox.min.x;
+	const height = boundingBox.max.y - boundingBox.min.y;
+
+	const desiredSize = 200;
+	const scaleFactor = desiredSize / Math.max(width, height);
+
+	const centerOffsetX = -(boundingBox.min.x + boundingBox.max.x) / 2;
+	const centerOffsetY = -(boundingBox.min.y + boundingBox.max.y) / 2;
+
+	targetPositions.value = targetPositions.value.map(({ x, y, z }) => ({
+		x: (x + centerOffsetX) * scaleFactor,
+		y: (y - centerOffsetY) * scaleFactor,
+		z,
+	}));
 };
 
-const onHoverIcon = () => {
-	isHovering.value = true;
+const moveParticlesToTarget = () => {
+	console.log("bruh");
 	const targetDummy = new THREE.Object3D();
 	for (let i = 0; i < targetPositions.value.length; i++) {
 		const { x, y, z } = targetPositions.value[i];
 		gsap.to(particlesStates.value[i].position, {
-			duration: 1.5,
+			duration: 1,
 			x,
 			y,
 			z,
@@ -182,47 +196,72 @@ const onHoverIcon = () => {
 				targetDummy.updateMatrix();
 				particles.value.mesh.setMatrixAt(i, targetDummy.matrix);
 			},
-			ease: "power3.out",
+			ease: "elastic.out(0.5,0.95)",
 		});
 	}
-	// particles.value.mesh.instanceMatrix.needsUpdate = true;
+	particles.value.mesh.instanceMatrix.needsUpdate = true;
+};
+
+const onHoverIcon = async (iconRef) => {
+	switch (iconRef) {
+		case contactRef?.value.winbox?.id:
+			await loadSVGShape("/mail.svg");
+			break;
+		case CVRef?.value.winbox?.id:
+			await loadSVGShape("/cv.svg");
+			break;
+		case terminalRef?.value.winbox?.id:
+			await loadSVGShape("/terminal_dark.svg");
+			break;
+		case techsRef?.value.winbox?.id:
+			await loadSVGShape("/techs_dark.svg");
+			break;
+
+		default:
+			return;
+	}
+
+	moveParticlesToTarget();
+	hoverInterval = setInterval(() => moveParticlesToTarget(), 1000);
 };
 
 const onLeaveIcon = () => {
-	isHovering.value = false;
+	clearInterval(hoverInterval);
 
 	for (let i = 0; i < particlesAmount.value; i++) {
 		gsap.killTweensOf(particlesStates.value[i].position);
 	}
 
-	// const targetDummy = new THREE.Object3D();
-	// for (let i = 0; i < particlesAmount.value; i++) {
-	// 	const { x, y, z } = particlesStates.value[i].position;
-	// 	gsap.to(particlesStates.value[i].position, {
-	// 		duration: 1.5,
-	// 		x,
-	// 		y,
-	// 		z,
-	// 		onUpdate: () => {
-	// 			targetDummy.position.set(
-	// 				particlesStates.value[i].position.x,
-	// 				particlesStates.value[i].position.y,
-	// 				particlesStates.value[i].position.z
-	// 			);
-	// 			targetDummy.updateMatrix();
-	// 			particles.value.mesh.setMatrixAt(i, targetDummy.matrix);
-	// 		},
-	// 		ease: "power3.out",
-	// 	});
-	// }
-	// particles.value.instanceMatrix.needsUpdate = true;
+	const targetDummy = new THREE.Object3D();
+	for (let i = 0; i < targetPositions.value.length; i++) {
+		gsap.to(particlesStates.value[i].position, {
+			duration: 0.5,
+			x:
+				document.body.clientWidth * Math.random() -
+				document.body.clientWidth / 2,
+			y:
+				document.body.clientHeight * Math.random() -
+				document.body.clientHeight / 2,
+			z: 0,
+			onUpdate: () => {
+				targetDummy.position.set(
+					particlesStates.value[i].position.x,
+					particlesStates.value[i].position.y,
+					particlesStates.value[i].position.z
+				);
+				targetDummy.updateMatrix();
+				particles.value.mesh.setMatrixAt(i, targetDummy.matrix);
+			},
+			ease: "none",
+		});
+	}
+	particles.value.instanceMatrix.needsUpdate = true;
 };
 
 onMounted(() => {
 	handleCameraResize();
 	initParticles();
 	// defineTargetPositions(); this was for an example
-	loadSVGShape("/visible-status.svg");
 
 	window.addEventListener("resize", handleCameraResize);
 
@@ -230,19 +269,18 @@ onMounted(() => {
 		document.onmousemove = handleMouseMove;
 
 		particlesStates.value.forEach((state, i, array) => {
-			if (!isHovering.value) {
-				if (state.position.x >= document.body.clientWidth / 2) {
-					state.position.x = -document.body.clientWidth / 2;
-				} else {
-					state.position.x += (1 / array.length) * i;
-				}
-
-				if (state.position.y >= document.body.clientHeight / 2) {
-					state.position.y = -document.body.clientHeight / 2;
-				} else {
-					state.position.y += (1 / array.length) * i;
-				}
+			if (state.position.x >= document.body.clientWidth / 2) {
+				state.position.x = -document.body.clientWidth / 2;
+			} else {
+				state.position.x += (1 / array.length) * i;
 			}
+
+			if (state.position.y >= document.body.clientHeight / 2) {
+				state.position.y = -document.body.clientHeight / 2;
+			} else {
+				state.position.y += (1 / array.length) * i;
+			}
+			// if (isHovering === true) debouncedMoveParticlesToTarget();
 
 			state.rotation.x += 0.01;
 			state.rotation.y += 0.01;
@@ -253,6 +291,7 @@ onMounted(() => {
 			dummy.updateMatrix();
 			particles.value.mesh.setMatrixAt(i, dummy.matrix);
 		});
+
 		particles.value.mesh.instanceMatrix.needsUpdate = true;
 	});
 });
@@ -408,44 +447,64 @@ setInterval(() => setTime(), 1000);
 			<div class="flex flex-col content-start flex-wrap w-screen h-[85vh]">
 				<DesktopIcon
 					@iconClicked="onIconClicked(contactRef)"
-					@mouseenter="onHoverIcon"
+					@mouseenter="onHoverIcon(contactRef.winbox.id)"
 					@mouseleave="onLeaveIcon"
 				>
 					<template #text> Contact </template>
 					<template #image>
-						<img src="/mail.png" alt="" class="hover:p-4 hover:rounded-3xl" />
-					</template>
-				</DesktopIcon>
-
-				<DesktopIcon @iconClicked="onIconClicked(CVRef)">
-					<template #text> CV </template>
-					<template #image>
 						<img
-							src="/resume.png"
-							alt=""
-							class="hover:px-[1rem] hover:py-[1.28rem] hover:rounded-3xl"
-						/>
-					</template>
-				</DesktopIcon>
-
-				<DesktopIcon @iconClicked="onIconClicked(terminalRef)">
-					<template #text> Terminal </template>
-					<template #image>
-						<img
-							src="/terminal.png"
+							src="/mail_dark.svg"
+							width="200"
 							alt=""
 							class="hover:p-4 hover:rounded-3xl"
 						/>
 					</template>
 				</DesktopIcon>
 
-				<DesktopIcon @iconClicked="onIconClicked(techsRef)">
+				<DesktopIcon
+					@iconClicked="onIconClicked(CVRef)"
+					@mouseenter="onHoverIcon(CVRef.winbox.id)"
+					@mouseleave="onLeaveIcon"
+				>
+					<template #text> CV </template>
+					<template #image>
+						<img
+							src="/cv_dark.svg"
+							width="200"
+							alt=""
+							class="hover:p-4 hover:rounded-3xl"
+						/>
+					</template>
+				</DesktopIcon>
+
+				<DesktopIcon
+					@iconClicked="onIconClicked(terminalRef)"
+					@mouseenter="onHoverIcon(terminalRef.winbox.id)"
+					@mouseleave="onLeaveIcon"
+				>
+					<template #text> Terminal </template>
+					<template #image>
+						<img
+							src="/terminal_dark.svg"
+							width="200"
+							alt=""
+							class="hover:p-4 hover:rounded-3xl"
+						/>
+					</template>
+				</DesktopIcon>
+
+				<DesktopIcon
+					@iconClicked="onIconClicked(techsRef)"
+					@mouseenter="onHoverIcon(techsRef.winbox.id)"
+					@mouseleave="onLeaveIcon"
+				>
 					<template #text> Techs </template>
 					<template #image>
 						<img
-							src="/atomic.png"
+							src="/techs.svg"
+							width="200"
 							alt=""
-							class="hover:px-[1rem] hover:py-[1.14rem] hover:rounded-3xl"
+							class="hover:p-4 hover:rounded-3xl"
 						/>
 					</template>
 				</DesktopIcon>
