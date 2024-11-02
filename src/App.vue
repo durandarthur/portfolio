@@ -18,6 +18,8 @@ import TechTreeNode from "./components/TechTreeNode.vue";
 import { bioHTML, socialsHTML, techs, timeline } from "./data";
 import { techsFormatter, timelineFormatter } from "./lib/formatters";
 
+const isMobile = () => window.innerWidth < 500;
+
 // THREE/TROIS.JS STUFF
 
 const renderer = ref(null);
@@ -36,6 +38,9 @@ const targetPositions = ref([]);
 
 let hoverInterval;
 let hoverTimeout;
+let isHovering;
+
+let lastOpened;
 
 function handleMouseMove(event) {
 	box.value.mesh.rotation.x =
@@ -79,6 +84,7 @@ function handleMouseMove(event) {
 
 const handleCameraResize = () => {
 	const { innerWidth, innerHeight } = window;
+
 	particlesAmount.value = Math.ceil(
 		((innerWidth * innerHeight) / (2560 * 1440)) * 1000
 	);
@@ -195,6 +201,8 @@ const loadSVGShape = async (svgPath) => {
 };
 
 const moveParticlesToTarget = () => {
+	if (!isHovering && !lastOpened) return;
+
 	const targetDummy = new THREE.Object3D();
 	for (let i = 0; i < targetPositions.value.length; i++) {
 		const { x, y, z } = targetPositions.value[i];
@@ -220,6 +228,8 @@ const moveParticlesToTarget = () => {
 };
 
 const onHoverIcon = async (iconRef) => {
+	isHovering = true;
+
 	switch (iconRef) {
 		case contactRef?.value.winbox?.id:
 			await loadSVGShape("/mail.svg");
@@ -241,13 +251,18 @@ const onHoverIcon = async (iconRef) => {
 	moveParticlesToTarget();
 	hoverTimeout = setTimeout(() => {
 		moveParticlesToTarget();
+		clearInterval(hoverInterval);
 		hoverInterval = setInterval(() => moveParticlesToTarget(), 150);
 	}, "500");
 };
 
 const onLeaveIcon = () => {
+	isHovering = false;
+
 	clearInterval(hoverInterval);
 	clearTimeout(hoverTimeout);
+
+	if (lastOpened) onHoverIcon(lastOpened);
 
 	for (let i = 0; i < particlesAmount.value; i++) {
 		gsap.killTweensOf(particlesStates.value[i].position);
@@ -350,10 +365,9 @@ const commands = {
 // WINBOX STUFF
 
 const globalOptions = {
+	autosize: "true",
 	class: "modern",
 	hidden: true,
-	minwidth: "500px",
-	minheight: "200px",
 	width: "60%",
 	height: "60%",
 };
@@ -363,6 +377,11 @@ const contactOptions = {
 	title: "Formulaire de contact",
 	onclose: function (force) {
 		contactRef.value.winbox.hide(true);
+		if (lastOpened === this.id) {
+			lastOpened = null;
+			onLeaveIcon();
+		}
+
 		return true;
 	},
 	...globalOptions,
@@ -373,6 +392,11 @@ const CVOptions = {
 	title: "Curriculum Vitae",
 	onclose: function (force) {
 		CVRef.value.winbox.hide(true);
+		if (lastOpened === this.id) {
+			lastOpened = null;
+			onLeaveIcon();
+		}
+
 		return true;
 	},
 	...globalOptions,
@@ -383,6 +407,10 @@ const terminalOptions = {
 	title: "bash: durandarthur@MONOLITH",
 	onclose: function (force) {
 		terminalRef.value.winbox.hide(true);
+		if (lastOpened === this.id) {
+			lastOpened = null;
+			onLeaveIcon();
+		}
 		return true;
 	},
 	...globalOptions,
@@ -393,6 +421,11 @@ const techsOptions = {
 	title: "Technologies",
 	onclose: function (force) {
 		techsRef.value.winbox.hide(true);
+		if (lastOpened === this.id) {
+			lastOpened = null;
+			onLeaveIcon();
+		}
+		// onLeaveIcon(techsRef?.value.winbox?.id);
 		return true;
 	},
 	...globalOptions,
@@ -413,6 +446,21 @@ const creditsOptions = {
 // OTHER STUFF
 
 function onIconClicked(ref) {
+	if (!isMobile()) {
+		ref?.winbox?.resize(
+			Math.max(0.6 * window.innerWidth, 500),
+			Math.max(0.6 * window.innerHeight, 200)
+		);
+		if (ref?.winbox?.id === creditsRef?.value?.winbox?.id) {
+			ref?.winbox?.move("center", "center");
+			creditsRef.value.winbox.resize = false;
+			creditsRef.value.winbox.move = false;
+		}
+	}
+
+	lastOpened = ref.winbox.id;
+	onHoverIcon(ref.winbox.id);
+
 	ref?.winbox?.hide(!ref?.winbox?.hidden);
 }
 
@@ -454,13 +502,6 @@ setInterval(() => setTime(), 1000);
 					<TetrahedronGeometry />
 					<BasicMaterial :props="{ wireframe: true }" color="#04D9FF" />
 				</InstancedMesh>
-				<!-- <Tetrahedron
-					v-for="i in particlesAmount"
-					:key="i"
-					ref="particles"
-					:size="20"
-					><BasicMaterial :props="{ wireframe: true }" color="#04D9FF"
-				/></Tetrahedron> -->
 			</Scene>
 		</Renderer>
 		<main class="flex">
@@ -700,7 +741,9 @@ setInterval(() => setTime(), 1000);
 							max="10000"
 							v-model="particlesAmount"
 						/>
-						<label for="particlesAmount">Nombre de particules</label>
+						<label class="text-white" for="particlesAmount"
+							>Nombre de particules (instable)</label
+						>
 					</div>
 					<div>
 						<input
@@ -712,7 +755,9 @@ setInterval(() => setTime(), 1000);
 							:value="mouseEffectRange"
 							@input="(event) => (mouseEffectRange = event.target.value)"
 						/>
-						<label for="particlesAmount">Rayon de l'effet curseur</label>
+						<label class="text-white" for="particlesAmount"
+							>Rayon de l'effet curseur</label
+						>
 					</div>
 					<div>
 						<input
@@ -724,7 +769,9 @@ setInterval(() => setTime(), 1000);
 							:value="mouseEffectAmplitude"
 							@input="(event) => (mouseEffectAmplitude = event.target.value)"
 						/>
-						<label for="particlesAmount">Amplitude de l'effet curseur</label>
+						<label class="text-white" for="particlesAmount"
+							>Amplitude de l'effet curseur</label
+						>
 					</div>
 				</div>
 			</VueWinBox>
