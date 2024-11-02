@@ -727,21 +727,7 @@ setInterval(() => setTime(), 1000);
 							>
 						</li>
 					</ul>
-					<p class="mt-16">
-						Veuillez me signaler tout bug informatique rencontré sur ce site.
-					</p>
-					<p
-						class="static bottom-0 right-0 m-4 text-[#04d9ff] version text-right"
-					>
-						<a
-							href="https://github.com/durandarthur/portfolio"
-							class="underline underline-offset-2"
-							>PortfolioOS v.2.1</a
-						>
-					</p>
-				</div>
-				<div>
-					<div>
+					<div class="mt-12">
 						<input
 							type="range"
 							name="particlesAmount"
@@ -782,6 +768,18 @@ setInterval(() => setTime(), 1000);
 							>Amplitude de l'effet curseur</label
 						>
 					</div>
+					<p class="mt-12">
+						Veuillez me signaler tout bug informatique rencontré sur ce site.
+					</p>
+					<p
+						class="static bottom-0 right-0 m-4 text-[#04d9ff] version text-right"
+					>
+						<a
+							href="https://github.com/durandarthur/portfolio"
+							class="underline underline-offset-2"
+							>PortfolioOS v.2.1</a
+						>
+					</p>
 				</div>
 			</VueWinBox>
 		</main>
@@ -875,5 +873,9 @@ ul,
 .time,
 .version {
 	font-family: "Roboto Mono", monospace;
+}
+
+input[type="range"] {
+	accent-color: #04d9ff;
 }
 </style>
