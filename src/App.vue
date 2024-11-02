@@ -777,7 +777,7 @@ setInterval(() => setTime(), 1000);
 						<a
 							href="https://github.com/durandarthur/portfolio"
 							class="underline underline-offset-2"
-							>PortfolioOS v.2.1</a
+							>PortfolioOS v.2.2</a
 						>
 					</p>
 				</div>
