@@ -14,6 +14,7 @@ import "vue-command/dist/vue-command.css";
 import { VueWinBox } from "vue-winbox";
 import ContactForm from "./components/ContactForm.vue";
 import DesktopIcon from "./components/DesktopIcon.vue";
+import ProjectCard from "./components/ProjectCard.vue";
 import TechTreeNode from "./components/TechTreeNode.vue";
 import { bioHTML, socialsHTML, techs, timeline } from "./data";
 import { techsFormatter, timelineFormatter } from "./lib/formatters";
@@ -237,6 +238,9 @@ const onHoverIcon = async (iconRef) => {
 		case CVRef?.value.winbox?.id:
 			await loadSVGShape("/cv.svg");
 			break;
+		case projectsRef?.value.winbox?.id:
+			await loadSVGShape("/projects.svg");
+			break;
 		case terminalRef?.value.winbox?.id:
 			await loadSVGShape("/terminal_dark.svg");
 			break;
@@ -402,6 +406,21 @@ const CVOptions = {
 	...globalOptions,
 };
 
+const projectsRef = ref();
+const projectsOptions = {
+	title: "My Projects",
+	onclose: function (force) {
+		projectsRef.value.winbox.hide(true);
+		if (lastOpened === this.id) {
+			lastOpened = null;
+			onLeaveIcon();
+		}
+
+		return true;
+	},
+	...globalOptions,
+};
+
 const terminalRef = ref();
 const terminalOptions = {
 	title: "bash: durandarthur@MONOLITH",
@@ -548,6 +567,22 @@ setInterval(() => setTime(), 1000);
 				</DesktopIcon>
 
 				<DesktopIcon
+					@iconClicked="onIconClicked(projectsRef)"
+					@mouseenter="onHoverIcon(projectsRef.winbox.id)"
+					@mouseleave="onLeaveIcon"
+				>
+					<template #text> Projects </template>
+					<template #image>
+						<img
+							src="/projects.svg"
+							width="200"
+							alt=""
+							class="hover:p-4 hover:rounded-3xl"
+						/>
+					</template>
+				</DesktopIcon>
+
+				<DesktopIcon
 					@iconClicked="onIconClicked(terminalRef)"
 					@mouseenter="onHoverIcon(terminalRef.winbox.id)"
 					@mouseleave="onLeaveIcon"
@@ -586,6 +621,21 @@ setInterval(() => setTime(), 1000);
 
 			<VueWinBox ref="CVRef" :options="CVOptions" @onmove="onMove">
 				<iframe src="/CV_Arthur_Durand_2024.pdf" frameborder="0"></iframe>
+			</VueWinBox>
+
+			<VueWinBox ref="projectsRef" :options="projectsOptions" @onmove="onMove">
+				<div class="grid gap-4 grid-cols-1 p-4">
+					<ProjectCard
+						title="Fanfiction.net rework"
+						link="https://demo.fanfiction-rework.com/"
+					>
+						A rework of the well known collaborative writing website. This
+						project features fullstack web development with Adonis JS and React
+						with Mantine UI, file uploading, word document to HTML conversion,
+						WebSockets usage, SSO, and more. Deployed on a Hetzner VPS using
+						Docker, nginx, SSL and a Cloudflare domain.
+					</ProjectCard>
+				</div>
 			</VueWinBox>
 
 			<VueWinBox ref="terminalRef" :options="terminalOptions" @onmove="onMove">
@@ -771,14 +821,29 @@ setInterval(() => setTime(), 1000);
 					<p class="mt-12">
 						Veuillez me signaler tout bug informatique rencontré sur ce site.
 					</p>
-					<p
-						class="static bottom-0 right-0 m-4 text-[#04d9ff] version text-right"
-					>
+					<p class="flex m-4 w-full text-[#04d9ff] version text-right">
 						<a
+							class="flex items-start ml-auto underline underline-offset-2"
 							href="https://github.com/durandarthur/portfolio"
-							class="underline underline-offset-2"
-							>PortfolioOS v.2.2</a
+							target="_blank"
+							rel="noopener noreferrer"
 						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke-width="1.5"
+								stroke="currentColor"
+								class="size-6 h-5 mr-1"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
+								/>
+							</svg>
+							<p>PortfolioOS v.2.2</p>
+						</a>
 					</p>
 				</div>
 			</VueWinBox>
@@ -806,6 +871,12 @@ setInterval(() => setTime(), 1000);
 					src="/resume.png"
 					alt=""
 					@click="onBarIconClicked(CVRef)"
+				/>
+				<img
+					v-if="!projectsRef?.winbox?.hidden"
+					src="/projects.png"
+					alt=""
+					@click="onBarIconClicked(projectsRef)"
 				/>
 				<img
 					v-if="!terminalRef?.winbox?.hidden"
