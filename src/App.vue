@@ -620,7 +620,7 @@ setInterval(() => setTime(), 1000);
 			</VueWinBox>
 
 			<VueWinBox ref="CVRef" :options="CVOptions" @onmove="onMove">
-				<iframe src="/CV_Arthur_Durand_2024.pdf" frameborder="0"></iframe>
+				<iframe src="/CV_Arthur_Durand_2025_(portfolio).pdf" frameborder="0"></iframe>
 			</VueWinBox>
 
 			<VueWinBox ref="projectsRef" :options="projectsOptions" @onmove="onMove">
