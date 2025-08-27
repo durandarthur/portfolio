@@ -68,69 +68,73 @@ export const socialsHTML = `<ul><li><a href='https://github.com/durandarthur' ta
 export const techs = {
 	"Développement Web": {
 		Javascript: {
-			Typescript: null,
-			React: null,
-			Vue: null,
+			"Adonis.js": null,
+			"Express.js": null,
+			"Feathers.js": null,
+			"Knex.js": null,
 			"Next.js": null,
 			"Node.js": null,
-			"Express.js": null,
-			"Adonis.js": null,
-			"Knex.js": null,
 			Prisma: null,
+			React: null,
+			Typescript: null,
+			Vue: null
 		},
 
 		UI: {
-			"SASS, postCSS": null,
 			Bootstrap: null,
-			Tailwind: null,
+			Figma: null,
 			"Material UI": null,
 			"Mantine UI": null,
-			Figma: null,
+			Quasar: null,
+			"SASS, postCSS": null,
+			Tailwind: null
 		},
 
 		"AWS (BOTO3)": {
 			"AWS S3": null,
 			"AWS SQS": null,
-			"AWS SNS": null,
+			"AWS SNS": null
 		},
 
 		Database: {
-			"MySQL/MariaDB": null,
-			"SQL Server": null,
-			postgreSQL: null,
 			mongoDB: null,
+			"MySQL/MariaDB": null,
+			postgreSQL: null,
+			"SQL Server": null
 		},
 
-		Deploiement: {
-			nginx: null,
+		Devops: {
+			Cloudflare: null,
 			Docker: null,
 			Linux: null,
 			Netlify: null,
-			Vercel: null,
+			nginx: null,
+			Vercel: null
 		},
 
-		Tests: { Jest: null, Cypress: null },
+		Tests: { Cypress: null, Jest: null, Mocha: null, Puppeteer: null },
 
 		Outils: { ESLint: null, Prettier: null, VSCode: null },
 
 		Autres: {
 			GraphQL: null,
-			Postman: null,
 			Git: null,
-			SVN: null,
+			Postman: null,
+			SVN: null
 		},
 	},
 
 	"Gestion de projet": {
-		Trello: null,
+		Agile: null,
 		GanttProject: null,
 		"Github projects": null,
+		Trello: null
 	},
 
 	Design: {
-		"Adobe Photoshop": null,
 		"Adobe Illustrator": null,
-		"Adobe XD": null,
+		"Adobe Photoshop": null,
+		"Adobe XD": null
 	},
 
 	OS: {
@@ -141,20 +145,34 @@ export const techs = {
 		"MacOS Big Sur": null,
 		Ubuntu: null,
 		"Ubuntu sur WSL2": null,
-		Windows: null,
+		Windows: null
 	},
 
 	Autres: {
-		"Fl Studio": null,
 		"Adobe Premiere Pro": null,
+		"FL Studio": null,
+		"Microsoft Excel/Powerpoint/Access": null,
 		OBS: null,
 		Obsidian: null,
-		"Microsoft Excel/Powerpoint/Access": null,
-		VirtualBox: null,
+		VirtualBox: null
 	},
 };
 
 export const timeline = [
+	{
+		title: "Mars 2025\nPrésent",
+		cardTitle: "Développeur et Designer Web",
+		cardSubtitle: "Kalisio (Télétravail)",
+		cardDetailedText:
+			"Composants Vue.js, tests avec Puppeteer, travail avec Node.js et Feathers.js sur plusieurs projets pour Airbus et l'ASNR.\nUtilisation d'un SDK créé par l'entreprise",
+	},
+	{
+		title: "Mars 2023\n2024",
+		cardTitle: "Ingénieur Fullstack",
+		cardSubtitle: "Fuvi Clan (Télétravail)",
+		cardDetailedText:
+			"Service web pour DJs, sous contrat de confidentialité.\n • Développement fullstack avec Vue et Laravel\n • Implémentation d'IA\n • Développement AWS SQS et S3 avec BOTO3 (Python)",
+	},
 	{
 		title: "Décembre 2022\nAvril 2024",
 		cardTitle: "Concepteur Développeur d'Application (diplômé RNCP n°6)",
@@ -191,3 +209,4 @@ export const timeline = [
 			"Spécialisation informatique (Systèmes d'Information et Numérique)",
 	},
 ];
+
