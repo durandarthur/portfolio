@@ -626,14 +626,16 @@ setInterval(() => setTime(), 1000);
 			<VueWinBox ref="projectsRef" :options="projectsOptions" @onmove="onMove">
 				<div class="grid gap-4 grid-cols-1 p-4">
 					<ProjectCard
-						title="Fanfiction.net rework"
+						title="Refonte de Fanfiction.net"
 						link="https://demo.fanfiction-rework.com/"
 					>
-						A rework of the well known collaborative writing website. This
-						project features fullstack web development with Adonis JS and React
-						with Mantine UI, file uploading, word document to HTML conversion,
-						WebSockets usage, SSO, and more. Deployed on a Hetzner VPS using
-						Docker, nginx, SSL and a Cloudflare domain.
+						Une refonte du célèbre site web d'écriture collaborative.
+						Ce projet de développement web fullstack fait avec Adonis JS,
+						React, et Mantine UI comporte le téléchargement de fichiers,
+						la conversion de documents Word en HTML, l'utilisation de WebSockets,
+						l'authentification unique (SSO), et bien plus encore.
+						Déployé sur un VPS Hetzner utilisant Docker, Nginx, SSL et un domaine
+						Cloudflare.
 					</ProjectCard>
 				</div>
 			</VueWinBox>
