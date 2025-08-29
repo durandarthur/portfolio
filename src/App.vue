@@ -408,7 +408,7 @@ const CVOptions = {
 
 const projectsRef = ref();
 const projectsOptions = {
-	title: "My Projects",
+	title: "Mes Projets",
 	onclose: function (force) {
 		projectsRef.value.winbox.hide(true);
 		if (lastOpened === this.id) {
