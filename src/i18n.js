@@ -221,10 +221,11 @@ if (navigator.languages !== undefined) lang = navigator.languages[0];
 lang = navigator.language;
 
 export function $t(key) {
+	const foundKey = key.split(".").reduce((obj, k) => obj?.[k], keys);
 	if (lang.startsWith("fr")) {
-		return keys[key]["fr"];
+		return foundKey["fr"];
 	} else {
-		return keys[key]["en"];
+		return foundKey["en"];
 	}
 	throw new Error("Invalid locale");
 }
