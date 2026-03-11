@@ -223,9 +223,9 @@ lang = navigator.language;
 
 export function $t(key) {
 	if (lang.startsWith("fr")) {
-		return [key][fr];
+		return [key]["fr"];
 	} else {
-		return [key][en];
+		return [key]["en"];
 	}
 	throw new Error("Invalid locale");
 }
