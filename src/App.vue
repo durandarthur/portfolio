@@ -571,7 +571,7 @@ setInterval(() => setTime(), 1000);
 					@mouseenter="onHoverIcon(projectsRef.winbox.id)"
 					@mouseleave="onLeaveIcon"
 				>
-					<template #text> Projects </template>
+					<template #text> Projets </template>
 					<template #image>
 						<img
 							src="/projects.svg"
