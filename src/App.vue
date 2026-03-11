@@ -17,6 +17,7 @@ import DesktopIcon from "./components/DesktopIcon.vue";
 import ProjectCard from "./components/ProjectCard.vue";
 import TechTreeNode from "./components/TechTreeNode.vue";
 import { bioHTML, socialsHTML, techs, timeline } from "./data";
+import { $t, getCvUrl } from "./i18n";
 import { techsFormatter, timelineFormatter } from "./lib/formatters";
 
 const isMobile = () => window.innerWidth < 500;
@@ -378,7 +379,7 @@ const globalOptions = {
 
 const contactRef = ref();
 const contactOptions = {
-	title: "Formulaire de contact",
+	title: $t("App.contactForm"),
 	onclose: function (force) {
 		contactRef.value.winbox.hide(true);
 		if (lastOpened === this.id) {
@@ -408,7 +409,7 @@ const CVOptions = {
 
 const projectsRef = ref();
 const projectsOptions = {
-	title: "Mes Projets",
+	title: $t("App.myProjects"),
 	onclose: function (force) {
 		projectsRef.value.winbox.hide(true);
 		if (lastOpened === this.id) {
@@ -453,7 +454,7 @@ const techsOptions = {
 
 const creditsRef = ref();
 const creditsOptions = {
-	title: "À propos",
+	title: $t("App.about"),
 	modal: true,
 	onclose: function (force) {
 		creditsRef.value.winbox.hide(true);
@@ -571,7 +572,7 @@ setInterval(() => setTime(), 1000);
 					@mouseenter="onHoverIcon(projectsRef.winbox.id)"
 					@mouseleave="onLeaveIcon"
 				>
-					<template #text> Projets </template>
+					<template #text> {{ $t("App.projectsIconLabel") }} </template>
 					<template #image>
 						<img
 							src="/projects.svg"
@@ -620,22 +621,16 @@ setInterval(() => setTime(), 1000);
 			</VueWinBox>
 
 			<VueWinBox ref="CVRef" :options="CVOptions" @onmove="onMove">
-				<iframe src="/CV_Arthur_Durand_2025_(portfolio).pdf" frameborder="0"></iframe>
+				<iframe :src="getCvUrl()" frameborder="0"></iframe>
 			</VueWinBox>
 
 			<VueWinBox ref="projectsRef" :options="projectsOptions" @onmove="onMove">
 				<div class="grid gap-4 grid-cols-1 p-4">
 					<ProjectCard
-						title="Refonte de Fanfiction.net"
+						:title="$t('App.ffReworkTitle')"
 						link="https://demo.fanfiction-rework.com/"
 					>
-						Une refonte du célèbre site web d'écriture collaborative.
-						Ce projet de développement web fullstack fait avec Adonis JS,
-						React, et Mantine UI comporte le téléchargement de fichiers,
-						la conversion de documents Word en HTML, l'utilisation de WebSockets,
-						l'authentification unique (SSO), et bien plus encore.
-						Déployé sur un VPS Hetzner utilisant Docker, Nginx, SSL et un domaine
-						Cloudflare.
+						{{ $t("App.ffReworkDetail") }}
 					</ProjectCard>
 				</div>
 			</VueWinBox>
@@ -662,9 +657,7 @@ setInterval(() => setTime(), 1000);
 
 			<VueWinBox ref="creditsRef" :options="creditsOptions">
 				<div class="w-full h-full bg-[#111316] text-white p-8">
-					<h2 class="text-xl mb-4">
-						Ce projet n'aurait pas été possible sans:
-					</h2>
+					<h2 class="text-xl mb-4">{{ $t("App.moreInfo.credits") }}:</h2>
 					<ul class="list-disc list-inside marker:text-[#04d9ff] mb-4">
 						<li>
 							<a
@@ -688,15 +681,14 @@ setInterval(() => setTime(), 1000);
 							>
 						</li>
 					</ul>
-					<h2 class="text-xl mb-4">Mentions légales:</h2>
-					<p class="2xl:w-1/2 mb-4">
-						Aucune de vos données ne sont collectées par ce site web, sauf si
-						vous décidez d'envoyer votre mail dans le formulaire de contact.<br />
-						Ceci est optionnel, et ne sert qu'à vous recontacter.
-					</p>
 					<h2 class="text-xl mb-4">
-						Autres contacts (si le formulaire ne marche pas):
+						{{ $t("App.moreInfo.legalNoticeTitle") }}:
 					</h2>
+					<p
+						class="2xl:w-1/2 mb-4"
+						v-html="$t('App.moreInfo.legalNoticeDetail')"
+					></p>
+					<h2 class="text-xl mb-4">{{ $t("App.moreInfo.otherContacts") }}:</h2>
 					<ul class="mb-4">
 						<li class="flex mb-4">
 							<svg
@@ -788,9 +780,11 @@ setInterval(() => setTime(), 1000);
 							max="10000"
 							v-model="particlesAmount"
 						/>
-						<label class="text-white" for="particlesAmount"
-							>Nombre de particules (instable)</label
-						>
+						<label
+							class="text-white"
+							for="particlesAmount"
+							v-text="$t('App.moreInfo.particlesAmount')"
+						></label>
 					</div>
 					<div>
 						<input
@@ -802,9 +796,11 @@ setInterval(() => setTime(), 1000);
 							:value="mouseEffectRange"
 							@input="(event) => (mouseEffectRange = event.target.value)"
 						/>
-						<label class="text-white" for="particlesAmount"
-							>Rayon de l'effet curseur</label
-						>
+						<label
+							class="text-white"
+							for="mouseEffectRange"
+							v-text="$t('App.moreInfo.mouseRadius')"
+						></label>
 					</div>
 					<div>
 						<input
@@ -816,12 +812,14 @@ setInterval(() => setTime(), 1000);
 							:value="mouseEffectAmplitude"
 							@input="(event) => (mouseEffectAmplitude = event.target.value)"
 						/>
-						<label class="text-white" for="particlesAmount"
-							>Amplitude de l'effet curseur</label
-						>
+						<label
+							class="text-white"
+							for="mouseEffectAmplitude"
+							v-text="$t('App.moreInfo.effectStrength')"
+						></label>
 					</div>
 					<p class="mt-12">
-						Veuillez me signaler tout bug informatique rencontré sur ce site.
+						{{ $t("App.moreInfo.pleaseReportBugs") }}
 					</p>
 					<p class="flex m-4 w-full text-[#04d9ff] version text-right">
 						<a
@@ -844,7 +842,7 @@ setInterval(() => setTime(), 1000);
 									d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
 								/>
 							</svg>
-							<p>PortfolioOS v.2.2</p>
+							<p>PortfolioOS v.2.4</p>
 						</a>
 					</p>
 				</div>

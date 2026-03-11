@@ -1,3 +1,5 @@
+import { $t } from "./i18n";
+
 export const bioHTML =
 	`<pre id="tiresult" style="font-size: 7px; font-weight: bold; line-height: normal; padding: 4px 5px; --fs: 9px; b {background-color: #000000;}"><b style="color:#ADADAD">1</b><b style="color:#AEAEAE">10111</b><b style="color:#ADADAD">011101</b><b style="color:#ACACAC">0</b><b style="color:#ADADAD">0</b><b style="color:#ACACAC">101001101010</b><b style="color:#ABABAB">11110001111001</b><b style="color:#AAAAAA">0011100</b><b style="color:#A8A8A8">1</b><b style="color:#A9A9A9">0</b><b style="color:#ABABAB">0</b><b style="color:#AAAAAA">0</b><b style="color:#A9A9A9">1</b><b style="color:#AAAAAA">0</b><b style="color:#A8A8A8">0</b><b style="color:#AAAAAA">00</b><b style="color:#ACACAC">10</b><b style="color:#ABABAB">01</b><b style="color:#AAAAAA">1</b><b style="color:#A5A5A5">0</b><b style="color:#A1A1A1">1</b><b style="color:#A0A0A0">1</b><b style="color:#9C9C9C">11</b><b style="color:#9E9E9E">0</b><b style="color:#A3A3A3">1</b><b style="color:#A7A7A7">0</b><b style="color:#A8A8A8">0</b><b style="color:#A9A9A9">11</b><b style="color:#A8A8A8">01</b><b style="color:#A7A7A7">1</b><b style="color:#A6A6A6">1</b><b style="color:#A5A5A5">111</b><b style="color:#A4A4A4">0000110</b><b style="color:#A3A3A3">0011</b><b style="color:#A2A2A2">01</b><b style="color:#A3A3A3">0</b><b style="color:#A2A2A2">0001</b><b style="color:#A1A1A1">101010</b><b style="color:#A0A0A0">11</b><b style="color:#9F9F9F">11110</b><b style="color:#9E9E9E">1</b><b style="color:#9F9F9F">0</b><b style="color:#9E9E9E">000</b><b style="color:#9D9D9D">0110</b><b style="color:#9C9C9C">110</b><b style="color:#9B9B9B">100</b>
 <b style="color:#AEAEAE">0010001</b><b style="color:#ADADAD">011100001</b><b style="color:#ACACAC">0</b><b style="color:#ADADAD">0</b><b style="color:#ACACAC">010111</b><b style="color:#ABABAB">0</b><b style="color:#ACACAC">01</b><b style="color:#ABABAB">1011001</b><b style="color:#ACACAC">00</b><b style="color:#ABABAB">0</b><b style="color:#ACACAC">0</b><b style="color:#ABABAB">101</b><b style="color:#A9A9A9">0</b><b style="color:#ABABAB">1</b><b style="color:#ACACAC">0</b><b style="color:#A9A9A9">1</b><b style="color:#A7A7A7">1</b><b style="color:#A9A9A9">1</b><b style="color:#AAAAAA">1</b><b style="color:#A0A0A0">0</b><b style="color:#989898">0</b><b style="color:#9B9B9B">1</b><b style="color:#A0A0A0">0</b><b style="color:#A1A1A1">1</b><b style="color:#A3A3A3">0</b><b style="color:#989898">1</b><b style="color:#878787">1</b><b style="color:#777777">0</b><b style="color:#797979">1</b><b style="color:#7F7F7F">0</b><b style="color:#787878">0</b><b style="color:#696969">1</b><b style="color:#4F4F4F">1</b><b style="color:#4D4D4D">0</b><b style="color:#555555">1</b><b style="color:#595959">0</b><b style="color:#6A6A6A">1</b><b style="color:#757575">0</b><b style="color:#777777">1</b><b style="color:#797979">0</b><b style="color:#777777">0</b><b style="color:#757575">0</b><b style="color:#797979">1</b><b style="color:#7A7A7A">0</b><b style="color:#828282">0</b><b style="color:#909090">1</b><b style="color:#9A9A9A">0</b><b style="color:#A2A2A2">0</b><b style="color:#A8A8A8">0</b><b style="color:#A7A7A7">1</b><b style="color:#A4A4A4">00111110</b><b style="color:#A3A3A3">1101</b><b style="color:#A2A2A2">01001011</b><b style="color:#A1A1A1">1001</b><b style="color:#A0A0A0">1001</b><b style="color:#9F9F9F">111001</b><b style="color:#9E9E9E">0101</b><b style="color:#9D9D9D">11</b><b style="color:#9C9C9C">0111</b><b style="color:#9B9B9B">10</b>
@@ -61,12 +63,12 @@ export const bioHTML =
 <b style="color:#ACACAC">10</b><b style="color:#ADADAD">0</b><b style="color:#ACACAC">0</b><b style="color:#8F8F8F">0</b><b style="color:#5A5A5A">0</b><b style="color:#282828">0</b><b style="color:#232323">11</b><b style="color:#252525">1</b><b style="color:#242424">0</b><b style="color:#171717">0</b><b style="color:#1C1C1C">1</b><b style="color:#222222">1</b><b style="color:#1D1D1D">1</b><b style="color:#181818">0</b><b style="color:#212121">0</b><b style="color:#1E1E1E">1</b><b style="color:#181818">1</b><b style="color:#111111">0</b><b style="color:#1B1B1B">1</b><b style="color:#1F1F1F">0</b><b style="color:#1B1B1B">11</b><b style="color:#141414">1</b><b style="color:#070707">1</b><b style="color:#040404">0</b><b style="color:#0D0D0D">0</b><b style="color:#131313">0</b><b style="color:#1D1D1D">1</b><b style="color:#131313">1</b><b style="color:#1C1C1C">0</b><b style="color:#111111">1</b><b style="color:#131313">0</b><b style="color:#151515">1</b><b style="color:#252525">0</b><b style="color:#1A1A1A">1</b><b style="color:#1E1E1E">1</b><b style="color:#202020">1</b><b style="color:#1D1D1D">1</b><b style="color:#1F1F1F">1</b><b style="color:#171717">1</b><b style="color:#212121">10</b><b style="color:#171717">0</b><b style="color:#1F1F1F">1</b><b style="color:#181818">0</b><b style="color:#1A1A1A">0</b><b style="color:#242424">1</b><b style="color:#1C1C1C">01</b><b style="color:#131313">0</b><b style="color:#121212">1</b><b style="color:#191919">1</b><b style="color:#181818">1</b><b style="color:#1D1D1D">0</b><b style="color:#181818">0</b><b style="color:#131313">0</b><b style="color:#191919">1</b><b style="color:#131313">1</b><b style="color:#0D0D0D">1</b><b style="color:#191919">1</b><b style="color:#1B1B1B">11</b><b style="color:#1C1C1C">1</b><b style="color:#0A0A0A">10</b><b style="color:#0E0E0E">0</b><b style="color:#030303">11</b><b style="color:#070707">0</b><b style="color:#0F0F0F">0</b><b style="color:#181818">0</b><b style="color:#121212">0</b><b style="color:#1C1C1C">0</b><b style="color:#1B1B1B">1</b><b style="color:#111111">0</b><b style="color:#161616">0</b><b style="color:#121212">0</b><b style="color:#1F1F1F">0</b><b style="color:#1D1D1D">1</b><b style="color:#141414">1</b><b style="color:#181818">1</b><b style="color:#0C0C0C">0</b><b style="color:#070707">0</b><b style="color:#060606">0</b><b style="color:#0F0F0F">0</b><b style="color:#0C0C0C">1</b><b style="color:#131313">0</b><b style="color:#161616">0</b><b style="color:#141414">0</b><b style="color:#191919">0</b><b style="color:#1D1D1D">1</b><b style="color:#131313">1</b><b style="color:#141414">1</b><b style="color:#111111">1</b><b style="color:#141414">1</b><b style="color:#1B1B1B">1</b><b style="color:#141414">1</b><b style="color:#121212">1</b><b style="color:#0E0E0E">0</b><b style="color:#111111">1</b><b style="color:#181818">0</b><b style="color:#111111">0</b><b style="color:#151515">0</b><b style="color:#121212">11</b><b style="color:#0C0C0C">1</b><b style="color:#090909">0</b><b style="color:#121212">1</b><b style="color:#0F0F0F">0</b><b style="color:#121212">0</b><b style="color:#0A0A0A">1</b><b style="color:#111111">0</b><b style="color:#0F0F0F">1</b><b style="color:#0E0E0E">1</b><b style="color:#121212">0</b><b style="color:#0C0C0C">1</b><b style="color:#0A0A0A">1</b><b style="color:#0B0B0B">0</b><b style="color:#0D0D0D">1</b><b style="color:#1F1F1F">0</b><b style="color:#555555">1</b><b style="color:#909090">0</b><b style="color:#9B9B9B">1</b>
 <b style="color:#ABABAB">0</b><b style="color:#ADADAD">1</b><b style="color:#A4A4A4">1</b><b style="color:#505050">1</b><b style="color:#242424">1</b><b style="color:#212121">00</b><b style="color:#282828">1</b><b style="color:#212121">0</b><b style="color:#272727">0</b><b style="color:#222222">0</b><b style="color:#171717">0</b><b style="color:#181818">1</b><b style="color:#1E1E1E">0</b><b style="color:#212121">1</b><b style="color:#1C1C1C">0</b><b style="color:#1E1E1E">1</b><b style="color:#181818">1</b><b style="color:#0C0C0C">1</b><b style="color:#1F1F1F">1</b><b style="color:#1E1E1E">1</b><b style="color:#1A1A1A">0</b><b style="color:#1D1D1D">1</b><b style="color:#191919">1</b><b style="color:#050505">00</b><b style="color:#080808">0</b><b style="color:#191919">1</b><b style="color:#1B1B1B">0</b><b style="color:#151515">0</b><b style="color:#1B1B1B">11</b><b style="color:#141414">10</b><b style="color:#1D1D1D">0</b><b style="color:#191919">1</b><b style="color:#1F1F1F">0</b><b style="color:#1B1B1B">0</b><b style="color:#212121">1</b><b style="color:#1B1B1B">1</b><b style="color:#171717">0</b><b style="color:#222222">0</b><b style="color:#1E1E1E">01</b><b style="color:#202020">0</b><b style="color:#161616">1</b><b style="color:#1B1B1B">1</b><b style="color:#181818">0</b><b style="color:#1C1C1C">0</b><b style="color:#232323">0</b><b style="color:#141414">1</b><b style="color:#1C1C1C">0</b><b style="color:#1A1A1A">1</b><b style="color:#191919">1</b><b style="color:#1E1E1E">1</b><b style="color:#171717">1</b><b style="color:#1A1A1A">1</b><b style="color:#1B1B1B">1</b><b style="color:#121212">1</b><b style="color:#080808">1</b><b style="color:#131313">1</b><b style="color:#1A1A1A">1</b><b style="color:#191919">0</b><b style="color:#0D0D0D">0</b><b style="color:#080808">1</b><b style="color:#121212">0</b><b style="color:#161616">1</b><b style="color:#181818">1</b><b style="color:#161616">0</b><b style="color:#0F0F0F">0</b><b style="color:#1C1C1C">1</b><b style="color:#191919">1</b><b style="color:#131313">1</b><b style="color:#1D1D1D">1</b><b style="color:#181818">1</b><b style="color:#161616">1</b><b style="color:#141414">1</b><b style="color:#111111">1</b><b style="color:#1F1F1F">0</b><b style="color:#1B1B1B">1</b><b style="color:#191919">1</b><b style="color:#171717">1</b><b style="color:#0A0A0A">0</b><b style="color:#070707">01</b><b style="color:#111111">1</b><b style="color:#0F0F0F">0</b><b style="color:#151515">1</b><b style="color:#171717">0</b><b style="color:#121212">0</b><b style="color:#131313">0</b><b style="color:#191919">0</b><b style="color:#171717">0</b><b style="color:#161616">0</b><b style="color:#111111">0</b><b style="color:#151515">0</b><b style="color:#141414">0</b><b style="color:#151515">0</b><b style="color:#191919">1</b><b style="color:#0A0A0A">1</b><b style="color:#141414">11</b><b style="color:#151515">1</b><b style="color:#141414">1</b><b style="color:#101010">0</b><b style="color:#0F0F0F">0</b><b style="color:#060606">0</b><b style="color:#0F0F0F">01</b><b style="color:#151515">1</b><b style="color:#131313">0</b><b style="color:#0F0F0F">0</b><b style="color:#101010">1</b><b style="color:#0C0C0C">1</b><b style="color:#0F0F0F">1</b><b style="color:#0C0C0C">1</b><b style="color:#111111">1</b><b style="color:#0C0C0C">0</b><b style="color:#0F0F0F">0</b><b style="color:#0A0A0A">1</b><b style="color:#0C0C0C">1</b><b style="color:#0B0B0B">1</b><b style="color:#050505">0</b><b style="color:#262626">1</b><b style="color:#7E7E7E">1</b>
 <b style="color:#ABABAB">0</b><b style="color:#AFAFAF">0</b><b style="color:#7E7E7E">0</b><b style="color:#171717">0</b><b style="color:#1F1F1F">1</b><b style="color:#212121">0</b><b style="color:#222222">1</b><b style="color:#262626">1</b><b style="color:#1E1E1E">0</b><b style="color:#2A2A2A">0</b><b style="color:#1E1E1E">1</b><b style="color:#212121">0</b><b style="color:#171717">0</b><b style="color:#262626">0</b><b style="color:#1C1C1C">1</b><b style="color:#212121">1</b><b style="color:#1A1A1A">1</b><b style="color:#0D0D0D">1</b><b style="color:#1B1B1B">0</b><b style="color:#1C1C1C">0</b><b style="color:#1D1D1D">0</b><b style="color:#1E1E1E">0</b><b style="color:#151515">1</b><b style="color:#0B0B0B">1</b><b style="color:#030303">1</b><b style="color:#080808">0</b><b style="color:#191919">1</b><b style="color:#131313">1</b><b style="color:#1E1E1E">11</b><b style="color:#222222">0</b><b style="color:#121212">1</b><b style="color:#191919">1</b><b style="color:#161616">0</b><b style="color:#1C1C1C">1</b><b style="color:#191919">10</b><b style="color:#272727">0</b><b style="color:#161616">1</b><b style="color:#1C1C1C">1</b><b style="color:#1D1D1D">1</b><b style="color:#1E1E1E">0</b><b style="color:#272727">1</b><b style="color:#1D1D1D">0</b><b style="color:#1C1C1C">1</b><b style="color:#1D1D1D">0</b><b style="color:#151515">1</b><b style="color:#1D1D1D">0</b><b style="color:#1B1B1B">0</b><b style="color:#181818">1</b><b style="color:#1F1F1F">0</b><b style="color:#1A1A1A">0</b><b style="color:#1F1F1F">0</b><b style="color:#1B1B1B">1</b><b style="color:#1C1C1C">1</b><b style="color:#202020">1</b><b style="color:#161616">0</b><b style="color:#181818">0</b><b style="color:#090909">1</b><b style="color:#0C0C0C">0</b><b style="color:#1A1A1A">0</b><b style="color:#191919">0</b><b style="color:#060606">0</b><b style="color:#0C0C0C">1</b><b style="color:#181818">00</b><b style="color:#252525">0</b><b style="color:#131313">0</b><b style="color:#191919">1</b><b style="color:#212121">0</b><b style="color:#151515">0</b><b style="color:#191919">0</b><b style="color:#1A1A1A">1</b><b style="color:#191919">0</b><b style="color:#1B1B1B">1</b><b style="color:#111111">1</b><b style="color:#151515">1</b><b style="color:#1B1B1B">1</b><b style="color:#181818">1</b><b style="color:#1E1E1E">1</b><b style="color:#121212">1</b><b style="color:#0B0B0B">1</b><b style="color:#050505">0</b><b style="color:#0C0C0C">1</b><b style="color:#121212">10</b><b style="color:#181818">0</b><b style="color:#191919">1</b><b style="color:#131313">00</b><b style="color:#0F0F0F">0</b><b style="color:#1C1C1C">1</b><b style="color:#171717">0</b><b style="color:#111111">0</b><b style="color:#191919">0</b><b style="color:#101010">1</b><b style="color:#121212">1</b><b style="color:#151515">1</b><b style="color:#0F0F0F">1</b><b style="color:#151515">1</b><b style="color:#111111">0</b><b style="color:#191919">1</b><b style="color:#0E0E0E">0</b><b style="color:#0F0F0F">0</b><b style="color:#131313">0</b><b style="color:#070707">0</b><b style="color:#0E0E0E">0</b><b style="color:#121212">1</b><b style="color:#171717">1</b><b style="color:#0E0E0E">0</b><b style="color:#151515">0</b><b style="color:#101010">0</b><b style="color:#0E0E0E">0</b><b style="color:#0C0C0C">1</b><b style="color:#101010">1</b><b style="color:#0C0C0C">10</b><b style="color:#090909">0</b><b style="color:#0A0A0A">1</b><b style="color:#070707">0111</b><b style="color:#030303">1</b><b style="color:#1C1C1C">0</b></pre>` +
-	`<p>\nJe m&apos;appelle Arthur. Développeur web passionné des nouvelles technologies, je m&apos;engage à faire avancer les missions des entreprises.</p>`;
+	$t("Data.terminalBioQuote");
 
 export const socialsHTML = `<ul><li><a href='https://github.com/durandarthur' target='_blank' rel='noreferrer' class='underline'>GitHub</a></li><li><a href='https://www.linkedin.com/in/arthur-durand-0967741b9/' target='_blank' rel='noreferrer' class='underline'>LinkedIn</a></li></ul>`;
 
 export const techs = {
-	"Développement Web": {
+	[$t("Data.techs.webDev")]: {
 		Javascript: {
 			"Adonis.js": null,
 			"Express.js": null,
@@ -77,7 +79,7 @@ export const techs = {
 			Prisma: null,
 			React: null,
 			Typescript: null,
-			Vue: null
+			Vue: null,
 		},
 
 		UI: {
@@ -87,20 +89,20 @@ export const techs = {
 			"Mantine UI": null,
 			Quasar: null,
 			"SASS, postCSS": null,
-			Tailwind: null
+			Tailwind: null,
 		},
 
 		"AWS (BOTO3)": {
 			"AWS S3": null,
 			"AWS SQS": null,
-			"AWS SNS": null
+			"AWS SNS": null,
 		},
 
 		Database: {
 			mongoDB: null,
 			"MySQL/MariaDB": null,
 			postgreSQL: null,
-			"SQL Server": null
+			"SQL Server": null,
 		},
 
 		Devops: {
@@ -109,32 +111,32 @@ export const techs = {
 			Linux: null,
 			Netlify: null,
 			nginx: null,
-			Vercel: null
+			Vercel: null,
 		},
 
 		Tests: { Cypress: null, Jest: null, Mocha: null, Puppeteer: null },
 
-		Outils: { ESLint: null, Prettier: null, VSCode: null },
+		[$t("Data.techs.tools")]: { ESLint: null, Prettier: null, VSCode: null },
 
-		Autres: {
+		[$t("Data.techs.misc")]: {
 			GraphQL: null,
 			Git: null,
 			Postman: null,
-			SVN: null
+			SVN: null,
 		},
 	},
 
-	"Gestion de projet": {
+	[$t("Data.techs.projectManagement")]: {
 		Agile: null,
 		GanttProject: null,
 		"Github projects": null,
-		Trello: null
+		Trello: null,
 	},
 
 	Design: {
 		"Adobe Illustrator": null,
 		"Adobe Photoshop": null,
-		"Adobe XD": null
+		"Adobe XD": null,
 	},
 
 	OS: {
@@ -144,69 +146,65 @@ export const techs = {
 		"Kali Linux": null,
 		"MacOS Big Sur": null,
 		Ubuntu: null,
-		"Ubuntu sur WSL2": null,
-		Windows: null
+		"Ubuntu WSL2": null,
+		Windows: null,
 	},
 
-	Autres: {
+	[$t("Data.techs.misc")]: {
 		"Adobe Premiere Pro": null,
 		"FL Studio": null,
 		"Microsoft Excel/Powerpoint/Access": null,
 		OBS: null,
 		Obsidian: null,
-		VirtualBox: null
+		VirtualBox: null,
 	},
 };
 
 export const timeline = [
 	{
-		title: "Mars 2025\nPrésent",
-		cardTitle: "Développeur et Designer Web",
-		cardSubtitle: "Kalisio (Télétravail)",
-		cardDetailedText:
-			"Composants Vue.js, tests avec Puppeteer, travail avec Node.js et Feathers.js sur plusieurs projets pour Airbus et l'ASNR.\nUtilisation d'un SDK créé par l'entreprise",
+		title: `${$t("Data.timeline.march")} 2025\n${$t(
+			"Data.timeline.february"
+		)} 2026`,
+		cardTitle: $t("Data.timeline.designerDeveloper"),
+		cardSubtitle: `Kalisio (${$t("Data.timeline.remote")})`,
+		cardDetailedText: $t("Data.timeline.kalisioDetail"),
 	},
 	{
-		title: "Mars 2023\n2024",
-		cardTitle: "Ingénieur Fullstack",
-		cardSubtitle: "Fuvi Clan (Télétravail)",
-		cardDetailedText:
-			"Service web pour DJs, sous contrat de confidentialité.\n • Développement fullstack avec Vue et Laravel\n • Implémentation d'IA\n • Développement AWS SQS et S3 avec BOTO3 (Python)",
+		title: `${$t("Data.timeline.march")} 2023\n2024`,
+		cardTitle: $t("Data.timeline.SWE"),
+		cardSubtitle: `Fuvi Clan (${$t("Data.timeline.remote")})`,
+		cardDetailedText: $t("Data.timeline.fuviDetail"),
 	},
 	{
-		title: "Décembre 2022\nAvril 2024",
-		cardTitle: "Concepteur Développeur d'Application (diplômé RNCP n°6)",
-		cardSubtitle: "O'clock, campus en ligne",
-		cardDetailedText:
-			"Formation de développeur web en alternance (1 semaine en formation / 2 semaines en entreprise)\nCompétences apprises: PHP, Node, React, conteneurs, unit testing, design patterns, SoC, sécurité, applications bureau, DevOps",
+		title: `${$t("Data.timeline.december")} 2022\n${$t(
+			"Data.timeline.april"
+		)} 2024`,
+		cardTitle: $t("Data.timeline.CDA"),
+		cardSubtitle: $t("Data.timeline.oclock"),
+		cardDetailedText: $t("Data.timeline.oclockDetail"),
 	},
 	{
 		title: "2021-2022",
-		cardTitle: "Projet personnel",
-		cardSubtitle: "Année de césure",
-		cardDetailedText:
-			"Développement d'un site web avec React et Next.js, lié à une base de données postgresql avec fonctions CRUD.\nPermet de publier des idées de projet et d'en rechercher d'une façon similaire à un forum.",
+		cardTitle: $t("Data.timeline.personalProject"),
+		cardSubtitle: $t("Data.timeline.gapYear"),
+		cardDetailedText: $t("Data.timeline.personalProjectDetail"),
 	},
 	{
 		title: "2021",
-		cardTitle: "Développeur fullstack",
+		cardTitle: $t("Data.timeline.fullstackDev"),
 		cardSubtitle: "Creapli, Auzeville-Tolosane",
-		cardDetailedText:
-			"J'ai développé une application web (soumise à une clause de confidentalité) en C# et JavaScript utilisée dans la gestion de finances pour une chaîne de bijouteries.",
+		cardDetailedText: $t("Data.timeline.creapliDetail"),
 	},
 	{
 		title: "2019-2021",
-		cardTitle: "Bac+2 Spécialité informatique",
-		cardSubtitle: "CESI Ecole d'Ingénieurs, Labège",
-		cardDetailedText:
-			"Formation C/C++, SQL, PHP, structures de données, algorithmes de tri/performance algorithmes",
+		cardTitle: $t("Data.timeline.bacplustwo"),
+		cardSubtitle: `${$t("Data.timeline.cesiEngineeringSchool")}, Labège`,
+		cardDetailedText: $t("Data.timeline.cesiDetail"),
 	},
 	{
 		title: "2017-2019",
-		cardTitle: "Baccalauréat STi2D",
+		cardTitle: $t("Data.timeline.bacSti"),
 		cardSubtitle: "Cité Scolaire de Mirepoix",
-		cardDetailedText:
-			"Spécialisation informatique (Systèmes d'Information et Numérique)",
+		cardDetailedText: $t("Data.timeline.bacDetail"),
 	},
 ];
-
