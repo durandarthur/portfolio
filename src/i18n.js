@@ -178,8 +178,8 @@ const keys = {
 		},
 		moreInfo: {
 			credits: {
-				en: "Ce projet n'aurait pas été possible sans",
-				fr: "This project was created thanks to",
+				en: "This project was created thanks to",
+				fr: "Ce projet n'aurait pas été possible sans",
 			},
 			legalNoticeTitle: {
 				en: "Legal notice",
