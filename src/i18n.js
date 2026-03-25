@@ -169,8 +169,8 @@ const keys = {
 			SSO with third-party providers, and more.
 			The website was deployed on a Hetzner VPS using Docker, nginx, SSL and a Cloudflare domain.`,
 			fr: `Une refonte du célèbre site web d'écriture collaborative.
-			Ce projet de développement web fullstack fait avec Adonis JS,
-			React, et Mantine UI comporte le téléchargement de fichiers,
+			Ce projet de développement web fullstack a été fait avec Adonis JS,
+			React, et Mantine UI. Il comporte le téléchargement de fichiers,
 			la conversion de documents Word en HTML, l'utilisation de WebSockets,
 			l'authentification unique (SSO), et bien plus encore.
 			Déployé sur un VPS Hetzner utilisant Docker, Nginx, SSL et un domaine
