@@ -232,8 +232,8 @@ export function $t(key) {
 
 export function getCvUrl() {
 	if (lang.startsWith("fr")) {
-		return "/CV_Arthur_Durand_2026_(portfolio).pdf";
+		return "/cv-arthur-durand-2026-portfolio.pdf";
 	} else {
-		return "/CV_Arthur_Durand_2026_(portfolio_EN).pdf";
+		return "/cv-arthur-durand-2026-portfolio-en.pdf";
 	}
 }
