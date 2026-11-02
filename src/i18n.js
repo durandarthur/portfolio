@@ -26,6 +26,10 @@ const keys = {
 			en: "Website link",
 			fr: "Lien du site web",
 		},
+		repoLink: {
+			en: "Repository link",
+			fr: "Lien du Repo",
+		},
 	},
 	Data: {
 		terminalBioQuote: {
@@ -175,6 +179,14 @@ const keys = {
 			l'authentification unique (SSO), et bien plus encore.
 			Déployé sur un VPS Hetzner utilisant Docker, Nginx, SSL et un domaine
 			Cloudflare.`,
+		},
+		stLoungeTitle: {
+			en: "ShaderToy Lounge",
+			fr: "ShaderToy Lounge",
+		},
+		stLoungeDetail: {
+			en: "ShaderToy Lounge is a Linux shader viewer (C++, OpenGL, open source). It can be installed by compiling the source code, or by downloading the AppImage or FlatPak. The CI/CD managed by GitHub Actions automatically produces the packages.",
+			fr: "Lecteur de shaders pour Linux (C++, OpenGL, open source). Installable en compilant le code source, ou en téléchargeant l'AppImage ou le FlatPak. Le CI/CD géré par GitHub Actions produit automatiquement les packages.",
 		},
 		moreInfo: {
 			credits: {

@@ -6,8 +6,16 @@ const props = defineProps({
 		required: true,
 		type: String,
 	},
+	imageLink: {
+		required: true,
+		type: String,
+	},
 	link: {
 		required: false,
+		type: String,
+	},
+	linkText: {
+		default: $t("ProjectCard.websiteLink"),
 		type: String,
 	},
 });
@@ -17,7 +25,7 @@ const props = defineProps({
 	<div class="max-w-sm w-full lg:max-w-full lg:flex">
 		<div
 			class="border-l border-r border-white rounded-2xl h-48 h-auto w-48 flex-none bg-cover bg-center text-center overflow-hidden mr-1"
-			style="background-image: url('fanfictionrework-thumbnail.png')"
+			:style="{ 'background-image': 'url(' + imageLink + ')' }"
 			title="Project thumbnail"
 		></div>
 		<div
@@ -54,7 +62,7 @@ const props = defineProps({
 							d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
 						/>
 					</svg>
-					<p v-text="$t('ProjectCard.websiteLink')"></p>
+					<p v-text="props.linkText"></p>
 				</a>
 			</div>
 		</div>

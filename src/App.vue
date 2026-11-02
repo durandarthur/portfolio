@@ -628,9 +628,20 @@ setInterval(() => setTime(), 1000);
 				<div class="grid gap-4 grid-cols-1 p-4">
 					<ProjectCard
 						:title="$t('App.ffReworkTitle')"
+						imageLink="fanfictionrework-thumbnail.png"
 						link="https://demo.fanfiction-rework.com/"
 					>
 						{{ $t("App.ffReworkDetail") }}
+					</ProjectCard>
+				</div>
+				<div class="grid gap-4 grid-cols-1 p-4">
+					<ProjectCard
+						:title="$t('App.stLoungeTitle')"
+						imageLink="stlounge-thumbnail.png"
+						link="https://github.com/durandarthur/stlounge"
+						:linkText="$t('ProjectCard.repoLink')"
+					>
+						{{ $t("App.stLoungeDetail") }}
 					</ProjectCard>
 				</div>
 			</VueWinBox>
