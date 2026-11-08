@@ -26,7 +26,6 @@ const GLYPHS = {
 const NAME = "ARTHUR DURAND";
 const NAME_CELL = 14; // px, shrunk to fit the space the page reserves
 const NAME_RADIUS = 3.5; // px at full cell size
-const NAME_STRAGGLERS = 46;
 const FONT = {
 	A: [".###.", "#...#", "#...#", "#####", "#...#", "#...#", "#...#"],
 	R: ["####.", "#...#", "#...#", "####.", "#.#..", "#..#.", "#...#"],
@@ -36,7 +35,7 @@ const FONT = {
 	D: ["####.", "#...#", "#...#", "#...#", "#...#", "#...#", "####."],
 	N: ["#...#", "##..#", "#.#.#", "#..##", "#...#", "#...#", "#...#"],
 };
-// Enough particles for the name and its stragglers on small screens
+// Enough particles for the name on small screens
 const MIN_PARTICLES = 300;
 
 // Timed ease-out tweens (like gsap's power1.out): fast start, gentle stop
@@ -52,11 +51,6 @@ const DEPTH_FACTOR = 4.9;
 const DEPTH_BIAS = 0.55; // z = rand^0.55 × depth: most particles are far
 const FIELD_RADIUS = 6; // px at z = 0
 const FORM_RADIUS = 2.5; // px, particles in a glyph
-// Stragglers: particles hanging around a glyph at mixed depths, as if still
-// flying in. Distances are fractions of the glyph size.
-const STRAGGLERS = 60;
-const STRAGGLER_DIST = [0.09, 0.7];
-const STRAGGLER_Z = 500; // depth spread, px
 const PARTICLE_COLOR = "#04D9FF";
 // Fog: far particles fade towards this colour, up to 85% at full depth
 const FOG_COLOR = 0x061020;
@@ -225,12 +219,7 @@ async function glyphFormation(url) {
 		z,
 		r: FORM_RADIUS,
 	}));
-	const [dMin, dMax] = STRAGGLER_DIST;
-	return {
-		center: { x: 0, y: 0 },
-		shapeCount: outline.length,
-		points: withStragglers(outline, STRAGGLERS, dMin * size, dMax * size, STRAGGLER_Z),
-	};
+	return { center: { x: 0, y: 0 }, points: outline };
 }
 
 // The Techs glyph: a ring of nodes around an inner network, in a 400-unit
@@ -277,12 +266,7 @@ function networkFormation() {
 	const size = Math.ceil(Math.min(window.innerHeight, window.innerWidth) / 2);
 	const scale = size / NETWORK.extent;
 	const shape = raw.map((p) => ({ x: p.x * scale, y: p.y * scale, z: p.z, r: FORM_RADIUS }));
-	const [dMin, dMax] = STRAGGLER_DIST;
-	return {
-		center: { x: 0, y: 0 },
-		shapeCount: shape.length,
-		points: withStragglers(shape, STRAGGLERS, dMin * size, dMax * size, STRAGGLER_Z),
-	};
+	return { center: { x: 0, y: 0 }, points: shape };
 }
 
 // The name, centred on the element the page marks with
@@ -318,47 +302,27 @@ function nameFormation() {
 		);
 	});
 
-	const k = cell / NAME_CELL;
 	return {
 		center: {
 			x: rect.left + rect.width / 2 - vw / 2,
 			y: -(rect.top + rect.height / 2 - vh / 2),
 		},
-		shapeCount: shape.length,
-		points: withStragglers(shape, NAME_STRAGGLERS, 24 * k, 150 * k, 300),
+		points: shape,
 	};
 }
 
-// At most `budget` points: the shape first (thinned out evenly if needed),
-// then as many stragglers as fit
-function fitToBudget({ points, shapeCount }, budget) {
-	if (shapeCount <= budget) return points.slice(0, budget);
-	return Array.from({ length: budget }, (_, i) => points[Math.floor((i * shapeCount) / budget)]);
+// At most `budget` points, thinned out evenly if needed
+function fitToBudget(points, budget) {
+	if (points.length <= budget) return points;
+	return Array.from({ length: budget }, (_, i) => points[Math.floor((i * points.length) / budget)]);
 }
 
-// Appends `count` points scattered around random points of the shape.
-// The shape comes first, so it keeps priority when particles run short.
-function withStragglers(shape, count, dMin, dMax, zSpread) {
-	const extra = [];
-	for (let i = 0; i < count && shape.length; i++) {
-		const base = shape[Math.floor(Math.random() * shape.length)];
-		const angle = Math.random() * Math.PI * 2;
-		const d = dMin + Math.random() * (dMax - dMin);
-		extra.push({
-			x: base.x + Math.cos(angle) * d,
-			y: base.y + Math.sin(angle) * d * 0.6,
-			z: base.z + (Math.random() - 0.5) * zSpread,
-			r: base.r * (0.8 + Math.random() * 0.6),
-		});
-	}
-	return [...shape, ...extra];
-}
 
 // Hovered icon wins over the focused window; the name shows otherwise
 let hoverKey = null;
 let activeKey = null;
 let formationKey = null;
-let formation = null; // { points, shapeCount, center }
+let formation = null; // { points, center }
 let request = 0;
 
 async function updateFormation() {
@@ -376,7 +340,7 @@ async function updateFormation() {
 	formationKey = key;
 	formation = next;
 
-	const points = next ? fitToBudget(next, states.length) : [];
+	const points = next ? fitToBudget(next.points, states.length) : [];
 	states.forEach((s, i) => {
 		if (i < points.length) tweenTo(s, points[i], FORM_MS, { local: true });
 		// Leaving the formation: ease out to a random spot, then drift
