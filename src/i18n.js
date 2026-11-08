@@ -55,7 +55,7 @@ const keys = {
 				fr: "Une application Linux légère qui joue des shaders ShaderToy dans une fenêtre — playlists, fondus enchaînés, favoris et shaders réactifs à l'audio du bureau. Moteur de rendu maison, sans Electron.",
 			},
 		},
-		// Shortened from App.ffReworkDetail
+		// Shortened from the project's earlier, longer description
 		ffrework: {
 			desc: {
 				en: "A rework of the famous collaborative writing website: file downloads, Word to HTML conversion, WebSockets and SSO. Deployed on a Hetzner VPS with Docker, nginx and a Cloudflare domain.",
@@ -162,16 +162,6 @@ const keys = {
 			fr: "Pressé ? Récupérez mon CV, ou explorez — tout ici s'ouvre comme sur un vrai bureau.",
 		},
 		openCv: { en: "Open CV", fr: "Ouvrir le CV" },
-	},
-	ProjectCard: {
-		websiteLink: {
-			en: "Website link",
-			fr: "Lien du site web",
-		},
-		repoLink: {
-			en: "Repository link",
-			fr: "Lien du Repo",
-		},
 	},
 	Data: {
 		terminalBioQuote: {
@@ -317,18 +307,6 @@ const keys = {
 				},
 			},
 		},
-		contactForm: {
-			en: "Contact form",
-			fr: "Formulaire de contact",
-		},
-		myProjects: {
-			en: "My Projects",
-			fr: "Mes Projets",
-		},
-		projectsIconLabel: {
-			en: "Projects",
-			fr: "Projets",
-		},
 		about: {
 			en: "About",
 			fr: "À propos",
@@ -336,28 +314,6 @@ const keys = {
 		ffReworkTitle: {
 			en: "Fanfiction.net rework",
 			fr: "Refonte de Fanfiction.net",
-		},
-		ffReworkDetail: {
-			en: `A rework of the famous collaborative writing website.
-			This project has been built with Adonis.js, React, and Mantine UI.
-			It features file downloads, text document to HTML conversion, WebSockets use, 
-			SSO with third-party providers, and more.
-			The website was deployed on a Hetzner VPS using Docker, nginx, SSL and a Cloudflare domain.`,
-			fr: `Une refonte du célèbre site web d'écriture collaborative.
-			Ce projet de développement web fullstack a été fait avec Adonis JS,
-			React, et Mantine UI. Il comporte le téléchargement de fichiers,
-			la conversion de documents Word en HTML, l'utilisation de WebSockets,
-			l'authentification unique (SSO), et bien plus encore.
-			Déployé sur un VPS Hetzner utilisant Docker, Nginx, SSL et un domaine
-			Cloudflare.`,
-		},
-		stLoungeTitle: {
-			en: "ShaderToy Lounge",
-			fr: "ShaderToy Lounge",
-		},
-		stLoungeDetail: {
-			en: "ShaderToy Lounge is a Linux shader viewer (C++, OpenGL, open source). It can be installed by compiling the source code, or by downloading the AppImage or FlatPak. The CI/CD managed by GitHub Actions automatically produces the packages.",
-			fr: "Lecteur de shaders pour Linux (C++, OpenGL, open source). Installable en compilant le code source, ou en téléchargeant l'AppImage ou le FlatPak. Le CI/CD géré par GitHub Actions produit automatiquement les packages.",
 		},
 		moreInfo: {
 			credits: {

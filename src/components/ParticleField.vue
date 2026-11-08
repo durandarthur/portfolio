@@ -15,11 +15,6 @@ const props = defineProps({
 
 // Glyph per app: the lines of its desktop icon (public/glyphs, editable
 // SVG strokes without the icons' shading seams).
-// Previous glyphs, to switch back:
-//   contact: glyphFormation("/mail.svg"), cv: glyphFormation("/cv.svg"),
-//   projects: glyphFormation("/projects.svg"),
-//   terminal: glyphFormation("/terminal_dark.svg"),
-//   techs: networkFormation() or glyphFormation("/techs_dark.svg")
 const GLYPHS = {
 	contact: () => lineFormation("/glyphs/contact.svg"),
 	cv: () => lineFormation("/glyphs/cv.svg"),
@@ -205,45 +200,6 @@ async function loadSvg(url) {
 	return svgCache.get(url);
 }
 
-// Points along the glyph's outlines (about half the particles), centred on
-// the screen and scaled to half its smaller side
-async function glyphFormation(url) {
-	const { paths } = await loadSvg(url);
-	const points = [];
-	const bounds = new THREE.Box2();
-
-	paths.forEach((path, _, allPaths) => {
-		const shapes = SVGLoader.createShapes(path);
-		shapes.forEach((shape, _, allShapes) => {
-			const perShape = Math.floor(GLYPH_BUDGET / allPaths.length / allShapes.length);
-			shape.getSpacedPoints(perShape - 1).forEach((p) => {
-				bounds.expandByPoint(p);
-				points.push({ x: p.x, y: -p.y, z: 0 });
-			});
-			shape.holes.forEach((hole, _, allHoles) => {
-				hole
-					.getSpacedPoints(Math.floor(perShape / allHoles.length) - 1)
-					.forEach((p) => points.push({ x: p.x, y: -p.y, z: 0 }));
-			});
-		});
-	});
-
-	const width = bounds.max.x - bounds.min.x;
-	const height = bounds.max.y - bounds.min.y;
-	const size = Math.ceil(Math.min(window.innerHeight, window.innerWidth) / 2);
-	const scale = size / Math.max(width, height);
-	const cx = -(bounds.min.x + bounds.max.x) / 2;
-	const cy = -(bounds.min.y + bounds.max.y) / 2;
-
-	const outline = points.map(({ x, y, z }) => ({
-		x: (x + cx) * scale,
-		y: (y - cy) * scale,
-		z,
-		r: FORM_RADIUS,
-	}));
-	return { center: { x: 0, y: 0 }, points: outline };
-}
-
 // A particle on every vertex (corners, and every point where lines meet),
 // then the rest spread at one even spacing along the lines of a stroke SVG
 // (lines drawn twice count once, open lines stay open). Uses the formation
@@ -299,53 +255,6 @@ async function lineFormation(url) {
 		// SVG y points down, world y up
 		points: points.map((p) => ({ x: (p.x - cx) * scale, y: (cy - p.y) * scale, z: 0, r: FORM_RADIUS })),
 	};
-}
-
-// The Techs glyph: a ring of nodes around an inner network, in a 400-unit
-// design space. Point spacing grows so it uses about half the particles.
-const NETWORK = {
-	ring: [200, 200, 150],
-	nodes: [[350, 200], [306, 306], [200, 350], [94, 306], [50, 200], [94, 94], [200, 50], [306, 94]],
-	hubs: [[225, 140], [140, 185], [255, 245], [175, 275]],
-	links: [
-		[200, 76, 222, 120], [118, 110, 160, 175], [330, 115, 240, 130], [76, 200, 120, 188],
-		[324, 200, 272, 238], [282, 286, 268, 260], [118, 290, 158, 262], [200, 324, 182, 295],
-		[245, 155, 250, 225], [157, 197, 240, 238], [160, 192, 210, 150], [195, 268, 236, 250],
-	],
-	extent: 352, // outer node rings span 24..376
-};
-
-function networkPoints(spacing) {
-	const pts = [];
-	const add = (x, y) => pts.push({ x: x - 200, y: 200 - y, z: (Math.random() - 0.5) * 10 });
-	const ring = (x, y, r, gap) => {
-		const n = Math.max(6, Math.round((2 * Math.PI * r) / (gap * spacing)));
-		for (let i = 0; i < n; i++) {
-			const a = (i / n) * 2 * Math.PI;
-			add(x + Math.cos(a) * r, y + Math.sin(a) * r);
-		}
-	};
-	ring(...NETWORK.ring, 8.5);
-	NETWORK.nodes.forEach(([x, y]) => {
-		ring(x, y, 26, 8.5);
-		ring(x, y, 13, 9.5);
-	});
-	NETWORK.hubs.forEach(([x, y]) => ring(x, y, 20, 8.5));
-	NETWORK.links.forEach(([x1, y1, x2, y2]) => {
-		const n = Math.max(2, Math.round(Math.hypot(x2 - x1, y2 - y1) / (9 * spacing)));
-		for (let i = 1; i < n; i++) add(x1 + ((x2 - x1) * i) / n, y1 + ((y2 - y1) * i) / n);
-	});
-	return pts;
-}
-
-function networkFormation() {
-	const budget = GLYPH_BUDGET;
-	const full = networkPoints(1).length;
-	const raw = networkPoints(Math.max(1, full / budget));
-	const size = Math.ceil(Math.min(window.innerHeight, window.innerWidth) / 2);
-	const scale = size / NETWORK.extent;
-	const shape = raw.map((p) => ({ x: p.x * scale, y: p.y * scale, z: p.z, r: FORM_RADIUS }));
-	return { center: { x: 0, y: 0 }, points: shape };
 }
 
 // Points along the edges of the name rendered on a hidden canvas,
