@@ -4,7 +4,7 @@
 // Text lives in i18n.js under "Techs" (and the timeline / project keys).
 
 // Places a tech was used. Tag order = display priority.
-export const TAGS = ["work", "internship", "side", "school", "learning"];
+export const TAGS = ["work", "internship", "side", "gapyear", "school", "learning"];
 
 export const CONTEXTS = {
 	kalisio: { tag: "work", name: "Kalisio", since: 2025, period: "2025–26", textKey: "Data.timeline.kalisioDetail" },
@@ -13,7 +13,7 @@ export const CONTEXTS = {
 	stlounge: { tag: "side", name: "stlounge", project: true, textKey: "Projects.stlounge.desc", link: { href: "https://github.com/durandarthur/stlounge", label: "github" } },
 	ffrework: { tag: "side", nameKey: "App.ffReworkTitle", project: true, textKey: "Projects.ffrework.desc", link: { href: "https://demo.fanfiction-rework.com/", label: "demo" } },
 	portfolio: { tag: "side", name: "portfolio", project: true, since: 2023, textKey: "Projects.portfolio.desc", link: { href: "https://github.com/durandarthur/portfolio", label: "github" } },
-	gapyear: { tag: "side", nameKey: "Data.timeline.personalProject", since: 2021, period: "2021–22", textKey: "Data.timeline.personalProjectDetail" },
+	gapyear: { tag: "gapyear", nameKey: "Data.timeline.personalProject", since: 2021, period: "2021–22", textKey: "Data.timeline.personalProjectDetail" },
 	oclock: { tag: "school", name: "O'clock", since: 2022, period: "2022–24", textKey: "Data.timeline.oclockDetail" },
 	cesi: { tag: "school", name: "CESI", since: 2019, period: "2019–21", textKey: "Data.timeline.cesiDetail" }
 };
@@ -127,10 +127,11 @@ const allTechs = CATEGORIES.flatMap((cat) =>
 );
 export const techByName = (name) => allTechs.find((t) => t.name === name);
 
-// Highest-priority tag among the places it was used, or null if unknown
+// Highest-priority tag among the places it was used. No documented
+// place means a side project.
 export function tagOf(tech) {
 	const tags = tech.used.map((key) => CONTEXTS[key].tag);
-	return TAGS.find((tag) => tags.includes(tag)) ?? null;
+	return TAGS.find((tag) => tags.includes(tag)) ?? "side";
 }
 
 // Earliest known year, or null

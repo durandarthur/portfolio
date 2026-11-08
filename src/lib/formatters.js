@@ -45,7 +45,7 @@ export const techsTreeFormatter = () => {
         span("term-faint", branch) +
           escapeHtml(tech.name) +
           " ".repeat(nameWidth + 2 - 8 - tech.name.length) +
-          (tag ? tagSpan(tag) : span("term-muted", "hobby"))
+          tagSpan(tag)
       );
     });
   });

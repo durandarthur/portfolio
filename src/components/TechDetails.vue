@@ -36,13 +36,13 @@ const contexts = computed(() =>
 
 		<div class="details__head">
 			<h3 class="details__name">{{ tech.name }}</h3>
-			<p v-if="tag || since" class="details__context">
-				<span class="details__strong">{{ tag ? $t(`Techs.tagsLong.${tag}`) : "[unknown]" }}</span>
-				<span class="details__sep" aria-hidden="true"> / </span>
-				{{ $t("Techs.since").replace("{year}", since ?? "[redacted]") }}
-			</p>
-			<p v-else class="details__placeholder">
-				<span class="details__strong">hobby</span>
+			<p class="details__context">
+				<span class="details__strong">{{ $t(`Techs.tagsLong.${tag}`) }}</span>
+				<!-- No documented place: just "side project" -->
+				<template v-if="tech.used.length">
+					<span class="details__sep" aria-hidden="true"> / </span>
+					{{ $t("Techs.since").replace("{year}", since ?? "[redacted]") }}
+				</template>
 			</p>
 		</div>
 

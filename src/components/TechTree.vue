@@ -151,12 +151,10 @@ function onKeydown(event, row) {
 					<span class="tree__name">{{ row.tech.name }}</span>
 					<span class="tree__spacer"></span>
 					<span
-						v-if="row.tag"
 						class="tree__tag"
 						:style="{ color: `var(--tag-${row.tag})` }"
 						>{{ $t(`Techs.tags.${row.tag}`) }}</span
 					>
-					<span v-else class="tree__tag tree__tag--unknown">hobby</span>
 				</template>
 			</div>
 		</div>
@@ -246,9 +244,6 @@ function onKeydown(event, row) {
 .tree__tag {
 	font-size: 11px;
 	font-weight: 400;
-}
-.tree__tag--unknown {
-	color: var(--text-muted);
 }
 
 .tree__legend {
