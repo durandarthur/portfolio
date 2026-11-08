@@ -11,7 +11,9 @@ node_modules
 dist
 dist-ssr
 *.local
-docs
+mockups
+DESIGN_HANDOFF.md
+PROMPT.md
 
 # Editor directories and files
 .vscode/*
