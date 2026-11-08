@@ -19,50 +19,79 @@ const SHAPES = {
 const EASE_RATE = 6; // how fast particles reach their target (1/s)
 const SCATTER_MS = 600; // time a released particle eases out before drifting again
 
+// Depth: field particles sit between z = 0 and z = -depth, biased towards far.
+// depth = camera distance × DEPTH_FACTOR, so the farthest ones show at
+// 1 / (1 + 4.9) ≈ 17% of their size.
+const DEPTH_FACTOR = 4.9;
+const DEPTH_BIAS = 0.55; // z = rand^0.55 × depth: most particles are far
+const FIELD_RADIUS = 6; // px at z = 0
+const FORM_RADIUS = 2.5; // px, particles in a glyph
+// Fog: far particles fade towards this colour, up to 85% at full depth
+const FOG_COLOR = 0x061020;
+const FOG_MAX = 0.85;
+
 const renderer = ref(null);
 const camera = ref(null);
 const box = ref(null);
 const light = ref(null);
 const particles = ref(null);
+const scene = ref(null);
 const meshKey = ref(0);
 
 const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 // Per-particle state, kept out of Vue's reactivity (updated every frame)
-// { x, y, z, target: {x, y, z} | null, releaseAt: ms | 0 }
+// { x, y, z, r, target: {x, y, z, r} | null, releaseAt: ms | 0 }
 let states = [];
 let spin = 0;
 let lastFrame = performance.now();
 const dummy = new THREE.Object3D();
-
-const halfWidth = () => document.body.clientWidth / 2;
-const halfHeight = () => document.body.clientHeight / 2;
-const randomX = () => document.body.clientWidth * Math.random() - halfWidth();
-const randomY = () => document.body.clientHeight * Math.random() - halfHeight();
-
-function initParticles() {
-	states = Array.from({ length: Number(settings.amount) }, () => ({
-		x: randomX(),
-		y: randomY(),
-		z: 0,
-		target: null,
-		releaseAt: 0,
-	}));
-}
 
 // ── Camera ───────────────────────────────────────────────────────
 // The camera sits where 1 world unit = 1 CSS px at z = 0.
 function cameraDistance(fov, height) {
 	return height / (2 * Math.tan((fov * Math.PI) / 360));
 }
+let camDist = cameraDistance(50, window.innerHeight);
+const depth = () => camDist * DEPTH_FACTOR;
+// On-screen scale of something at depth z (z <= 0)
+const perspective = (z) => camDist / (camDist - z);
+
+const halfWidth = () => document.body.clientWidth / 2;
+const halfHeight = () => document.body.clientHeight / 2;
+
+// Random spot in the field, filling the screen at its depth
+function randomFieldPoint() {
+	const z = -Math.pow(Math.random(), DEPTH_BIAS) * depth();
+	const spread = 1 / perspective(z);
+	return {
+		x: (Math.random() * 2 - 1) * halfWidth() * spread,
+		y: (Math.random() * 2 - 1) * halfHeight() * spread,
+		z,
+		r: FIELD_RADIUS,
+	};
+}
+
+function initParticles() {
+	states = Array.from({ length: Number(settings.amount) }, () => ({
+		...randomFieldPoint(),
+		target: null,
+		releaseAt: 0,
+	}));
+}
 
 function onResize() {
 	const { innerWidth, innerHeight } = window;
 	settings.amount = Math.ceil(((innerWidth * innerHeight) / (2560 * 1440)) * 1000);
-	camera.value.camera.aspect = innerWidth / innerHeight;
-	camera.value.camera.position.z = cameraDistance(50, innerHeight);
-	camera.value.camera.updateProjectionMatrix();
+	camDist = cameraDistance(50, innerHeight);
+	const cam = camera.value.camera;
+	cam.aspect = innerWidth / innerHeight;
+	cam.position.z = camDist;
+	cam.far = camDist + depth() + 100;
+	cam.updateProjectionMatrix();
+	// Fog grows with distance from the camera: none at z = 0, FOG_MAX at full depth
+	scene.value.scene.fog = new THREE.Fog(FOG_COLOR, camDist, camDist + depth() / FOG_MAX);
 	refreshFormation();
 }
 
@@ -82,14 +111,16 @@ function onMouseMove(event) {
 	const rangeSquared = Number(settings.mouseRange) ** 2;
 	const amplitude = Number(settings.mouseAmplitude) / 100;
 
+	// Compared on screen, so far particles react where they appear
 	for (const s of states) {
-		const dx = mouseX - s.x;
-		const dy = mouseY - s.y;
+		const k = perspective(s.z);
+		const dx = mouseX - s.x * k;
+		const dy = mouseY - s.y * k;
 		const distanceSquared = dx * dx + dy * dy;
 		if (distanceSquared < rangeSquared) {
 			const strength = amplitude * (1 - distanceSquared / rangeSquared);
-			s.x -= dx * strength;
-			s.y -= dy * strength;
+			s.x -= (dx * strength) / k;
+			s.y -= (dy * strength) / k;
 		}
 	}
 }
@@ -132,7 +163,12 @@ async function shapePoints(url) {
 	const cx = -(bounds.min.x + bounds.max.x) / 2;
 	const cy = -(bounds.min.y + bounds.max.y) / 2;
 
-	return points.map(({ x, y, z }) => ({ x: (x + cx) * scale, y: (y - cy) * scale, z }));
+	return points.map(({ x, y, z }) => ({
+		x: (x + cx) * scale,
+		y: (y - cy) * scale,
+		z,
+		r: FORM_RADIUS,
+	}));
 }
 
 // Hovered icon wins over the focused window
@@ -156,7 +192,7 @@ async function updateFormation() {
 			s.releaseAt = 0;
 		} else if (s.target && !s.releaseAt) {
 			// Leaving the formation: ease out to a random spot, then drift
-			s.target = { x: randomX(), y: randomY(), z: 0 };
+			s.target = randomFieldPoint();
 			s.releaseAt = now + SCATTER_MS;
 		}
 	});
@@ -190,20 +226,24 @@ function frame() {
 			s.x += (s.target.x - s.x) * ease;
 			s.y += (s.target.y - s.y) * ease;
 			s.z += (s.target.z - s.z) * ease;
+			s.r += (s.target.r - s.r) * ease;
 			if (s.releaseAt && now >= s.releaseAt) {
 				s.target = null;
 				s.releaseAt = 0;
 			}
 		} else if (!still) {
 			// Drift up and to the right, faster for higher indices, and wrap
-			if (s.x >= w) s.x = -w;
+			// at the screen edge for that depth
+			const spread = 1 / perspective(s.z);
+			if (s.x >= w * spread) s.x = -w * spread;
 			else s.x += i / n;
-			if (s.y >= h) s.y = -h;
+			if (s.y >= h * spread) s.y = -h * spread;
 			else s.y += i / n;
 		}
 
 		dummy.position.set(s.x, s.y, s.z);
 		dummy.rotation.set(spin, spin, spin);
+		dummy.scale.setScalar(s.r);
 		dummy.updateMatrix();
 		mesh.setMatrixAt(i, dummy.matrix);
 	}
@@ -261,7 +301,7 @@ defineExpose({
 		aria-hidden="true"
 	>
 		<Camera ref="camera" :position="{ z: 1500 }" :aspect="16 / 9" />
-		<Scene>
+		<Scene ref="scene">
 			<PointLight ref="light" color="#00ffff" />
 			<Box
 				ref="box"
