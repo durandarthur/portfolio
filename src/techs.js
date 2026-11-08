@@ -15,7 +15,8 @@ export const CONTEXTS = {
 	portfolio: { tag: "side", name: "portfolio", project: true, since: 2023, textKey: "Projects.portfolio.desc", link: { href: "https://github.com/durandarthur/portfolio", label: "github" } },
 	gapyear: { tag: "gapyear", nameKey: "Data.timeline.personalProject", since: 2021, period: "2021–22", textKey: "Data.timeline.personalProjectDetail" },
 	oclock: { tag: "school", name: "O'clock", since: 2022, period: "2022–24", textKey: "Data.timeline.oclockDetail" },
-	cesi: { tag: "school", name: "CESI", since: 2019, period: "2019–21", textKey: "Data.timeline.cesiDetail" }
+	cesi: { tag: "school", name: "CESI", since: 2019, period: "2019–21", textKey: "Data.timeline.cesiDetail" },
+	learning: { tag: "learning", nameKey: "Techs.learningName", textKey: "Techs.learningText" }
 };
 
 // Category key -> techs. `used` lists CONTEXTS keys; empty means unknown yet.
@@ -60,7 +61,9 @@ export const CATEGORIES = [
 	] },
 	{ key: "ai", techs: [
 		{ name: "Llama.cpp", used: [] },
-		{ name: "Claude Code", used: ["stlounge", "portfolio"] }
+		{ name: "Claude Code", used: ["stlounge", "portfolio"] },
+		{ name: "RAG", used: ["learning"] },
+		{ name: "MCP", used: ["learning"] }
 	] },
 	{ key: "graphics", techs: [
 		{ name: "OpenGL ES 3.0 · EGL", used: ["stlounge"] },

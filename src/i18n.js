@@ -143,6 +143,8 @@ const keys = {
 				fr: "J'ai écrit son propre moteur de rendu : un contexte EGL et un pipeline GLES 3.0 qui exécute des shaders ShaderToy, avec des textures de substitution et l'audio du bureau en entrée.",
 			},
 		},
+		learningName: { en: "Learning", fr: "En apprentissage" },
+		learningText: { en: "Currently learning this technology, or recently learned it.", fr: "J'apprends actuellement cette technologie, ou je l'ai récemment apprise." }
 	},
 	Window: {
 		minimize: { en: "Minimize", fr: "Réduire" },
