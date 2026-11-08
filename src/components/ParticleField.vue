@@ -28,22 +28,17 @@ const GLYPHS = {
 	techs: () => lineFormation("/glyphs/techs.svg"),
 };
 
-// The name at rest: 5×7 dot font, one particle per lit cell
+// The name at rest, drawn in the site font: particles along the letter edges
 const NAME = "ARTHUR DURAND";
-const NAME_CELL = 14; // px, shrunk to fit the space the page reserves
-const NAME_RADIUS = 3.5; // px at full cell size
-const FONT = {
-	A: [".###.", "#...#", "#...#", "#####", "#...#", "#...#", "#...#"],
-	R: ["####.", "#...#", "#...#", "####.", "#.#..", "#..#.", "#...#"],
-	T: ["#####", "..#..", "..#..", "..#..", "..#..", "..#..", "..#.."],
-	H: ["#...#", "#...#", "#...#", "#####", "#...#", "#...#", "#...#"],
-	U: ["#...#", "#...#", "#...#", "#...#", "#...#", "#...#", ".###."],
-	D: ["####.", "#...#", "#...#", "#...#", "#...#", "#...#", "####."],
-	N: ["#...#", "##..#", "#.#.#", "#..##", "#...#", "#...#", "#...#"],
-};
+const NAME_FONT = '800 {size}px "JetBrains Mono", ui-monospace, monospace';
+const NAME_MAX_SIZE = 110; // px, shrunk to fit the space the page reserves
+const NAME_RADIUS = 2.4; // px at 100px text
+const NAME_BUDGET = 480; // particles along the edges
+const NAME_MIN_SPACING = 5; // px, so small screens don't pile particles up
+const GLYPH_BUDGET = 240; // particles along an icon glyph's lines
 // Extra particles for the formations (name, glyphs), on top of the star
 // field's own amount, so the field keeps its density while they form
-const FORMATION_POOL = 240;
+const FORMATION_POOL = Math.max(NAME_BUDGET, GLYPH_BUDGET);
 
 // Timed ease-out tweens (like gsap's power1.out): fast start, gentle stop
 const FORM_MS = 800; // into a glyph
@@ -200,7 +195,7 @@ async function glyphFormation(url) {
 	paths.forEach((path, _, allPaths) => {
 		const shapes = SVGLoader.createShapes(path);
 		shapes.forEach((shape, _, allShapes) => {
-			const perShape = Math.floor(FORMATION_POOL / allPaths.length / allShapes.length);
+			const perShape = Math.floor(GLYPH_BUDGET / allPaths.length / allShapes.length);
 			shape.getSpacedPoints(perShape - 1).forEach((p) => {
 				bounds.expandByPoint(p);
 				points.push({ x: p.x, y: -p.y, z: 0 });
@@ -232,7 +227,7 @@ async function glyphFormation(url) {
 // A particle on every vertex (corners, and every point where lines meet),
 // then the rest spread at one even spacing along the lines of a stroke SVG
 // (lines drawn twice count once, open lines stay open). Uses the formation
-// pool, centred on the screen and scaled to half its smaller side.
+// glyph budget, centred on the screen and scaled to half its smaller side.
 async function lineFormation(url) {
 	const { paths } = await loadSvg(url);
 
@@ -266,7 +261,7 @@ async function lineFormation(url) {
 
 	// A segment cut into n pieces gets n - 1 points between its ends
 	const total = segments.reduce((sum, [a, b]) => sum + a.distanceTo(b), 0);
-	const spacing = total / Math.max(1, FORMATION_POOL - points.length + segments.length);
+	const spacing = total / Math.max(1, GLYPH_BUDGET - points.length + segments.length);
 	for (const [a, b] of segments) {
 		const n = Math.max(1, Math.round(a.distanceTo(b) / spacing));
 		for (let i = 1; i < n; i++) {
@@ -324,7 +319,7 @@ function networkPoints(spacing) {
 }
 
 function networkFormation() {
-	const budget = FORMATION_POOL;
+	const budget = GLYPH_BUDGET;
 	const full = networkPoints(1).length;
 	const raw = networkPoints(Math.max(1, full / budget));
 	const size = Math.ceil(Math.min(window.innerHeight, window.innerWidth) / 2);
@@ -333,9 +328,62 @@ function networkFormation() {
 	return { center: { x: 0, y: 0 }, points: shape };
 }
 
+// Points along the edges of the name rendered on a hidden canvas,
+// kept at least `spacing` apart (greedy, on a grid)
+const nameCache = new Map();
+function nameEdgePoints(size) {
+	if (nameCache.has(size)) return nameCache.get(size);
+	const canvas = document.createElement("canvas");
+	const ctx = canvas.getContext("2d", { willReadFrequently: true });
+	const font = NAME_FONT.replace("{size}", size);
+	ctx.font = font;
+	const width = Math.ceil(ctx.measureText(NAME).width) + 8;
+	const height = Math.ceil(size * 1.2) + 8;
+	canvas.width = width;
+	canvas.height = height;
+	ctx.font = font; // resizing the canvas resets it
+	ctx.textBaseline = "middle";
+	ctx.fillStyle = "#fff";
+	ctx.fillText(NAME, 4, height / 2);
+
+	// Edge pixels: inside the letters, next to a pixel outside
+	const alpha = ctx.getImageData(0, 0, width, height).data;
+	const inside = (x, y) =>
+		x >= 0 && y >= 0 && x < width && y < height && alpha[(y * width + x) * 4 + 3] >= 128;
+	const edges = [];
+	for (let y = 0; y < height; y++) {
+		for (let x = 0; x < width; x++) {
+			if (inside(x, y) && (!inside(x - 1, y) || !inside(x + 1, y) || !inside(x, y - 1) || !inside(x, y + 1)))
+				edges.push([x, y]);
+		}
+	}
+
+	// Each edge pixel is about 1px of outline
+	const spacing = Math.max(NAME_MIN_SPACING, edges.length / NAME_BUDGET);
+	const grid = new Map();
+	const cellOf = (x, y) => `${Math.floor(x / spacing)},${Math.floor(y / spacing)}`;
+	const points = [];
+	for (const [x, y] of edges) {
+		const cx = Math.floor(x / spacing);
+		const cy = Math.floor(y / spacing);
+		let near = false;
+		for (let dx = -1; dx <= 1 && !near; dx++)
+			for (let dy = -1; dy <= 1 && !near; dy++)
+				near = (grid.get(`${cx + dx},${cy + dy}`) ?? []).some(
+					([px, py]) => (px - x) ** 2 + (py - y) ** 2 < spacing * spacing
+				);
+		if (near) continue;
+		const key = cellOf(x, y);
+		grid.set(key, [...(grid.get(key) ?? []), [x, y]]);
+		points.push({ x: x - width / 2, y: height / 2 - y });
+	}
+	nameCache.set(size, points);
+	return points;
+}
+
 // The name, centred on the element the page marks with
 // data-particle-anchor="name" (the gap in the idle text)
-function nameFormation() {
+async function nameFormation() {
 	const vw = window.innerWidth;
 	const vh = window.innerHeight;
 	const anchor = document.querySelector('[data-particle-anchor="name"]');
@@ -345,33 +393,27 @@ function nameFormation() {
 			? box
 			: { left: vw / 2 - 540, top: (vh - 104) / 2 - 65, width: 1080, height: 130 };
 
-	const cols = NAME.length * 6 - 1;
-	const cell = Math.min(NAME_CELL, rect.width / cols);
-	const radius = (NAME_RADIUS * cell) / NAME_CELL;
-	const width = cols * cell;
-	const height = 7 * cell;
-	const jitter = () => (Math.random() - 0.5) * cell * 0.15;
-	const shape = [];
-	[...NAME].forEach((ch, ci) => {
-		FONT[ch]?.forEach((row, r) =>
-			[...row].forEach((v, c) => {
-				if (v !== "#") return;
-				shape.push({
-					x: (ci * 6 + c + 0.5) * cell - width / 2 + jitter(),
-					y: height / 2 - (r + 0.5) * cell + jitter(),
-					z: (Math.random() - 0.5) * 12,
-					r: radius,
-				});
-			})
-		);
-	});
+	// The font may still be loading on the first visit
+	try {
+		await document.fonts.load(NAME_FONT.replace("{size}", 100));
+	} catch {}
+	const measure = document.createElement("canvas").getContext("2d");
+	measure.font = NAME_FONT.replace("{size}", 100);
+	const widthAt100 = measure.measureText(NAME).width;
+	const size = Math.floor(Math.min(NAME_MAX_SIZE, (100 * rect.width) / widthAt100));
+	const radius = (NAME_RADIUS * size) / 100;
 
 	return {
 		center: {
 			x: rect.left + rect.width / 2 - vw / 2,
 			y: -(rect.top + rect.height / 2 - vh / 2),
 		},
-		points: shape,
+		points: nameEdgePoints(size).map((p) => ({
+			x: p.x,
+			y: p.y,
+			z: (Math.random() - 0.5) * 8,
+			r: radius,
+		})),
 	};
 }
 
@@ -398,7 +440,7 @@ async function updateFormation({ formMs = FORM_MS, scatterMs = SCATTER_MS } = {}
 	let next = null;
 	if (key === "name") {
 		await nextTick(); // let the idle text (and its anchor) render first
-		next = nameFormation();
+		next = await nameFormation();
 	} else if (GLYPHS[key]) {
 		next = await GLYPHS[key]();
 	}
