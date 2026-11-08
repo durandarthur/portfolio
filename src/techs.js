@@ -16,7 +16,8 @@ export const CONTEXTS = {
 	gapyear: { tag: "gapyear", nameKey: "Data.timeline.personalProject", since: 2021, period: "2021–22", textKey: "Data.timeline.personalProjectDetail" },
 	oclock: { tag: "school", name: "O'clock", since: 2022, period: "2022–24", textKey: "Data.timeline.oclockDetail" },
 	cesi: { tag: "school", name: "CESI", since: 2019, period: "2019–21", textKey: "Data.timeline.cesiDetail" },
-	learning: { tag: "learning", nameKey: "Techs.learningName", textKey: "Techs.learningText" }
+	// "since" is always the current year
+	learning: { tag: "learning", nameKey: "Techs.learningName", since: new Date().getFullYear(), textKey: "Techs.learningText" }
 };
 
 // Category key -> techs. `used` lists CONTEXTS keys; empty means unknown yet.
