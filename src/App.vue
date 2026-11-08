@@ -16,10 +16,10 @@ import Taskbar from "./components/Taskbar.vue";
 import TechsWindow from "./components/TechsWindow.vue";
 import WelcomeNotice from "./components/WelcomeNotice.vue";
 import WindowFrame from "./components/WindowFrame.vue";
-import { getBioHTML, getTechs, getTimeline, socialsHTML } from "./data";
+import { getBioHTML, getTimeline, socialsHTML } from "./data";
 import { projects } from "./projects";
 import { $t, getCvUrl } from "./i18n";
-import { techsFormatter, timelineFormatter } from "./lib/formatters";
+import { techsTreeFormatter, timelineFormatter } from "./lib/formatters";
 import { particleSettings } from "./lib/particleSettings";
 import {
 	anyVisible,
@@ -50,10 +50,7 @@ const commands = {
 		const list = Object.keys(commands);
 		return createStdout(listFormatter(...list));
 	},
-	techs: () =>
-		createStdout(
-			textFormatter("<pre>" + techsFormatter(getTechs()) + "</pre>", true)
-		),
+	techs: () => createStdout(textFormatter(techsTreeFormatter(), true)),
 	timeline: () => createStdout(timelineFormatter(getTimeline())),
 	socials: () => createStdout(textFormatter(socialsHTML, true)),
 };

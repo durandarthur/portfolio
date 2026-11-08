@@ -55,9 +55,16 @@
   font-family: var(--font-mono);
   color: var(--text);
 }
-/* Tree lines in "techs" */
+/* "techs" tree, like the Techs window */
 .term-faint {
   color: var(--text-faint);
+}
+.term-folder {
+  color: var(--text-strong);
+  font-weight: 700;
+}
+.term-muted {
+  color: var(--text-muted);
 }
 
 /* width */
