@@ -122,6 +122,16 @@ const keys = {
 			fr: "Passez en graphe pour voir les particules reconstruire la stack.",
 		},
 		graphLabel: { en: "Technology graph", fr: "Graphe des technologies" },
+		search: { en: "search techs", fr: "chercher une techno" },
+		searchLabel: { en: "Search techs", fr: "Chercher une techno" },
+		clearSearch: { en: "Clear search", fr: "Effacer la recherche" },
+		noMatch: { en: "No tech matches.", fr: "Aucune techno ne correspond." },
+		filterByTag: { en: "Filter by tag", fr: "Filtrer par tag" },
+		usedByAi: { en: "used by ai", fr: "utilisé par l'ia" },
+		usedByAiHint: {
+			en: "Include techs only used in projects built with Claude Code",
+			fr: "Inclure les technos utilisées seulement dans des projets faits avec Claude Code",
+		},
 		graphPickCategory: { en: "Pick a category.", fr: "Choisissez une catégorie." },
 		graphPickTech: {
 			en: "Pick a tech to see where I used it.",

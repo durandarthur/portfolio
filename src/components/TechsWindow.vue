@@ -63,21 +63,24 @@ function openProjects() {
 		<!-- The wrapper is the size container; .techs reacts to it -->
 		<div class="techs-root">
 			<div class="techs">
+				<!-- Kept mounted so filters survive a switch to the graph -->
 				<TechTree
-					v-if="view === 'tree'"
+					v-show="view === 'tree'"
 					class="techs__pane"
 					:selected="selected"
 					:open="open"
 					@select="select"
 					@toggle="toggleFolder"
 				/>
-				<TechGraph
-					v-else-if="visible"
-					class="techs__pane techs__pane--graph"
-					:selected="selected"
-					@select="select"
-				/>
-				<div v-else class="techs__pane techs__pane--graph"></div>
+				<template v-if="view === 'graph'">
+					<TechGraph
+						v-if="visible"
+						class="techs__pane techs__pane--graph"
+						:selected="selected"
+						@select="select"
+					/>
+					<div v-else class="techs__pane techs__pane--graph"></div>
+				</template>
 				<TechDetails
 					v-if="selectedTech"
 					class="techs__details"

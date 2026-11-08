@@ -134,6 +134,12 @@ export function tagOf(tech) {
 	return TAGS.find((tag) => tags.includes(tag)) ?? "side";
 }
 
+// Only used in projects that also used Claude Code (AI-assisted)
+export function aiOnly(tech) {
+	const aiContexts = techByName("Claude Code")?.used ?? [];
+	return tech.used.length > 0 && tech.used.every((key) => aiContexts.includes(key));
+}
+
 // Earliest known year, or null
 export function sinceOf(tech) {
 	const years = tech.used.map((key) => CONTEXTS[key].since).filter(Boolean);
