@@ -16,7 +16,7 @@ export const projects = [
 		key: "ffrework",
 		// Translated name
 		nameKey: "App.ffReworkTitle",
-		meta: "[year]",
+		meta: "2025",
 		tags: ["web"],
 		image: "/fanfictionrework-thumbnail.png",
 		stack: ["Adonis.js", "React", "Mantine UI", "Docker", "nginx"],
@@ -24,11 +24,11 @@ export const projects = [
 	},
 	{
 		key: "portfolio",
-		name: "arthur-os",
+		name: "portfolio",
 		metaKey: "Projects.portfolio.meta",
 		tags: ["web"],
 		image: null, // [screenshot]
-		stack: ["Vue 3", "Vite", "three.js", "Tailwind", "GSAP", "WebGL"],
+		stack: ["Vue 3", "Vite", "three.js", "Tailwind", "WebGL"],
 		link: { href: "https://github.com/durandarthur/portfolio", label: "github" },
 	},
 ];

@@ -36,10 +36,13 @@ const contexts = computed(() =>
 
 		<div class="details__head">
 			<h3 class="details__name">{{ tech.name }}</h3>
-			<p class="details__context">
-				<span class="details__strong">{{ tag ? $t(`Techs.tagsLong.${tag}`) : "[tag]" }}</span>
+			<p v-if="tag || since" class="details__context">
+				<span class="details__strong">{{ tag ? $t(`Techs.tagsLong.${tag}`) : "[unknown]" }}</span>
 				<span class="details__sep" aria-hidden="true"> / </span>
-				{{ $t("Techs.since").replace("{year}", since ?? "[year]") }}
+				{{ $t("Techs.since").replace("{year}", since ?? "[redacted]") }}
+			</p>
+			<p v-else class="details__placeholder">
+				<span class="details__strong">hobby</span>
 			</p>
 		</div>
 
@@ -76,7 +79,7 @@ const contexts = computed(() =>
 					<p class="ctx__text">{{ ctx.text }}</p>
 				</div>
 			</div>
-			<p v-if="!contexts.length" class="details__placeholder">[where I used it]</p>
+			<p v-if="!contexts.length" class="details__placeholder">[DATA EXPUNGED]</p>
 		</section>
 
 		<section v-if="paired.length" class="details__section">

@@ -156,7 +156,7 @@ function onKeydown(event, row) {
 						:style="{ color: `var(--tag-${row.tag})` }"
 						>{{ $t(`Techs.tags.${row.tag}`) }}</span
 					>
-					<span v-else class="tree__tag tree__tag--unknown">[tag]</span>
+					<span v-else class="tree__tag tree__tag--unknown">hobby</span>
 				</template>
 			</div>
 		</div>
