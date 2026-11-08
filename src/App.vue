@@ -468,6 +468,17 @@ function toggleAbout() {
 	margin-left: 6px;
 	vertical-align: -3px;
 	background: var(--cyan);
+	animation: cursor-blink 1.1s steps(1) infinite;
+}
+@keyframes cursor-blink {
+	50% {
+		opacity: 0;
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.desktop-idle__cursor {
+		animation: none;
+	}
 }
 .desktop-idle__name-space {
 	width: min(1080px, 100%);

@@ -35,12 +35,14 @@ const FONT = {
 	D: ["####.", "#...#", "#...#", "#...#", "#...#", "#...#", "####."],
 	N: ["#...#", "##..#", "#.#.#", "#..##", "#...#", "#...#", "#...#"],
 };
-// Enough particles for the name on small screens
-const MIN_PARTICLES = 300;
+// Extra particles for the formations (name, glyphs), on top of the star
+// field's own amount, so the field keeps its density while they form
+const FORMATION_POOL = 240;
 
 // Timed ease-out tweens (like gsap's power1.out): fast start, gentle stop
 const FORM_MS = 800; // into a glyph
 const SCATTER_MS = 700; // out of a glyph, then the particle drifts again
+const SETTLE_MS = 1400; // back into place after an icon stops being hovered
 const RETURN_MS = 500; // back into the glyph after a mouse push
 const easeOut = (p) => 1 - (1 - p) * (1 - p);
 
@@ -105,7 +107,7 @@ function randomFieldPoint() {
 }
 
 function initParticles() {
-	states = Array.from({ length: Number(settings.amount) }, () => ({
+	states = Array.from({ length: particleCount() }, () => ({
 		...randomFieldPoint(),
 		target: null,
 		local: false,
@@ -126,12 +128,12 @@ function tweenTo(s, target, ms, { local = false, release = false } = {}) {
 	s.release = release;
 }
 
+// Star field particles + the formation pool
+const particleCount = () => Number(settings.amount) + FORMATION_POOL;
+
 function onResize() {
 	const { innerWidth, innerHeight } = window;
-	settings.amount = Math.max(
-		MIN_PARTICLES,
-		Math.ceil(((innerWidth * innerHeight) / (2560 * 1440)) * 1000)
-	);
+	settings.amount = Math.ceil(((innerWidth * innerHeight) / (2560 * 1440)) * 1000);
 	camDist = cameraDistance(50, innerHeight);
 	const cam = camera.value.camera;
 	cam.aspect = innerWidth / innerHeight;
@@ -186,14 +188,13 @@ async function loadSvg(url) {
 // the screen and scaled to half its smaller side
 async function glyphFormation(url) {
 	const { paths } = await loadSvg(url);
-	const amount = Number(settings.amount);
 	const points = [];
 	const bounds = new THREE.Box2();
 
 	paths.forEach((path, _, allPaths) => {
 		const shapes = SVGLoader.createShapes(path);
 		shapes.forEach((shape, _, allShapes) => {
-			const perShape = Math.floor(amount / 2 / allPaths.length / allShapes.length);
+			const perShape = Math.floor(FORMATION_POOL / allPaths.length / allShapes.length);
 			shape.getSpacedPoints(perShape - 1).forEach((p) => {
 				bounds.expandByPoint(p);
 				points.push({ x: p.x, y: -p.y, z: 0 });
@@ -260,7 +261,7 @@ function networkPoints(spacing) {
 }
 
 function networkFormation() {
-	const budget = Math.floor(Number(settings.amount) / 2);
+	const budget = FORMATION_POOL;
 	const full = networkPoints(1).length;
 	const raw = networkPoints(Math.max(1, full / budget));
 	const size = Math.ceil(Math.min(window.innerHeight, window.innerWidth) / 2);
@@ -325,7 +326,9 @@ let formationKey = null;
 let formation = null; // { points, center }
 let request = 0;
 
-async function updateFormation() {
+// Durations: snappy when a formation starts, slower when settling back
+// after a hover ends
+async function updateFormation({ formMs = FORM_MS, scatterMs = SCATTER_MS } = {}) {
 	const key = hoverKey ?? activeKey ?? "name";
 	if (key === formationKey) return;
 	const id = ++request;
@@ -340,12 +343,12 @@ async function updateFormation() {
 	formationKey = key;
 	formation = next;
 
-	const points = next ? fitToBudget(next.points, states.length) : [];
+	const points = next ? fitToBudget(next.points, FORMATION_POOL) : [];
 	states.forEach((s, i) => {
-		if (i < points.length) tweenTo(s, points[i], FORM_MS, { local: true });
+		if (i < points.length) tweenTo(s, points[i], formMs, { local: true });
 		// Leaving the formation: ease out to a random spot, then drift
 		else if (s.target && !s.release)
-			tweenTo(s, randomFieldPoint(), SCATTER_MS, { release: true });
+			tweenTo(s, randomFieldPoint(), scatterMs, { release: true });
 	});
 }
 
@@ -451,7 +454,7 @@ defineExpose({
 	},
 	leave() {
 		hoverKey = null;
-		updateFormation();
+		updateFormation({ formMs: SETTLE_MS, scatterMs: SETTLE_MS });
 	},
 	// The focused window's app, or null
 	setActive(key) {
@@ -485,7 +488,7 @@ defineExpose({
 				>
 					<BasicMaterial :props="{ wireframe: true }" color="#04D9FF" />
 				</Box>
-				<InstancedMesh :key="meshKey" ref="particles" :count="Number(settings.amount)">
+				<InstancedMesh :key="meshKey" ref="particles" :count="particleCount()">
 					<TetrahedronGeometry />
 					<BasicMaterial :props="{ wireframe: true }" :color="PARTICLE_COLOR" />
 				</InstancedMesh>
