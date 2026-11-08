@@ -41,6 +41,12 @@ const NAME_COLOR = "#22D3EE";
 const SOLID_AT = 0.6; // share of the flight after which they turn solid
 // The name assembles from left to right, as if typed after "whoami"
 const TYPE_MS = 1200;
+// Once formed, a few name particles briefly swell and brighten at random:
+// each one every 2π / TWINKLE_SPEED s, for a short spike (sharper = rarer)
+const TWINKLE_COLOR = "#A5F3FC";
+const TWINKLE_SPEED = 0.6; // rad/s
+const TWINKLE_SHARPNESS = 40;
+const TWINKLE_SCALE = 0.8; // extra size at the peak
 // Extra particles for the formations (name, glyphs), on top of the star
 // field's own amount, so the field keeps its density while they form
 const FORMATION_POOL = Math.max(NAME_BUDGET, GLYPH_BUDGET);
@@ -88,6 +94,9 @@ let states = [];
 let spin = 0;
 const dummy = new THREE.Object3D();
 const HIDDEN = new THREE.Matrix4().makeScale(0, 0, 0);
+const nameColor = new THREE.Color(NAME_COLOR);
+const twinkleColor = new THREE.Color(TWINKLE_COLOR);
+const color = new THREE.Color();
 
 // ── Camera ───────────────────────────────────────────────────────
 // The camera sits where 1 world unit = 1 CSS px at z = 0.
@@ -482,6 +491,11 @@ function frame() {
 	const solidMesh = nameParticles.value?.mesh;
 	if (!mesh || !solidMesh || document.hidden) return;
 	const naming = formationKey === "name";
+	// Per-particle colours on the solid mesh (set once so the shader uses them)
+	if (!solidMesh.instanceColor) {
+		for (let i = 0; i < solidMesh.count; i++) solidMesh.setColorAt(i, nameColor);
+		solidMesh.material.needsUpdate = true;
+	}
 
 	const now = performance.now();
 	const still = reducedMotion.matches;
@@ -526,17 +540,24 @@ function frame() {
 			else s.y += i / n;
 		}
 
-		dummy.position.set(s.x, s.y, s.z);
-		dummy.rotation.set(spin, spin, spin);
-		dummy.scale.setScalar(s.r);
-		dummy.updateMatrix();
 		// Each particle shows in one mesh: solid once it has landed in the name
 		const solid = naming && s.local && s.target && p >= SOLID_AT;
+		const twinkle =
+			solid && p >= 1 && !still
+				? Math.max(0, Math.sin((now / 1000) * TWINKLE_SPEED + i * 2.39996)) ** TWINKLE_SHARPNESS
+				: 0;
+
+		dummy.position.set(s.x, s.y, s.z);
+		dummy.rotation.set(spin, spin, spin);
+		dummy.scale.setScalar(s.r * (1 + TWINKLE_SCALE * twinkle));
+		dummy.updateMatrix();
 		mesh.setMatrixAt(i, solid ? HIDDEN : dummy.matrix);
 		solidMesh.setMatrixAt(i, solid ? dummy.matrix : HIDDEN);
+		if (solid) solidMesh.setColorAt(i, color.copy(nameColor).lerp(twinkleColor, twinkle));
 	}
 	mesh.instanceMatrix.needsUpdate = true;
 	solidMesh.instanceMatrix.needsUpdate = true;
+	solidMesh.instanceColor.needsUpdate = true;
 }
 
 let defocusTimer;
@@ -621,7 +642,8 @@ defineExpose({
 				</InstancedMesh>
 				<InstancedMesh :key="`name-${meshKey}`" ref="nameParticles" :count="particleCount()">
 					<TetrahedronGeometry />
-					<BasicMaterial :color="NAME_COLOR" />
+					<!-- White: the per-particle colours (name + twinkle) give the colour -->
+					<BasicMaterial color="#ffffff" />
 				</InstancedMesh>
 			</Scene>
 		</Renderer>
