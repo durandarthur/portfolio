@@ -1,3 +1,5 @@
+import { ref, watch } from "vue";
+
 const keys = {
 	ContactForm: {
 		errorMsg: {
@@ -9,8 +11,8 @@ const keys = {
 			fr: "Entrez votre message",
 		},
 		msgSent: {
-			en: "Merci, votre message a été envoyé.",
-			fr: "Your message has been sent.",
+			en: "Your message has been sent.",
+			fr: "Merci, votre message a été envoyé.",
 		},
 		sender: {
 			en: "Sender",
@@ -20,6 +22,26 @@ const keys = {
 			en: "yourmail@exemple.com",
 			fr: "votremail@exemple.com",
 		},
+	},
+	// FR strings in Taskbar and Notice: translated, to review.
+	Taskbar: {
+		about: { en: "About Arthur", fr: "À propos d'Arthur" },
+		workspaces: { en: "Workspaces", fr: "Espaces de travail" },
+		workspace: { en: "Workspace", fr: "Espace de travail" },
+		openWindows: { en: "Open windows", fr: "Fenêtres ouvertes" },
+		noWindows: { en: "no windows open", fr: "aucune fenêtre ouverte" },
+		language: { en: "Language", fr: "Langue" },
+	},
+	Notice: {
+		label: { en: "Welcome", fr: "Bienvenue" },
+		kicker: { en: "notification", fr: "notification" },
+		dismiss: { en: "Dismiss", fr: "Fermer" },
+		title: { en: "Hi, I'm Arthur.", fr: "Bonjour, ici Arthur." },
+		text: {
+			en: "Short on time? Grab my CV, or click around — everything here opens like a real desktop.",
+			fr: "Pressé ? Récupérez mon CV, ou explorez — tout ici s'ouvre comme sur un vrai bureau.",
+		},
+		openCv: { en: "Open CV", fr: "Ouvrir le CV" },
 	},
 	ProjectCard: {
 		websiteLink: {
@@ -146,6 +168,53 @@ const keys = {
 		},
 	},
 	App: {
+		// Desktop icon labels and window titles. FR strings: translated, to review.
+		apps: {
+			contact: {
+				label: { en: "Contact", fr: "Contact" },
+				title: { en: "Contact", fr: "Contact" },
+			},
+			cv: {
+				label: { en: "CV.pdf", fr: "CV.pdf" },
+				title: { en: "CV.pdf", fr: "CV.pdf" },
+			},
+			projects: {
+				label: { en: "projects/", fr: "projets/" },
+				title: { en: "~/projects", fr: "~/projets" },
+			},
+			terminal: {
+				label: { en: "terminal", fr: "terminal" },
+				title: { en: "terminal", fr: "terminal" },
+			},
+			techs: {
+				label: { en: "techs/", fr: "technos/" },
+				title: { en: "~/techs", fr: "~/technos" },
+			},
+		},
+		desktop: {
+			tagline: {
+				en: "Fullstack developer — currently building with applied AI.",
+				fr: "Développeur fullstack — artisan du virtuel.",
+			},
+			hintClick: { en: "click", fr: "cliquez" },
+			hintOpen: { en: "an icon to open it", fr: "sur une icône pour l'ouvrir" },
+			hintType: { en: "or type", fr: "ou tapez" },
+			hintTerminal: { en: "in the terminal", fr: "dans le terminal" },
+			hoverHint: {
+				en: "click to open · ↵ when focused",
+				fr: "cliquez pour ouvrir · ↵ au clavier",
+			},
+			descriptions: {
+				contact: { en: "Email contact form.", fr: "Formulaire de contact par mail." },
+				cv: { en: "View and download my resume in your browser's PDF viewer.", fr: "Visionnez et téléchargez mon CV dans le visualiseur PDF de votre navigateur." },
+				projects: { en: "A list of projects I've built.", fr: "Une liste de projets que j'ai réalisés." },
+				terminal: { en: "Interactive terminal.", fr: "Terminal interactif." },
+				techs: {
+					en: "Stack, tools, and what I'm learning right now.",
+					fr: "Stack, outils, et ce que j'apprends en ce moment.",
+				},
+			},
+		},
 		contactForm: {
 			en: "Contact form",
 			fr: "Formulaire de contact",
@@ -228,24 +297,38 @@ const keys = {
 	},
 };
 
-let lang;
-if (navigator.languages !== undefined) lang = navigator.languages[0];
-lang = navigator.language;
+// Current language, reactive so the UI re-renders when it changes.
+// Saved per browser; defaults to the browser language.
+function initialLang() {
+	try {
+		const saved = localStorage.getItem("lang");
+		if (saved === "fr" || saved === "en") return saved;
+	} catch {}
+	return (navigator.language || "en").startsWith("fr") ? "fr" : "en";
+}
+
+export const lang = ref(initialLang());
+
+// Only an explicit choice is saved, so the browser language still applies otherwise
+export function setLang(value) {
+	lang.value = value === "fr" ? "fr" : "en";
+	try {
+		localStorage.setItem("lang", lang.value);
+	} catch {}
+}
+
+watch(lang, (value) => (document.documentElement.lang = value), {
+	immediate: true,
+});
 
 export function $t(key) {
 	const foundKey = key.split(".").reduce((obj, k) => obj?.[k], keys);
-	if (lang.startsWith("fr")) {
-		return foundKey["fr"];
-	} else {
-		return foundKey["en"];
-	}
-	throw new Error("Invalid locale");
+	if (!foundKey) throw new Error(`Missing translation: ${key}`);
+	return foundKey[lang.value];
 }
 
 export function getCvUrl() {
-	if (lang.startsWith("fr")) {
-		return "/cv-arthur-durand-2026-portfolio.pdf";
-	} else {
-		return "/cv-arthur-durand-2026-portfolio-en.pdf";
-	}
+	return lang.value === "fr"
+		? "/cv-arthur-durand-2026-portfolio.pdf"
+		: "/cv-arthur-durand-2026-portfolio-en.pdf";
 }

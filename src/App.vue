@@ -16,7 +16,7 @@ import ContactForm from "./components/ContactForm.vue";
 import DesktopIcon from "./components/DesktopIcon.vue";
 import ProjectCard from "./components/ProjectCard.vue";
 import TechTreeNode from "./components/TechTreeNode.vue";
-import { bioHTML, socialsHTML, techs, timeline } from "./data";
+import { getBioHTML, getTechs, getTimeline, socialsHTML } from "./data";
 import { $t, getCvUrl } from "./i18n";
 import { techsFormatter, timelineFormatter } from "./lib/formatters";
 
@@ -349,7 +349,7 @@ watch(particlesAmount, () => {
 
 const history = ref(newDefaultHistory());
 const commands = {
-	bio: () => createStdout(textFormatter(bioHTML, true)),
+	bio: () => createStdout(textFormatter(getBioHTML(), true)),
 	clear: () => {
 		// "splice" is necessary since Vue.js loses its reactivity if array is set to empty
 		history.value.splice(0, history.value.length);
@@ -361,9 +361,9 @@ const commands = {
 	},
 	techs: () =>
 		createStdout(
-			textFormatter("<pre>" + techsFormatter(techs) + "</pre>", true)
+			textFormatter("<pre>" + techsFormatter(getTechs()) + "</pre>", true)
 		),
-	timeline: () => createStdout(timelineFormatter(timeline)),
+	timeline: () => createStdout(timelineFormatter(getTimeline())),
 	socials: () => createStdout(textFormatter(socialsHTML, true)),
 };
 
@@ -663,7 +663,7 @@ setInterval(() => setTime(), 1000);
 			</VueWinBox>
 
 			<VueWinBox ref="techsRef" :options="techsOptions" @onMove="onMove">
-				<TechTreeNode :node="techs" />
+				<TechTreeNode :node="getTechs()" />
 			</VueWinBox>
 
 			<VueWinBox ref="creditsRef" :options="creditsOptions">

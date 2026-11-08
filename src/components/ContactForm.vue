@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import axios from "axios";
-import { reactive, ref } from "vue";
+import { computed, reactive } from "vue";
 import { $t } from "../i18n";
 
 type Status = {
@@ -28,14 +28,10 @@ const handleServerResponse = async (
 		status.submitted = true;
 		status.submitting = false;
 		status.info = { error: false, msg: msg };
-		textPlaceholder.value = status.info.msg;
 		mailData.mailMessage = "";
 	} else {
 		status.submitting = false;
 		status.info = { error: true, msg: msg };
-		textPlaceholder.value = `${$t("ContactForm.errorMsg")}: "${
-			status.info.msg
-		}"`;
 		mailData.mailMessage = "";
 	}
 };
@@ -44,7 +40,13 @@ const mailData = reactive<MailData>({
 	mailFrom: "",
 	mailMessage: "",
 });
-const textPlaceholder = ref(`${$t("ContactForm.enterMsg")}`);
+// Computed so it follows the current language
+const textPlaceholder = computed(() => {
+	if (status.info.error)
+		return `${$t("ContactForm.errorMsg")}: "${status.info.msg}"`;
+	if (status.submitted) return $t("ContactForm.msgSent");
+	return $t("ContactForm.enterMsg");
+});
 
 function sendMail() {
 	// alert(mailMessage.value);
@@ -127,7 +129,7 @@ label {
 label,
 input,
 textarea {
-	font-family: "Roboto Mono", monospace;
+	font-family: var(--font-mono);
 	outline: none;
 }
 * {
