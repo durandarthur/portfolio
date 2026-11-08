@@ -23,13 +23,12 @@ import { techsTreeFormatter, timelineFormatter } from "./lib/formatters";
 import { particleSettings } from "./lib/particleSettings";
 import {
 	anyVisible,
-	closeWindow,
 	focusWindow,
 	focusedKey,
 	isOpenHere,
 	isVisible,
-	minimizeWindow,
 	toggleFromDesktop,
+	windows,
 } from "./lib/windows";
 
 // PARTICLES
@@ -39,6 +38,15 @@ const field = ref(null);
 // VUE-COMMAND STUFF
 
 const history = ref(newDefaultHistory());
+
+// Closing the terminal clears it (minimising keeps it).
+// "splice" keeps the array vue-command watches.
+watch(
+	() => windows.terminal?.open,
+	(open, wasOpen) => {
+		if (wasOpen && !open) history.value.splice(0, history.value.length, ...newDefaultHistory());
+	}
+);
 const commands = {
 	bio: () => createStdout(textFormatter(getBioHTML(), true)),
 	clear: () => {
