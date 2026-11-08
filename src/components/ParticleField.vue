@@ -39,8 +39,10 @@ const GLYPH_BUDGET = 240; // particles along an icon glyph's lines
 // Name particles turn into solid, brighter tetrahedra as they land
 const NAME_COLOR = "#22D3EE";
 const SOLID_AT = 0.6; // share of the flight after which they turn solid
-// The name assembles from left to right, as if typed after "whoami"
+// The name assembles from left to right, as if typed after "whoami".
+// NAME_SPEED speeds up both the left-to-right sweep and each flight.
 const TYPE_MS = 1200;
+const NAME_SPEED = 1.5;
 // Once formed, a few name particles briefly swell and brighten at random:
 // each one every 2π / TWINKLE_SPEED s, for a short spike (sharper = rarer)
 const TWINKLE_COLOR = "#A5F3FC";
@@ -470,10 +472,12 @@ async function updateFormation({ formMs = FORM_MS, scatterMs = SCATTER_MS } = {}
 	const xs = points.map((p) => p.x);
 	const minX = Math.min(...xs);
 	const spanX = Math.max(...xs) - minX || 1;
-	const delayOf = (p) => (key === "name" ? (TYPE_MS * (p.x - minX)) / spanX : 0);
+	const naming = key === "name";
+	const delayOf = (p) => (naming ? (TYPE_MS * (p.x - minX)) / spanX / NAME_SPEED : 0);
+	const flightMs = naming ? formMs / NAME_SPEED : formMs;
 	states.forEach((s, i) => {
 		if (i < points.length)
-			tweenTo(s, points[i], formMs, { local: true, delay: delayOf(points[i]) });
+			tweenTo(s, points[i], flightMs, { local: true, delay: delayOf(points[i]) });
 		// Leaving the formation: ease out to a random spot, then drift
 		else if (s.target && !s.release)
 			tweenTo(s, randomFieldPoint(), scatterMs, { release: true });
