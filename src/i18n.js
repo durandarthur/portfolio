@@ -70,6 +70,58 @@ const keys = {
 			},
 		},
 	},
+	// FR strings in Techs: translated, to review.
+	Techs: {
+		count: { en: "— {n} categories", fr: "— {n} catégories" },
+		view: { en: "View", fr: "Vue" },
+		tree: { en: "tree", fr: "arbre" },
+		graph: { en: "graph", fr: "graphe" },
+		treeLabel: { en: "Technologies", fr: "Technologies" },
+		folders: {
+			languages: { en: "languages/", fr: "langages/" },
+			frontend: { en: "frontend/", fr: "frontend/" },
+			backend: { en: "backend/", fr: "backend/" },
+			databases: { en: "databases/", fr: "données/" },
+			ai: { en: "ai/", fr: "ia/" },
+			graphics: { en: "graphics/", fr: "graphismes/" },
+			devops: { en: "devops/", fr: "devops/" },
+			testing: { en: "testing/", fr: "tests/" },
+			tooling: { en: "tooling/", fr: "outils/" },
+			workflow: { en: "workflow/", fr: "méthodes/" },
+			systems: { en: "systems/", fr: "systèmes/" },
+			other: { en: "other/", fr: "divers/" },
+		},
+		// Short: tree and legend. Long: details panel.
+		tags: {
+			work: { en: "work", fr: "pro" },
+			internship: { en: "internship", fr: "stage" },
+			side: { en: "side", fr: "perso" },
+			school: { en: "school", fr: "école" },
+			learning: { en: "learning", fr: "en cours" },
+		},
+		tagsLong: {
+			work: { en: "work", fr: "pro" },
+			internship: { en: "internship", fr: "stage" },
+			side: { en: "side project", fr: "projet perso" },
+			school: { en: "school", fr: "école" },
+			learning: { en: "learning", fr: "en apprentissage" },
+		},
+		usedAt: { en: "used at", fr: "utilisé en" },
+		since: { en: "since {year}", fr: "depuis {year}" },
+		usedIn: { en: "USED IN", fr: "UTILISÉ DANS" },
+		pairedWith: { en: "PAIRED WITH", fr: "UTILISÉ AVEC" },
+		hint: {
+			en: "Click any tech to see where I used it.",
+			fr: "Cliquez sur une techno pour voir où je l'ai utilisée.",
+		},
+		openInProjects: { en: "Open in projects", fr: "Ouvrir dans les projets" },
+		notes: {
+			openglStlounge: {
+				en: "Wrote its own renderer: an EGL context and GLES 3.0 pipeline that runs ShaderToy shaders, with substitute textures and desktop audio as input.",
+				fr: "J'ai écrit son propre moteur de rendu : un contexte EGL et un pipeline GLES 3.0 qui exécute des shaders ShaderToy, avec des textures de substitution et l'audio du bureau en entrée.",
+			},
+		},
+	},
 	Window: {
 		minimize: { en: "Minimize", fr: "Réduire" },
 		maximize: { en: "Maximize", fr: "Agrandir" },
