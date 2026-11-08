@@ -39,6 +39,8 @@ const GLYPH_BUDGET = 240; // particles along an icon glyph's lines
 // Name particles turn into solid, brighter tetrahedra as they land
 const NAME_COLOR = "#22D3EE";
 const SOLID_AT = 0.6; // share of the flight after which they turn solid
+// The name assembles from left to right, as if typed after "whoami"
+const TYPE_MS = 1200;
 // Extra particles for the formations (name, glyphs), on top of the star
 // field's own amount, so the field keeps its density while they form
 const FORMATION_POOL = Math.max(NAME_BUDGET, GLYPH_BUDGET);
@@ -124,11 +126,12 @@ function initParticles() {
 	}));
 }
 
-// Start a tween from where the particle is now
-function tweenTo(s, target, ms, { local = false, release = false } = {}) {
+// Start a tween from where the particle is now (after `delay` ms)
+function tweenTo(s, target, ms, { local = false, release = false, delay = 0 } = {}) {
+	const still = reducedMotion.matches;
 	s.from = { x: s.x, y: s.y, z: s.z, r: s.r };
-	s.t0 = performance.now();
-	s.dur = reducedMotion.matches ? 0 : ms;
+	s.t0 = performance.now() + (still ? 0 : delay);
+	s.dur = still ? 0 : ms;
 	s.target = target;
 	s.local = local;
 	s.release = release;
@@ -454,8 +457,14 @@ async function updateFormation({ formMs = FORM_MS, scatterMs = SCATTER_MS } = {}
 	formation = next;
 
 	const points = next ? fitToBudget(next.points, FORMATION_POOL) : [];
+	// The name: delay each particle by its position, left to right
+	const xs = points.map((p) => p.x);
+	const minX = Math.min(...xs);
+	const spanX = Math.max(...xs) - minX || 1;
+	const delayOf = (p) => (key === "name" ? (TYPE_MS * (p.x - minX)) / spanX : 0);
 	states.forEach((s, i) => {
-		if (i < points.length) tweenTo(s, points[i], formMs, { local: true });
+		if (i < points.length)
+			tweenTo(s, points[i], formMs, { local: true, delay: delayOf(points[i]) });
 		// Leaving the formation: ease out to a random spot, then drift
 		else if (s.target && !s.release)
 			tweenTo(s, randomFieldPoint(), scatterMs, { release: true });
@@ -498,7 +507,8 @@ function frame() {
 		const s = states[i];
 		let p = 1;
 		if (s.target) {
-			p = s.dur > 0 ? Math.min(1, (now - s.t0) / s.dur) : 1;
+			// 0 while waiting for its delay
+			p = s.dur > 0 ? Math.min(1, Math.max(0, (now - s.t0) / s.dur)) : 1;
 			const e = easeOut(p);
 			const t = s.local && f ? toWorld(s.target) : s.target;
 			s.x = s.from.x + (t.x - s.from.x) * e;
