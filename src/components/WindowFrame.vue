@@ -75,12 +75,9 @@ function place() {
 	clampRect();
 }
 
-// Not on touch screens: focusing an input there pops up the keyboard
-const finePointer = window.matchMedia("(pointer: fine)");
 async function focusContent() {
 	await nextTick();
-	const target =
-		props.autofocus && finePointer.matches ? el.value?.querySelector(props.autofocus) : null;
+	const target = props.autofocus ? el.value?.querySelector(props.autofocus) : null;
 	(target ?? el.value)?.focus();
 }
 
