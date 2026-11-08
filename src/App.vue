@@ -214,14 +214,15 @@ function toggleAbout() {
 				<vue-command
 					:commands="commands"
 					:history="history"
-					class="w-full h-full"
+					class="terminal w-full h-full"
 					font="JetBrains Mono"
 				>
 					<template #bar>
 						<div></div>
 					</template>
 					<template #prompt>
-						durandarthur@MONOLITH:~/code/personal/portfolio$&nbsp;
+						<span class="term-user">durandarthur@MONOLITH</span
+						><span class="term-path">:~/code/personal/portfolio$</span>&nbsp;
 					</template>
 				</vue-command>
 			</WindowFrame>

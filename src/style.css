@@ -13,16 +13,51 @@
   }
 }
 
-/* Terminal (vue-command) in the window palette */
-.vue-command .vue-command__history {
+/* ── Terminal (vue-command) in the window palette ───────────────
+   ".terminal" outweighs vue-command.css, which loads after this file. */
+.terminal.vue-command .vue-command__history {
+  padding: 16px 20px;
   background-color: var(--window);
-  color: var(--text);
-  font-family: var(--font-mono);
-}
-.vue-command .vue-command__query input,
-.vue-command .vue-command__query__input {
+  color: var(--text-body);
   font-family: var(--font-mono);
   font-size: 13px;
+  line-height: 1.6;
+}
+.terminal.vue-command .vue-command__query input,
+.terminal.vue-command .vue-command__query__input {
+  color: var(--text-strong);
+  caret-color: var(--cyan);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+.terminal.vue-command .vue-command__query input::placeholder {
+  color: var(--text-muted);
+}
+/* Prompt, coloured like the one on the desktop */
+.term-user {
+  color: var(--cyan);
+}
+.term-path {
+  color: var(--text-muted);
+}
+/* "help": command names to type */
+.terminal.vue-command .vue-command__history__entry ul li {
+  color: var(--cyan);
+}
+.terminal.vue-command .vue-command__history__entry a {
+  color: var(--cyan);
+  text-decoration: none;
+}
+.terminal.vue-command .vue-command__history__entry a:hover {
+  color: var(--cyan-300);
+}
+.terminal.vue-command pre {
+  font-family: var(--font-mono);
+  color: var(--text);
+}
+/* Tree lines in "techs" */
+.term-faint {
+  color: var(--text-faint);
 }
 
 /* width */

@@ -11,6 +11,13 @@ export const timelineFormatter = (timeline) => {
   return output;
 };
 
+const escapeHtml = (text) =>
+  text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+// Tree as HTML, with the tree lines in the faint colour (see .term-faint)
 export const techsFormatter = (techs) => {
-  return treeify.asTree(techs);
+  return escapeHtml(treeify.asTree(techs)).replace(
+    /[├└│─]+/g,
+    (lines) => `<span class="term-faint">${lines}</span>`
+  );
 };
