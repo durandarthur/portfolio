@@ -108,7 +108,7 @@ function toggleAbout() {
 
 <template>
 	<body>
-		<ParticleField ref="field" />
+		<ParticleField ref="field" :defocused="anyVisible" />
 		<!-- Idle: prompt, (space for the particle name), tagline, hint -->
 		<Transition name="fade">
 			<section

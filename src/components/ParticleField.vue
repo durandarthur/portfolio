@@ -7,6 +7,11 @@ import { SVGLoader } from "three/examples/jsm/loaders/SVGLoader";
 import { onMounted, onUnmounted, ref, watch } from "vue";
 import { particleSettings as settings } from "../lib/particleSettings";
 
+const props = defineProps({
+	// A window has focus: blur the field (see .particle-layer.is-defocused)
+	defocused: { type: Boolean, default: false },
+});
+
 // Glyph outlines per app
 const SHAPES = {
 	contact: "/mail.svg",
@@ -58,7 +63,10 @@ const particles = ref(null);
 const scene = ref(null);
 const meshKey = ref(0);
 
-const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+// Capped at 2. Dropped to 1 while defocused: the blur hides it.
+const FULL_PIXEL_RATIO = Math.min(window.devicePixelRatio || 1, 2);
+const DEFOCUS_MS = 400; // matches the CSS transition
+const pixelRatio = ref(FULL_PIXEL_RATIO);
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 // Per-particle state, kept out of Vue's reactivity (updated every frame)
@@ -377,6 +385,17 @@ function frame() {
 	mesh.instanceMatrix.needsUpdate = true;
 }
 
+let defocusTimer;
+watch(
+	() => props.defocused,
+	(defocused) => {
+		clearTimeout(defocusTimer);
+		// Lower the resolution once the blur has faded in, restore it at once
+		if (defocused) defocusTimer = setTimeout(() => (pixelRatio.value = 1), DEFOCUS_MS);
+		else pixelRatio.value = FULL_PIXEL_RATIO;
+	}
+);
+
 watch(
 	() => settings.amount,
 	() => {
@@ -399,6 +418,7 @@ onUnmounted(() => {
 	window.removeEventListener("resize", onResize);
 	document.removeEventListener("mousemove", onMouseMove);
 	disposeBokeh();
+	clearTimeout(defocusTimer);
 });
 
 defineExpose({
@@ -420,33 +440,55 @@ defineExpose({
 </script>
 
 <template>
-	<Renderer
-		ref="renderer"
-		:resize="'window'"
-		pointer
-		alpha
-		:pixel-ratio="pixelRatio"
-		class="testg"
-		aria-hidden="true"
-	>
-		<Camera ref="camera" :position="{ z: 1500 }" :aspect="16 / 9" />
-		<Scene ref="scene">
-			<PointLight ref="light" color="#00ffff" />
-			<Box
-				ref="box"
-				:rotation="{ y: Math.PI / 4, z: Math.PI / 4 }"
-				:position="{ z: 100000 }"
-				widthSegments="5"
-				heightSegments="5"
-				depthSegments="5"
-				:size="100"
-			>
-				<BasicMaterial :props="{ wireframe: true }" color="#04D9FF" />
-			</Box>
-			<InstancedMesh :key="meshKey" ref="particles" :count="Number(settings.amount)">
-				<TetrahedronGeometry />
-				<BasicMaterial :props="{ wireframe: true }" :color="PARTICLE_COLOR" />
-			</InstancedMesh>
-		</Scene>
-	</Renderer>
+	<div class="particle-layer" :class="{ 'is-defocused': defocused }" aria-hidden="true">
+		<Renderer
+			ref="renderer"
+			:resize="'window'"
+			pointer
+			alpha
+			:pixel-ratio="pixelRatio"
+			class="testg"
+		>
+			<Camera ref="camera" :position="{ z: 1500 }" :aspect="16 / 9" />
+			<Scene ref="scene">
+				<PointLight ref="light" color="#00ffff" />
+				<Box
+					ref="box"
+					:rotation="{ y: Math.PI / 4, z: Math.PI / 4 }"
+					:position="{ z: 100000 }"
+					widthSegments="5"
+					heightSegments="5"
+					depthSegments="5"
+					:size="100"
+				>
+					<BasicMaterial :props="{ wireframe: true }" color="#04D9FF" />
+				</Box>
+				<InstancedMesh :key="meshKey" ref="particles" :count="Number(settings.amount)">
+					<TetrahedronGeometry />
+					<BasicMaterial :props="{ wireframe: true }" :color="PARTICLE_COLOR" />
+				</InstancedMesh>
+			</Scene>
+		</Renderer>
+	</div>
 </template>
+
+<style scoped>
+.particle-layer {
+	position: fixed;
+	inset: 0;
+	z-index: -1;
+	pointer-events: none;
+	transition:
+		filter 0.4s ease,
+		opacity 0.4s ease;
+}
+.particle-layer.is-defocused {
+	filter: blur(2.5px);
+	opacity: 0.55;
+}
+@media (prefers-reduced-motion: reduce) {
+	.particle-layer {
+		transition: none;
+	}
+}
+</style>
