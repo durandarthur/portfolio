@@ -233,7 +233,6 @@ function toggleAbout() {
 					:commands="commands"
 					:history="history"
 					class="terminal w-full h-full"
-					font="JetBrains Mono"
 				>
 					<template #bar>
 						<div></div>

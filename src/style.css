@@ -23,8 +23,9 @@
   font-size: 13px;
   line-height: 1.6;
 }
-.terminal.vue-command .vue-command__query input,
-.terminal.vue-command .vue-command__query__input {
+/* Every input (query, multiline, reverse search) at the output's size.
+   No "font" prop on <vue-command>: it sets an inline 1rem font on inputs. */
+.terminal.vue-command .vue-command__history input {
   color: var(--text-strong);
   caret-color: var(--cyan);
   font-family: var(--font-mono);
