@@ -257,11 +257,41 @@ async function lineFormation(url) {
 	};
 }
 
+// Is JetBrains Mono 800 loaded? (document.fonts.check() can't tell: it
+// answers true while the font isn't even declared yet)
+const nameFontLoaded = () =>
+	[...document.fonts].some(
+		(face) =>
+			face.family.replace(/["']/g, "") === "JetBrains Mono" &&
+			face.weight === "800" &&
+			face.status === "loaded"
+	);
+
+// If the name had to be drawn in a fallback font (the font's stylesheet or
+// file wasn't there yet), draw it again once JetBrains Mono 800 has loaded
+let waitingForNameFont = false;
+function redrawNameWhenFontLoads() {
+	if (waitingForNameFont) return;
+	waitingForNameFont = true;
+	const retry = async () => {
+		try {
+			await document.fonts.load(NAME_FONT.replace("{size}", 100));
+		} catch {}
+		if (!nameFontLoaded()) return;
+		document.fonts.removeEventListener("loadingdone", retry);
+		waitingForNameFont = false;
+		if (formationKey === "name") refreshFormation();
+	};
+	document.fonts.addEventListener("loadingdone", retry);
+}
+
 // Points along the edges of the name rendered on a hidden canvas,
 // kept at least `spacing` apart (greedy, on a grid)
+// Keyed by size and font, so fallback-font points are never reused
 const nameCache = new Map();
 function nameEdgePoints(size) {
-	if (nameCache.has(size)) return nameCache.get(size);
+	const cacheKey = `${size}:${nameFontLoaded()}`;
+	if (nameCache.has(cacheKey)) return nameCache.get(cacheKey);
 	const canvas = document.createElement("canvas");
 	const ctx = canvas.getContext("2d", { willReadFrequently: true });
 	const font = NAME_FONT.replace("{size}", size);
@@ -306,7 +336,7 @@ function nameEdgePoints(size) {
 		grid.set(key, [...(grid.get(key) ?? []), [x, y]]);
 		points.push({ x: x - width / 2, y: height / 2 - y });
 	}
-	nameCache.set(size, points);
+	nameCache.set(cacheKey, points);
 	return points;
 }
 
@@ -326,6 +356,7 @@ async function nameFormation() {
 	try {
 		await document.fonts.load(NAME_FONT.replace("{size}", 100));
 	} catch {}
+	if (!nameFontLoaded()) redrawNameWhenFontLoads();
 	const measure = document.createElement("canvas").getContext("2d");
 	measure.font = NAME_FONT.replace("{size}", 100);
 	const widthAt100 = measure.measureText(NAME).width;
