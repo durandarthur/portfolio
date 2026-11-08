@@ -21,8 +21,58 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <!-- Loading screen: inline so it shows before the app bundle loads.
+         Hidden by src/lib/boot.js once the app and its assets are ready. -->
+    <style>
+      html { background: #010204; }
+      #boot {
+        position: fixed; inset: 0; z-index: 2000;
+        display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+        background: radial-gradient(ellipse 80% 70% at 50% 42%, #0A1424 0%, #04070E 55%, #010204 100%);
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        transition: opacity 0.25s ease;
+      }
+      #boot.boot--done { opacity: 0; pointer-events: none; }
+      .boot__marks { display: flex; gap: 14px; }
+      .boot__marks svg { animation: boot-glow 0.9s steps(1) infinite; }
+      .boot__off { fill: none; stroke: #4B5B73; stroke-width: 1.2; stroke-linejoin: round; }
+      .boot__on { opacity: 0; animation: boot-step 0.9s steps(1) infinite; }
+      .boot__marks svg:nth-child(2), .boot__marks svg:nth-child(2) .boot__on { animation-delay: 0.3s; }
+      .boot__marks svg:nth-child(3), .boot__marks svg:nth-child(3) .boot__on { animation-delay: 0.6s; }
+      .boot__text { margin: 0; font-size: 13px; color: #7A8BA3; }
+      .boot__user { color: #22D3EE; }
+      .boot__cursor {
+        display: inline-block; width: 8px; height: 15px; margin-left: 6px; vertical-align: -3px;
+        background: #22D3EE; animation: boot-blink 1.1s steps(1) infinite;
+      }
+      /* Each triangle is lit for a third of the cycle, one after another */
+      @keyframes boot-step { 0% { opacity: 1; } 33.333% { opacity: 0; } }
+      @keyframes boot-glow { 0% { filter: drop-shadow(0 0 6px rgba(34, 211, 238, 0.6)); } 33.333% { filter: none; } }
+      @keyframes boot-blink { 50% { opacity: 0; } }
+      @media (prefers-reduced-motion: reduce) {
+        .boot__marks svg, .boot__on, .boot__cursor { animation: none; }
+        .boot__marks svg:first-child .boot__on { opacity: 1; }
+      }
+    </style>
   </head>
   <body>
+    <div id="boot" role="status" aria-live="polite">
+      <div class="boot__marks" aria-hidden="true">
+        <svg width="16" height="16" viewBox="0 0 16 16"><polygon class="boot__off" points="8,2.2 14.3,13.4 1.7,13.4"/><g class="boot__on"><polygon points="8,1.5 8,14 1,14" fill="#67E8F9"/><polygon points="8,1.5 15,14 8,14" fill="#0E7490"/></g></svg>
+        <svg width="16" height="16" viewBox="0 0 16 16"><polygon class="boot__off" points="8,2.2 14.3,13.4 1.7,13.4"/><g class="boot__on"><polygon points="8,1.5 8,14 1,14" fill="#67E8F9"/><polygon points="8,1.5 15,14 8,14" fill="#0E7490"/></g></svg>
+        <svg width="16" height="16" viewBox="0 0 16 16"><polygon class="boot__off" points="8,2.2 14.3,13.4 1.7,13.4"/><g class="boot__on"><polygon points="8,1.5 8,14 1,14" fill="#67E8F9"/><polygon points="8,1.5 15,14 8,14" fill="#0E7490"/></g></svg>
+      </div>
+      <p class="boot__text"><span class="boot__user">arthur@portfolio</span>:~$ <span id="boot-label">loading</span><span class="boot__cursor" aria-hidden="true"></span></p>
+    </div>
+    <script>
+      // Same language choice as src/i18n.js
+      (function () {
+        var lang;
+        try { lang = localStorage.getItem("lang"); } catch (e) {}
+        if (lang !== "fr" && lang !== "en") lang = (navigator.language || "").indexOf("fr") === 0 ? "fr" : "en";
+        if (lang === "fr") document.getElementById("boot-label").textContent = "chargement";
+      })();
+    </script>
     <div id="app"></div>
     <script type="module" src="/src/main.js"></script>
   </body>
