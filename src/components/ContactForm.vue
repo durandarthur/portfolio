@@ -60,8 +60,8 @@ async function sendMail() {
 		const data = await response.json().catch(() => ({}));
 		handleServerResponse(false, data.error ?? response.statusText);
 	} catch (error) {
-		// Network failure: no response at all
-		handleServerResponse(false, error.message);
+		// Network failure: no response at all (caught values are "unknown")
+		handleServerResponse(false, error instanceof Error ? error.message : String(error));
 	}
 }
 </script>
