@@ -164,24 +164,6 @@ const keys = {
 			en: `<p>\nHi ! I&apos;m Arthur, Software Developer and tech enthusiast. I help companies reach their goals.</p>`,
 			fr: `<p>\nJe m&apos;appelle Arthur. Développeur web passionné des nouvelles technologies, je m&apos;engage à faire avancer les missions des entreprises.</p>`,
 		},
-		techs: {
-			webDev: {
-				en: "Web Development",
-				fr: "Développement Web",
-			},
-			tools: {
-				en: "Tools",
-				fr: "Outils",
-			},
-			misc: {
-				en: "Misc",
-				fr: "Autres",
-			},
-			projectManagement: {
-				en: "Project Management",
-				fr: "Gestion de projet",
-			},
-		},
 		timeline: {
 			february: {
 				en: "February",
