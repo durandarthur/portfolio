@@ -114,14 +114,10 @@ defineEmits(["open-cv", "dismiss"]);
 	background: var(--cyan-300);
 }
 
-/* Phones: full width, above the taskbar */
+/* Not shown on phones */
 @media (max-width: 767px) {
 	.notice {
-		top: auto;
-		right: 12px;
-		left: 12px;
-		bottom: 88px;
-		width: auto;
+		display: none;
 	}
 }
 </style>
