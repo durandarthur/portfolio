@@ -578,9 +578,9 @@ defineExpose({
 					ref="box"
 					:rotation="{ y: Math.PI / 4, z: Math.PI / 4 }"
 					:position="{ z: 100000 }"
-					widthSegments="5"
-					heightSegments="5"
-					depthSegments="5"
+					:width-segments="5"
+					:height-segments="5"
+					:depth-segments="5"
 					:size="100"
 				>
 					<BasicMaterial :props="{ wireframe: true }" color="#04D9FF" />
