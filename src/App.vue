@@ -123,7 +123,12 @@ function toggleAbout() {
 					></span>
 				</p>
 				<h1 id="desktop-title" class="sr-only">Arthur Durand</h1>
-				<div class="desktop-idle__name-space" aria-hidden="true"></div>
+				<!-- The particles spell the name here (see ParticleField) -->
+				<div
+					class="desktop-idle__name-space"
+					data-particle-anchor="name"
+					aria-hidden="true"
+				></div>
 				<p class="desktop-idle__tagline">{{ $t("App.desktop.tagline") }}</p>
 				<p class="desktop-idle__hint">
 					<span class="chip chip--key">{{ $t("App.desktop.hintClick") }}</span>

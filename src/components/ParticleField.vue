@@ -1,10 +1,11 @@
 <script setup>
 // Background particle field (three.js through TroisJS).
-// Particles drift across the screen and gather into an app's glyph when its
-// icon is hovered or its window is focused.
+// Particles drift across the screen. At rest some of them spell the name;
+// they gather into an app's glyph when its icon is hovered or its window is
+// focused. Formations are tilted in 3D and sway slowly like a turntable.
 import * as THREE from "three";
 import { SVGLoader } from "three/examples/jsm/loaders/SVGLoader";
-import { onMounted, onUnmounted, ref, watch } from "vue";
+import { nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { particleSettings as settings } from "../lib/particleSettings";
 
 const props = defineProps({
@@ -20,6 +21,28 @@ const SHAPES = {
 	terminal: "/terminal_dark.svg",
 	techs: "/techs_dark.svg",
 };
+
+// Tilt and sway (radians). The name sways less so it stays readable.
+const NAME_PRESET = { ry: -0.18, rx: 0.06, sway: 0.08 };
+const GLYPH_PRESET = { ry: 0.4, rx: -0.18, sway: 0.28 };
+const SWAY_SPEED = (2 * Math.PI) / 14; // one back-and-forth every 14 s
+
+// The name at rest: 5×7 dot font, one particle per lit cell
+const NAME = "ARTHUR DURAND";
+const NAME_CELL = 14; // px, shrunk to fit the space the page reserves
+const NAME_RADIUS = 3.5; // px at full cell size
+const NAME_STRAGGLERS = 46;
+const FONT = {
+	A: [".###.", "#...#", "#...#", "#####", "#...#", "#...#", "#...#"],
+	R: ["####.", "#...#", "#...#", "####.", "#.#..", "#..#.", "#...#"],
+	T: ["#####", "..#..", "..#..", "..#..", "..#..", "..#..", "..#.."],
+	H: ["#...#", "#...#", "#...#", "#####", "#...#", "#...#", "#...#"],
+	U: ["#...#", "#...#", "#...#", "#...#", "#...#", "#...#", ".###."],
+	D: ["####.", "#...#", "#...#", "#...#", "#...#", "#...#", "####."],
+	N: ["#...#", "##..#", "#.#.#", "#..##", "#...#", "#...#", "#...#"],
+};
+// Enough particles for the name and its stragglers on small screens
+const MIN_PARTICLES = 300;
 
 // Timed ease-out tweens (like gsap's power1.out): fast start, gentle stop
 const FORM_MS = 800; // into a glyph
@@ -70,8 +93,10 @@ const pixelRatio = ref(FULL_PIXEL_RATIO);
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 // Per-particle state, kept out of Vue's reactivity (updated every frame)
-// { x, y, z, r, target, from, t0, dur, release }
-// target: {x, y, z, r} or null when drifting; release: drift again on arrival
+// { x, y, z, r, target, local, from, t0, dur, release }
+// target: {x, y, z, r} or null when drifting. local: the target is in the
+// current formation's space (moves with its tilt and sway).
+// release: drift again on arrival.
 let states = [];
 let spin = 0;
 const dummy = new THREE.Object3D();
@@ -105,6 +130,7 @@ function initParticles() {
 	states = Array.from({ length: Number(settings.amount) }, () => ({
 		...randomFieldPoint(),
 		target: null,
+		local: false,
 		from: null,
 		t0: 0,
 		dur: 0,
@@ -113,17 +139,21 @@ function initParticles() {
 }
 
 // Start a tween from where the particle is now
-function tweenTo(s, target, ms, release = false) {
+function tweenTo(s, target, ms, { local = false, release = false } = {}) {
 	s.from = { x: s.x, y: s.y, z: s.z, r: s.r };
 	s.t0 = performance.now();
 	s.dur = reducedMotion.matches ? 0 : ms;
 	s.target = target;
+	s.local = local;
 	s.release = release;
 }
 
 function onResize() {
 	const { innerWidth, innerHeight } = window;
-	settings.amount = Math.ceil(((innerWidth * innerHeight) / (2560 * 1440)) * 1000);
+	settings.amount = Math.max(
+		MIN_PARTICLES,
+		Math.ceil(((innerWidth * innerHeight) / (2560 * 1440)) * 1000)
+	);
 	camDist = cameraDistance(50, innerHeight);
 	const cam = camera.value.camera;
 	cam.aspect = innerWidth / innerHeight;
@@ -241,7 +271,7 @@ function onMouseMove(event) {
 			s.x -= (dx * strength) / k;
 			s.y -= (dy * strength) / k;
 			// Pushed out of a glyph: ease back in
-			if (s.target && !s.release) tweenTo(s, s.target, RETURN_MS);
+			if (s.target && !s.release) tweenTo(s, s.target, RETURN_MS, { local: s.local });
 		}
 	}
 }
@@ -253,9 +283,9 @@ async function loadSvg(url) {
 	return svgCache.get(url);
 }
 
-// Points along the glyph's outlines (about half the particles), centred and
-// scaled to half the smaller screen side
-async function shapePoints(url) {
+// Points along the glyph's outlines (about half the particles), centred on
+// the screen and scaled to half its smaller side
+async function glyphFormation(url) {
 	const { paths } = await loadSvg(url);
 	const amount = Number(settings.amount);
 	const points = [];
@@ -291,7 +321,64 @@ async function shapePoints(url) {
 		r: FORM_RADIUS,
 	}));
 	const [dMin, dMax] = STRAGGLER_DIST;
-	return withStragglers(outline, STRAGGLERS, dMin * size, dMax * size, STRAGGLER_Z);
+	return {
+		...GLYPH_PRESET,
+		center: { x: 0, y: 0 },
+		shapeCount: outline.length,
+		points: withStragglers(outline, STRAGGLERS, dMin * size, dMax * size, STRAGGLER_Z),
+	};
+}
+
+// The name, centred on the element the page marks with
+// data-particle-anchor="name" (the gap in the idle text)
+function nameFormation() {
+	const vw = window.innerWidth;
+	const vh = window.innerHeight;
+	const anchor = document.querySelector('[data-particle-anchor="name"]');
+	const box = anchor?.getBoundingClientRect();
+	const rect =
+		box && box.width > 0
+			? box
+			: { left: vw / 2 - 540, top: (vh - 104) / 2 - 65, width: 1080, height: 130 };
+
+	const cols = NAME.length * 6 - 1;
+	const cell = Math.min(NAME_CELL, rect.width / cols);
+	const radius = (NAME_RADIUS * cell) / NAME_CELL;
+	const width = cols * cell;
+	const height = 7 * cell;
+	const jitter = () => (Math.random() - 0.5) * cell * 0.15;
+	const shape = [];
+	[...NAME].forEach((ch, ci) => {
+		FONT[ch]?.forEach((row, r) =>
+			[...row].forEach((v, c) => {
+				if (v !== "#") return;
+				shape.push({
+					x: (ci * 6 + c + 0.5) * cell - width / 2 + jitter(),
+					y: height / 2 - (r + 0.5) * cell + jitter(),
+					z: (Math.random() - 0.5) * 12,
+					r: radius,
+				});
+			})
+		);
+	});
+
+	const k = cell / NAME_CELL;
+	return {
+		...NAME_PRESET,
+		center: {
+			x: rect.left + rect.width / 2 - vw / 2,
+			y: -(rect.top + rect.height / 2 - vh / 2),
+		},
+		shapeCount: shape.length,
+		points: withStragglers(shape, NAME_STRAGGLERS, 24 * k, 150 * k, 300),
+	};
+}
+
+// At most `budget` points: the shape first (thinned out evenly if needed),
+// then as many stragglers as fit
+function fitToBudget({ points, shapeCount }, budget) {
+	if (shapeCount <= budget) return points.slice(0, budget);
+	return Array.from({ length: budget }, (_, i) => points[Math.floor((i * shapeCount) / budget)]);
 }
 
 // Appends `count` points scattered around random points of the shape.
@@ -306,30 +393,40 @@ function withStragglers(shape, count, dMin, dMax, zSpread) {
 			x: base.x + Math.cos(angle) * d,
 			y: base.y + Math.sin(angle) * d * 0.6,
 			z: base.z + (Math.random() - 0.5) * zSpread,
-			r: FORM_RADIUS * (0.8 + Math.random() * 0.6),
+			r: base.r * (0.8 + Math.random() * 0.6),
 		});
 	}
 	return [...shape, ...extra];
 }
 
-// Hovered icon wins over the focused window
+// Hovered icon wins over the focused window; the name shows otherwise
 let hoverKey = null;
 let activeKey = null;
 let formationKey = null;
+let formation = null; // { points, shapeCount, center, ry, rx, sway }
 let request = 0;
 
 async function updateFormation() {
-	const key = hoverKey ?? activeKey;
+	const key = hoverKey ?? activeKey ?? "name";
 	if (key === formationKey) return;
 	const id = ++request;
-	const points = key && SHAPES[key] ? await shapePoints(SHAPES[key]) : [];
+	let next = null;
+	if (key === "name") {
+		await nextTick(); // let the idle text (and its anchor) render first
+		next = nameFormation();
+	} else if (SHAPES[key]) {
+		next = await glyphFormation(SHAPES[key]);
+	}
 	if (id !== request) return; // a newer request replaced this one
 	formationKey = key;
+	formation = next;
 
+	const points = next ? fitToBudget(next, states.length) : [];
 	states.forEach((s, i) => {
-		if (i < points.length) tweenTo(s, points[i], FORM_MS);
+		if (i < points.length) tweenTo(s, points[i], FORM_MS, { local: true });
 		// Leaving the formation: ease out to a random spot, then drift
-		else if (s.target && !s.release) tweenTo(s, randomFieldPoint(), SCATTER_MS, true);
+		else if (s.target && !s.release)
+			tweenTo(s, randomFieldPoint(), SCATTER_MS, { release: true });
 	});
 }
 
@@ -350,6 +447,24 @@ function frame() {
 		for (const b of bokeh) b.sprite.material.rotation = b.angle + (now / 1000) * b.speed;
 	}
 
+	// Formation tilt + turntable sway, applied to every local target
+	const f = formation;
+	const ry = f ? f.ry + (still ? 0 : f.sway * Math.sin((now / 1000) * SWAY_SPEED)) : 0;
+	const cosY = Math.cos(ry);
+	const sinY = Math.sin(ry);
+	const cosX = Math.cos(f?.rx ?? 0);
+	const sinX = Math.sin(f?.rx ?? 0);
+	const world = { x: 0, y: 0, z: 0, r: 0 };
+	const toWorld = (p) => {
+		const x1 = p.x * cosY + p.z * sinY;
+		const z1 = -p.x * sinY + p.z * cosY;
+		world.x = f.center.x + x1;
+		world.y = f.center.y + p.y * cosX - z1 * sinX;
+		world.z = p.y * sinX + z1 * cosX;
+		world.r = p.r;
+		return world;
+	};
+
 	const w = halfWidth();
 	const h = halfHeight();
 	const n = states.length;
@@ -360,7 +475,7 @@ function frame() {
 		if (s.target) {
 			const p = s.dur > 0 ? Math.min(1, (now - s.t0) / s.dur) : 1;
 			const e = easeOut(p);
-			const t = s.target;
+			const t = s.local && f ? toWorld(s.target) : s.target;
 			s.x = s.from.x + (t.x - s.from.x) * e;
 			s.y = s.from.y + (t.y - s.from.y) * e;
 			s.z = s.from.z + (t.z - s.from.z) * e;
