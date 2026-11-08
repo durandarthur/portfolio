@@ -227,6 +227,7 @@ function toggleAbout() {
 				app-key="terminal"
 				:title="iconTitle('terminal')"
 				icon="/icons/terminal.svg"
+				autofocus=".vue-command__query__input:not([disabled])"
 			>
 				<vue-command
 					:key="terminalKey"

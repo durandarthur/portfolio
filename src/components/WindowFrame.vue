@@ -17,6 +17,9 @@ const props = defineProps({
 	// Default size in px, or a fraction of the viewport when <= 1
 	width: { type: Number, default: 0.6 },
 	height: { type: Number, default: 0.6 },
+	// Element inside the window to focus when it opens or is restored
+	// (e.g. the terminal's input); the window itself otherwise
+	autofocus: { type: String, default: "" },
 });
 
 const MARGIN = 24;
@@ -72,16 +75,32 @@ function place() {
 	clampRect();
 }
 
+// Not on touch screens: focusing an input there pops up the keyboard
+const finePointer = window.matchMedia("(pointer: fine)");
+async function focusContent() {
+	await nextTick();
+	const target =
+		props.autofocus && finePointer.matches ? el.value?.querySelector(props.autofocus) : null;
+	(target ?? el.value)?.focus();
+}
+
 watch(
 	() => state.value?.openedAt,
-	async (openedAt) => {
+	(openedAt) => {
 		if (!openedAt) return;
 		everOpened.value = true;
 		place();
-		await nextTick();
-		el.value?.focus();
+		focusContent();
 	},
 	{ immediate: true }
+);
+
+// Restored from the taskbar
+watch(
+	() => state.value?.minimized,
+	(minimized, was) => {
+		if (was && !minimized) focusContent();
+	}
 );
 
 const frameStyle = computed(() => {
