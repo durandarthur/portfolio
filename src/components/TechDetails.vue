@@ -5,6 +5,8 @@ import { CONTEXTS, NOTES, pairedWith, sinceOf, tagOf } from "../techs";
 
 const props = defineProps({
 	tech: { type: Object, required: true }, // { name, used, category }
+	// Tree view: also suggest switching to the graph
+	graphHint: { type: Boolean, default: false },
 });
 defineEmits(["select", "open-projects"]);
 
@@ -90,7 +92,10 @@ const contexts = computed(() =>
 		</section>
 
 		<span class="details__fill"></span>
-		<p class="details__hint">{{ $t("Techs.hint") }}</p>
+		<p class="details__hint">
+			{{ $t("Techs.hint") }}
+			<template v-if="graphHint"> {{ $t("Techs.hintGraph") }}</template>
+		</p>
 	</div>
 </template>
 

@@ -4,9 +4,14 @@ import { $t } from "../i18n";
 import { focusWindow, isVisible, toggleFromDesktop } from "../lib/windows";
 import { CATEGORIES, DEFAULT_OPEN, DEFAULT_SELECTED, techByName } from "../techs";
 import TechDetails from "./TechDetails.vue";
+import TechGraph from "./TechGraph.vue";
 import TechTree from "./TechTree.vue";
 import WindowFrame from "./WindowFrame.vue";
 
+const view = ref("tree"); // "tree" | "graph"
+const VIEWS = ["tree", "graph"];
+// The graph renders only while the window shows (it has its own WebGL loop)
+const visible = computed(() => isVisible("techs"));
 const open = ref([...DEFAULT_OPEN]);
 const selected = ref(DEFAULT_SELECTED);
 const selectedTech = computed(() => techByName(selected.value));
@@ -41,12 +46,16 @@ function openProjects() {
 	>
 		<template #header>
 			<div role="group" :aria-label="$t('Techs.view')" class="view-toggle">
-				<button type="button" class="view-toggle__btn active-bar" aria-pressed="true">
-					{{ $t("Techs.tree") }}
-				</button>
-				<!-- Graph view not built yet: the button does nothing -->
-				<button type="button" class="view-toggle__btn" aria-pressed="false">
-					{{ $t("Techs.graph") }}
+				<button
+					v-for="v in VIEWS"
+					:key="v"
+					type="button"
+					class="view-toggle__btn"
+					:class="{ 'active-bar': view === v }"
+					:aria-pressed="view === v"
+					@click="view = v"
+				>
+					{{ $t(`Techs.${v}`) }}
 				</button>
 			</div>
 		</template>
@@ -55,16 +64,25 @@ function openProjects() {
 		<div class="techs-root">
 			<div class="techs">
 				<TechTree
-					class="techs__tree"
+					v-if="view === 'tree'"
+					class="techs__pane"
 					:selected="selected"
 					:open="open"
 					@select="select"
 					@toggle="toggleFolder"
 				/>
+				<TechGraph
+					v-else-if="visible"
+					class="techs__pane techs__pane--graph"
+					:selected="selected"
+					@select="select"
+				/>
+				<div v-else class="techs__pane techs__pane--graph"></div>
 				<TechDetails
 					v-if="selectedTech"
 					class="techs__details"
 					:tech="selectedTech"
+					:graph-hint="view === 'tree'"
 					@select="select"
 					@open-projects="openProjects"
 				/>
@@ -102,7 +120,7 @@ function openProjects() {
 	height: 100%;
 	display: flex;
 }
-.techs__tree {
+.techs__pane {
 	width: 540px;
 	flex-shrink: 0;
 	min-height: 0;
@@ -120,10 +138,13 @@ function openProjects() {
 		height: auto;
 		flex-direction: column;
 	}
-	.techs__tree {
+	.techs__pane {
 		width: auto;
 	}
-	.techs__tree :deep(.tree__list) {
+	.techs__pane--graph {
+		height: 460px;
+	}
+	.techs__pane :deep(.tree__list) {
 		overflow: visible;
 	}
 	.techs__details {
