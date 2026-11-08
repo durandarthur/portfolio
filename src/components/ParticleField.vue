@@ -229,9 +229,10 @@ async function glyphFormation(url) {
 	return { center: { x: 0, y: 0 }, points: outline };
 }
 
-// Points spread at one even spacing along every line of a stroke SVG
-// (lines drawn twice count once, open lines stay open), using the formation
-// pool, centred on the screen and scaled to half its smaller side
+// A particle on every vertex (corners, and every point where lines meet),
+// then the rest spread at one even spacing along the lines of a stroke SVG
+// (lines drawn twice count once, open lines stay open). Uses the formation
+// pool, centred on the screen and scaled to half its smaller side.
 async function lineFormation(url) {
 	const { paths } = await loadSvg(url);
 
@@ -251,15 +252,25 @@ async function lineFormation(url) {
 		}
 	}
 
-	const total = segments.reduce((sum, [a, b]) => sum + a.distanceTo(b), 0);
-	const spacing = total / FORMATION_POOL;
 	const points = [];
+	const vertices = new Set();
 	const bounds = new THREE.Box2();
 	for (const [a, b] of segments) {
 		bounds.expandByPoint(a).expandByPoint(b);
+		for (const v of [a, b]) {
+			if (vertices.has(key(v))) continue;
+			vertices.add(key(v));
+			points.push({ x: v.x, y: v.y });
+		}
+	}
+
+	// A segment cut into n pieces gets n - 1 points between its ends
+	const total = segments.reduce((sum, [a, b]) => sum + a.distanceTo(b), 0);
+	const spacing = total / Math.max(1, FORMATION_POOL - points.length + segments.length);
+	for (const [a, b] of segments) {
 		const n = Math.max(1, Math.round(a.distanceTo(b) / spacing));
-		for (let i = 0; i < n; i++) {
-			const t = (i + 0.5) / n;
+		for (let i = 1; i < n; i++) {
+			const t = i / n;
 			points.push({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
 		}
 	}
