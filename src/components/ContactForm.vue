@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import axios from "axios";
 import { computed, reactive } from "vue";
 import { $t } from "../i18n";
 
@@ -48,20 +47,22 @@ const textPlaceholder = computed(() => {
 	return $t("ContactForm.enterMsg");
 });
 
-function sendMail() {
-	// alert(mailMessage.value);
+async function sendMail() {
 	status.submitting = true;
-	axios({
-		method: "POST",
-		url: import.meta.env.VITE_FORM_ENDPOINT,
-		data: mailData,
-	})
-		.then(() => {
-			handleServerResponse(true, $t("ContactForm.msgSent"));
-		})
-		.catch((error) => {
-			handleServerResponse(false, error.response.data.error);
+	try {
+		const response = await fetch(import.meta.env.VITE_FORM_ENDPOINT, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(mailData),
 		});
+		if (response.ok) return handleServerResponse(true, $t("ContactForm.msgSent"));
+		// The server's { error } message, else the HTTP status text
+		const data = await response.json().catch(() => ({}));
+		handleServerResponse(false, data.error ?? response.statusText);
+	} catch (error) {
+		// Network failure: no response at all
+		handleServerResponse(false, error.message);
+	}
 }
 </script>
 
