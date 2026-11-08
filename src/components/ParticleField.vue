@@ -68,6 +68,13 @@ const PARTICLE_COLOR = "#04D9FF";
 const FOG_COLOR = 0x061020;
 const FOG_MAX = 0.85;
 
+// Created once: TroisJS re-applies object props whenever a new object is
+// passed, and an inline {z: 1500} is a new object on every re-render (e.g.
+// when a window opens or closes), which put the camera back at z = 1500
+const CAMERA_POSITION = { z: 1500 };
+const BOX_ROTATION = { y: Math.PI / 4, z: Math.PI / 4 };
+const BOX_POSITION = { z: 100000 };
+
 const renderer = ref(null);
 const camera = ref(null);
 const box = ref(null);
@@ -571,13 +578,13 @@ defineExpose({
 			:pixel-ratio="pixelRatio"
 			class="testg"
 		>
-			<Camera ref="camera" :position="{ z: 1500 }" :aspect="16 / 9" />
+			<Camera ref="camera" :position="CAMERA_POSITION" :aspect="16 / 9" />
 			<Scene ref="scene">
 				<PointLight ref="light" color="#00ffff" />
 				<Box
 					ref="box"
-					:rotation="{ y: Math.PI / 4, z: Math.PI / 4 }"
-					:position="{ z: 100000 }"
+					:rotation="BOX_ROTATION"
+					:position="BOX_POSITION"
 					:width-segments="5"
 					:height-segments="5"
 					:depth-segments="5"

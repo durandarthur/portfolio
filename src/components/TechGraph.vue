@@ -23,6 +23,9 @@ const COLORS = {
 	highlight: new THREE.Color("#A5F3FC"),
 };
 
+// Created once (an inline object would be re-applied on every re-render)
+const CAMERA_POSITION = { z: 100 };
+
 const root = ref(null);
 const renderer = ref(null);
 const camera = ref(null);
@@ -166,7 +169,7 @@ function labelStyle(label) {
 <template>
 	<div ref="root" class="graph" role="group" :aria-label="$t('Techs.graphLabel')">
 		<Renderer ref="renderer" alpha :pixel-ratio="pixelRatio" aria-hidden="true">
-			<OrthographicCamera ref="camera" :position="{ z: 100 }" />
+			<OrthographicCamera ref="camera" :position="CAMERA_POSITION" />
 			<Scene>
 				<InstancedMesh ref="particles" :count="PARTICLES">
 					<TetrahedronGeometry />
