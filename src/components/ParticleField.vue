@@ -29,6 +29,11 @@ const DEPTH_FACTOR = 4.9;
 const DEPTH_BIAS = 0.55; // z = rand^0.55 × depth: most particles are far
 const FIELD_RADIUS = 6; // px at z = 0
 const FORM_RADIUS = 2.5; // px, particles in a glyph
+// Stragglers: particles hanging around a glyph at mixed depths, as if still
+// flying in. Distances are fractions of the glyph size.
+const STRAGGLERS = 60;
+const STRAGGLER_DIST = [0.09, 0.7];
+const STRAGGLER_Z = 500; // depth spread, px
 // Fog: far particles fade towards this colour, up to 85% at full depth
 const FOG_COLOR = 0x061020;
 const FOG_MAX = 0.85;
@@ -180,12 +185,32 @@ async function shapePoints(url) {
 	const cx = -(bounds.min.x + bounds.max.x) / 2;
 	const cy = -(bounds.min.y + bounds.max.y) / 2;
 
-	return points.map(({ x, y, z }) => ({
+	const outline = points.map(({ x, y, z }) => ({
 		x: (x + cx) * scale,
 		y: (y - cy) * scale,
 		z,
 		r: FORM_RADIUS,
 	}));
+	const [dMin, dMax] = STRAGGLER_DIST;
+	return withStragglers(outline, STRAGGLERS, dMin * size, dMax * size, STRAGGLER_Z);
+}
+
+// Appends `count` points scattered around random points of the shape.
+// The shape comes first, so it keeps priority when particles run short.
+function withStragglers(shape, count, dMin, dMax, zSpread) {
+	const extra = [];
+	for (let i = 0; i < count && shape.length; i++) {
+		const base = shape[Math.floor(Math.random() * shape.length)];
+		const angle = Math.random() * Math.PI * 2;
+		const d = dMin + Math.random() * (dMax - dMin);
+		extra.push({
+			x: base.x + Math.cos(angle) * d,
+			y: base.y + Math.sin(angle) * d * 0.6,
+			z: base.z + (Math.random() - 0.5) * zSpread,
+			r: FORM_RADIUS * (0.8 + Math.random() * 0.6),
+		});
+	}
+	return [...shape, ...extra];
 }
 
 // Hovered icon wins over the focused window
