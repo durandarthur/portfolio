@@ -13,13 +13,13 @@ const props = defineProps({
 	defocused: { type: Boolean, default: false },
 });
 
-// Glyph outlines per app
-const SHAPES = {
-	contact: "/mail.svg",
-	cv: "/cv.svg",
-	projects: "/projects.svg",
-	terminal: "/terminal_dark.svg",
-	techs: "/techs_dark.svg",
+// Glyph per app: SVG outlines, or the generated Techs network
+const GLYPHS = {
+	contact: () => glyphFormation("/mail.svg"),
+	cv: () => glyphFormation("/cv.svg"),
+	projects: () => glyphFormation("/projects.svg"),
+	terminal: () => glyphFormation("/terminal_dark.svg"),
+	techs: () => networkFormation(), // previous glyph: glyphFormation("/techs_dark.svg")
 };
 
 // Tilt and sway (radians). The name sways less so it stays readable.
@@ -329,6 +329,59 @@ async function glyphFormation(url) {
 	};
 }
 
+// The Techs glyph: a ring of nodes around an inner network, in a 400-unit
+// design space. Point spacing grows so it uses about half the particles.
+const NETWORK = {
+	ring: [200, 200, 150],
+	nodes: [[350, 200], [306, 306], [200, 350], [94, 306], [50, 200], [94, 94], [200, 50], [306, 94]],
+	hubs: [[225, 140], [140, 185], [255, 245], [175, 275]],
+	links: [
+		[200, 76, 222, 120], [118, 110, 160, 175], [330, 115, 240, 130], [76, 200, 120, 188],
+		[324, 200, 272, 238], [282, 286, 268, 260], [118, 290, 158, 262], [200, 324, 182, 295],
+		[245, 155, 250, 225], [157, 197, 240, 238], [160, 192, 210, 150], [195, 268, 236, 250],
+	],
+	extent: 352, // outer node rings span 24..376
+};
+
+function networkPoints(spacing) {
+	const pts = [];
+	const add = (x, y) => pts.push({ x: x - 200, y: 200 - y, z: (Math.random() - 0.5) * 10 });
+	const ring = (x, y, r, gap) => {
+		const n = Math.max(6, Math.round((2 * Math.PI * r) / (gap * spacing)));
+		for (let i = 0; i < n; i++) {
+			const a = (i / n) * 2 * Math.PI;
+			add(x + Math.cos(a) * r, y + Math.sin(a) * r);
+		}
+	};
+	ring(...NETWORK.ring, 8.5);
+	NETWORK.nodes.forEach(([x, y]) => {
+		ring(x, y, 26, 8.5);
+		ring(x, y, 13, 9.5);
+	});
+	NETWORK.hubs.forEach(([x, y]) => ring(x, y, 20, 8.5));
+	NETWORK.links.forEach(([x1, y1, x2, y2]) => {
+		const n = Math.max(2, Math.round(Math.hypot(x2 - x1, y2 - y1) / (9 * spacing)));
+		for (let i = 1; i < n; i++) add(x1 + ((x2 - x1) * i) / n, y1 + ((y2 - y1) * i) / n);
+	});
+	return pts;
+}
+
+function networkFormation() {
+	const budget = Math.floor(Number(settings.amount) / 2);
+	const full = networkPoints(1).length;
+	const raw = networkPoints(Math.max(1, full / budget));
+	const size = Math.ceil(Math.min(window.innerHeight, window.innerWidth) / 2);
+	const scale = size / NETWORK.extent;
+	const shape = raw.map((p) => ({ x: p.x * scale, y: p.y * scale, z: p.z, r: FORM_RADIUS }));
+	const [dMin, dMax] = STRAGGLER_DIST;
+	return {
+		...GLYPH_PRESET,
+		center: { x: 0, y: 0 },
+		shapeCount: shape.length,
+		points: withStragglers(shape, STRAGGLERS, dMin * size, dMax * size, STRAGGLER_Z),
+	};
+}
+
 // The name, centred on the element the page marks with
 // data-particle-anchor="name" (the gap in the idle text)
 function nameFormation() {
@@ -414,8 +467,8 @@ async function updateFormation() {
 	if (key === "name") {
 		await nextTick(); // let the idle text (and its anchor) render first
 		next = nameFormation();
-	} else if (SHAPES[key]) {
-		next = await glyphFormation(SHAPES[key]);
+	} else if (GLYPHS[key]) {
+		next = await GLYPHS[key]();
 	}
 	if (id !== request) return; // a newer request replaced this one
 	formationKey = key;
