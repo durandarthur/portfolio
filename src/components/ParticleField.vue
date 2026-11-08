@@ -13,13 +13,19 @@ const props = defineProps({
 	defocused: { type: Boolean, default: false },
 });
 
-// Glyph per app: SVG outlines, or the generated Techs network
+// Glyph per app: the lines of its desktop icon (public/glyphs, editable
+// SVG strokes without the icons' shading seams).
+// Previous glyphs, to switch back:
+//   contact: glyphFormation("/mail.svg"), cv: glyphFormation("/cv.svg"),
+//   projects: glyphFormation("/projects.svg"),
+//   terminal: glyphFormation("/terminal_dark.svg"),
+//   techs: networkFormation() or glyphFormation("/techs_dark.svg")
 const GLYPHS = {
-	contact: () => glyphFormation("/mail.svg"),
-	cv: () => glyphFormation("/cv.svg"),
-	projects: () => glyphFormation("/projects.svg"),
-	terminal: () => glyphFormation("/terminal_dark.svg"),
-	techs: () => networkFormation(), // previous glyph: glyphFormation("/techs_dark.svg")
+	contact: () => lineFormation("/glyphs/contact.svg"),
+	cv: () => lineFormation("/glyphs/cv.svg"),
+	projects: () => lineFormation("/glyphs/projects.svg"),
+	terminal: () => lineFormation("/glyphs/terminal.svg"),
+	techs: () => lineFormation("/glyphs/techs.svg"),
 };
 
 // The name at rest: 5×7 dot font, one particle per lit cell
@@ -221,6 +227,52 @@ async function glyphFormation(url) {
 		r: FORM_RADIUS,
 	}));
 	return { center: { x: 0, y: 0 }, points: outline };
+}
+
+// Points spread at one even spacing along every line of a stroke SVG
+// (lines drawn twice count once, open lines stay open), using the formation
+// pool, centred on the screen and scaled to half its smaller side
+async function lineFormation(url) {
+	const { paths } = await loadSvg(url);
+
+	const segments = [];
+	const seen = new Set();
+	const key = (p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`;
+	for (const path of paths) {
+		for (const sub of path.subPaths) {
+			const pts = sub.getPoints(); // includes the closing point after Z
+			for (let i = 1; i < pts.length; i++) {
+				const [a, b] = [pts[i - 1], pts[i]];
+				const id = [key(a), key(b)].sort().join("|");
+				if (a.equals(b) || seen.has(id)) continue;
+				seen.add(id);
+				segments.push([a, b]);
+			}
+		}
+	}
+
+	const total = segments.reduce((sum, [a, b]) => sum + a.distanceTo(b), 0);
+	const spacing = total / FORMATION_POOL;
+	const points = [];
+	const bounds = new THREE.Box2();
+	for (const [a, b] of segments) {
+		bounds.expandByPoint(a).expandByPoint(b);
+		const n = Math.max(1, Math.round(a.distanceTo(b) / spacing));
+		for (let i = 0; i < n; i++) {
+			const t = (i + 0.5) / n;
+			points.push({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
+		}
+	}
+
+	const size = Math.ceil(Math.min(window.innerHeight, window.innerWidth) / 2);
+	const scale = size / Math.max(bounds.max.x - bounds.min.x, bounds.max.y - bounds.min.y);
+	const cx = (bounds.min.x + bounds.max.x) / 2;
+	const cy = (bounds.min.y + bounds.max.y) / 2;
+	return {
+		center: { x: 0, y: 0 },
+		// SVG y points down, world y up
+		points: points.map((p) => ({ x: (p.x - cx) * scale, y: (cy - p.y) * scale, z: 0, r: FORM_RADIUS })),
+	};
 }
 
 // The Techs glyph: a ring of nodes around an inner network, in a 400-unit
