@@ -16,8 +16,11 @@ const SHAPES = {
 	techs: "/techs_dark.svg",
 };
 
-const EASE_RATE = 6; // how fast particles reach their target (1/s)
-const SCATTER_MS = 600; // time a released particle eases out before drifting again
+// Timed ease-out tweens (like gsap's power1.out): fast start, gentle stop
+const FORM_MS = 800; // into a glyph
+const SCATTER_MS = 700; // out of a glyph, then the particle drifts again
+const RETURN_MS = 500; // back into the glyph after a mouse push
+const easeOut = (p) => 1 - (1 - p) * (1 - p);
 
 // Depth: field particles sit between z = 0 and z = -depth, biased towards far.
 // depth = camera distance × DEPTH_FACTOR, so the farthest ones show at
@@ -42,10 +45,10 @@ const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 // Per-particle state, kept out of Vue's reactivity (updated every frame)
-// { x, y, z, r, target: {x, y, z, r} | null, releaseAt: ms | 0 }
+// { x, y, z, r, target, from, t0, dur, release }
+// target: {x, y, z, r} or null when drifting; release: drift again on arrival
 let states = [];
 let spin = 0;
-let lastFrame = performance.now();
 const dummy = new THREE.Object3D();
 
 // ── Camera ───────────────────────────────────────────────────────
@@ -77,8 +80,20 @@ function initParticles() {
 	states = Array.from({ length: Number(settings.amount) }, () => ({
 		...randomFieldPoint(),
 		target: null,
-		releaseAt: 0,
+		from: null,
+		t0: 0,
+		dur: 0,
+		release: false,
 	}));
+}
+
+// Start a tween from where the particle is now
+function tweenTo(s, target, ms, release = false) {
+	s.from = { x: s.x, y: s.y, z: s.z, r: s.r };
+	s.t0 = performance.now();
+	s.dur = reducedMotion.matches ? 0 : ms;
+	s.target = target;
+	s.release = release;
 }
 
 function onResize() {
@@ -121,6 +136,8 @@ function onMouseMove(event) {
 			const strength = amplitude * (1 - distanceSquared / rangeSquared);
 			s.x -= (dx * strength) / k;
 			s.y -= (dy * strength) / k;
+			// Pushed out of a glyph: ease back in
+			if (s.target && !s.release) tweenTo(s, s.target, RETURN_MS);
 		}
 	}
 }
@@ -185,16 +202,10 @@ async function updateFormation() {
 	if (id !== request) return; // a newer request replaced this one
 	formationKey = key;
 
-	const now = performance.now();
 	states.forEach((s, i) => {
-		if (i < points.length) {
-			s.target = points[i];
-			s.releaseAt = 0;
-		} else if (s.target && !s.releaseAt) {
-			// Leaving the formation: ease out to a random spot, then drift
-			s.target = randomFieldPoint();
-			s.releaseAt = now + SCATTER_MS;
-		}
+		if (i < points.length) tweenTo(s, points[i], FORM_MS);
+		// Leaving the formation: ease out to a random spot, then drift
+		else if (s.target && !s.release) tweenTo(s, randomFieldPoint(), SCATTER_MS, true);
 	});
 }
 
@@ -205,14 +216,11 @@ function refreshFormation() {
 
 // ── Frame loop ───────────────────────────────────────────────────
 function frame() {
-	const now = performance.now();
-	const dt = Math.min(0.1, (now - lastFrame) / 1000);
-	lastFrame = now;
 	const mesh = particles.value?.mesh;
 	if (!mesh || document.hidden) return;
 
+	const now = performance.now();
 	const still = reducedMotion.matches;
-	const ease = still ? 1 : 1 - Math.exp(-dt * EASE_RATE);
 	if (!still) spin += 0.01;
 
 	const w = halfWidth();
@@ -223,14 +231,14 @@ function frame() {
 	for (let i = 0; i < count; i++) {
 		const s = states[i];
 		if (s.target) {
-			s.x += (s.target.x - s.x) * ease;
-			s.y += (s.target.y - s.y) * ease;
-			s.z += (s.target.z - s.z) * ease;
-			s.r += (s.target.r - s.r) * ease;
-			if (s.releaseAt && now >= s.releaseAt) {
-				s.target = null;
-				s.releaseAt = 0;
-			}
+			const p = s.dur > 0 ? Math.min(1, (now - s.t0) / s.dur) : 1;
+			const e = easeOut(p);
+			const t = s.target;
+			s.x = s.from.x + (t.x - s.from.x) * e;
+			s.y = s.from.y + (t.y - s.from.y) * e;
+			s.z = s.from.z + (t.z - s.from.z) * e;
+			s.r = s.from.r + (t.r - s.from.r) * e;
+			if (p >= 1 && s.release) s.target = null;
 		} else if (!still) {
 			// Drift up and to the right, faster for higher indices, and wrap
 			// at the screen edge for that depth
