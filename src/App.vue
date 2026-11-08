@@ -23,6 +23,7 @@ import { techsTreeFormatter, timelineFormatter } from "./lib/formatters";
 import { particleSettings } from "./lib/particleSettings";
 import {
 	anyVisible,
+	closeWindow,
 	focusWindow,
 	focusedKey,
 	isOpenHere,
@@ -61,6 +62,12 @@ const commands = {
 	techs: () => createStdout(textFormatter(techsTreeFormatter(), true)),
 	timeline: () => createStdout(timelineFormatter(getTimeline())),
 	socials: () => createStdout(textFormatter(socialsHTML, true)),
+	// Closes the window once vue-command has finished with this command;
+	// closing clears the history (see the watch below)
+	exit: () => {
+		setTimeout(() => closeWindow("terminal"));
+		return createQuery();
+	},
 };
 
 // DESKTOP ICONS
