@@ -13,13 +13,13 @@ const props = defineProps({
 	defocused: { type: Boolean, default: false },
 });
 
-// Glyph per app: SVG outlines, or the generated Techs network
+// Glyph per app: the edges of its desktop icon
 const GLYPHS = {
-	contact: () => glyphFormation("/mail.svg"),
-	cv: () => glyphFormation("/cv.svg"),
-	projects: () => glyphFormation("/projects.svg"),
-	terminal: () => glyphFormation("/terminal_dark.svg"),
-	techs: () => networkFormation(), // previous glyph: glyphFormation("/techs_dark.svg")
+	contact: () => glyphFormation("/icons/contact.svg"),
+	cv: () => glyphFormation("/icons/cv.svg"),
+	projects: () => glyphFormation("/icons/projects.svg"),
+	terminal: () => glyphFormation("/icons/terminal.svg"),
+	techs: () => glyphFormation("/icons/techs.svg"),
 };
 
 // The name at rest: 5×7 dot font, one particle per lit cell
@@ -182,91 +182,52 @@ async function loadSvg(url) {
 	return svgCache.get(url);
 }
 
-// Points along the glyph's outlines (about half the particles), centred on
-// the screen and scaled to half its smaller side
+// Points spread evenly along every edge of the icon (facet edges shared by
+// two facets count once, open strokes like </> stay open), about half the
+// particles, centred on the screen and scaled to half its smaller side
 async function glyphFormation(url) {
 	const { paths } = await loadSvg(url);
-	const amount = Number(settings.amount);
+
+	// Unique straight segments of all sub-paths
+	const segments = [];
+	const seen = new Set();
+	const key = (p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`;
+	for (const path of paths) {
+		for (const sub of path.subPaths) {
+			const pts = sub.getPoints();
+			if (sub.autoClose && pts.length > 2 && !pts[0].equals(pts[pts.length - 1])) pts.push(pts[0]);
+			for (let i = 1; i < pts.length; i++) {
+				const [a, b] = [pts[i - 1], pts[i]];
+				const id = [key(a), key(b)].sort().join("|");
+				if (a.equals(b) || seen.has(id)) continue;
+				seen.add(id);
+				segments.push([a, b]);
+			}
+		}
+	}
+
+	const total = segments.reduce((sum, [a, b]) => sum + a.distanceTo(b), 0);
+	const spacing = total / Math.max(1, Math.floor(Number(settings.amount) / 2));
 	const points = [];
 	const bounds = new THREE.Box2();
-
-	paths.forEach((path, _, allPaths) => {
-		const shapes = SVGLoader.createShapes(path);
-		shapes.forEach((shape, _, allShapes) => {
-			const perShape = Math.floor(amount / 2 / allPaths.length / allShapes.length);
-			shape.getSpacedPoints(perShape - 1).forEach((p) => {
-				bounds.expandByPoint(p);
-				points.push({ x: p.x, y: -p.y, z: 0 });
-			});
-			shape.holes.forEach((hole, _, allHoles) => {
-				hole
-					.getSpacedPoints(Math.floor(perShape / allHoles.length) - 1)
-					.forEach((p) => points.push({ x: p.x, y: -p.y, z: 0 }));
-			});
-		});
-	});
-
-	const width = bounds.max.x - bounds.min.x;
-	const height = bounds.max.y - bounds.min.y;
-	const size = Math.ceil(Math.min(window.innerHeight, window.innerWidth) / 2);
-	const scale = size / Math.max(width, height);
-	const cx = -(bounds.min.x + bounds.max.x) / 2;
-	const cy = -(bounds.min.y + bounds.max.y) / 2;
-
-	const outline = points.map(({ x, y, z }) => ({
-		x: (x + cx) * scale,
-		y: (y - cy) * scale,
-		z,
-		r: FORM_RADIUS,
-	}));
-	return { center: { x: 0, y: 0 }, points: outline };
-}
-
-// The Techs glyph: a ring of nodes around an inner network, in a 400-unit
-// design space. Point spacing grows so it uses about half the particles.
-const NETWORK = {
-	ring: [200, 200, 150],
-	nodes: [[350, 200], [306, 306], [200, 350], [94, 306], [50, 200], [94, 94], [200, 50], [306, 94]],
-	hubs: [[225, 140], [140, 185], [255, 245], [175, 275]],
-	links: [
-		[200, 76, 222, 120], [118, 110, 160, 175], [330, 115, 240, 130], [76, 200, 120, 188],
-		[324, 200, 272, 238], [282, 286, 268, 260], [118, 290, 158, 262], [200, 324, 182, 295],
-		[245, 155, 250, 225], [157, 197, 240, 238], [160, 192, 210, 150], [195, 268, 236, 250],
-	],
-	extent: 352, // outer node rings span 24..376
-};
-
-function networkPoints(spacing) {
-	const pts = [];
-	const add = (x, y) => pts.push({ x: x - 200, y: 200 - y, z: (Math.random() - 0.5) * 10 });
-	const ring = (x, y, r, gap) => {
-		const n = Math.max(6, Math.round((2 * Math.PI * r) / (gap * spacing)));
+	for (const [a, b] of segments) {
+		bounds.expandByPoint(a).expandByPoint(b);
+		const n = Math.max(1, Math.round(a.distanceTo(b) / spacing));
 		for (let i = 0; i < n; i++) {
-			const a = (i / n) * 2 * Math.PI;
-			add(x + Math.cos(a) * r, y + Math.sin(a) * r);
+			const t = (i + 0.5) / n;
+			points.push({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
 		}
-	};
-	ring(...NETWORK.ring, 8.5);
-	NETWORK.nodes.forEach(([x, y]) => {
-		ring(x, y, 26, 8.5);
-		ring(x, y, 13, 9.5);
-	});
-	NETWORK.hubs.forEach(([x, y]) => ring(x, y, 20, 8.5));
-	NETWORK.links.forEach(([x1, y1, x2, y2]) => {
-		const n = Math.max(2, Math.round(Math.hypot(x2 - x1, y2 - y1) / (9 * spacing)));
-		for (let i = 1; i < n; i++) add(x1 + ((x2 - x1) * i) / n, y1 + ((y2 - y1) * i) / n);
-	});
-	return pts;
-}
+	}
 
-function networkFormation() {
-	const budget = Math.floor(Number(settings.amount) / 2);
-	const full = networkPoints(1).length;
-	const raw = networkPoints(Math.max(1, full / budget));
 	const size = Math.ceil(Math.min(window.innerHeight, window.innerWidth) / 2);
-	const scale = size / NETWORK.extent;
-	const shape = raw.map((p) => ({ x: p.x * scale, y: p.y * scale, z: p.z, r: FORM_RADIUS }));
-	return { center: { x: 0, y: 0 }, points: shape };
+	const scale = size / Math.max(bounds.max.x - bounds.min.x, bounds.max.y - bounds.min.y);
+	const cx = (bounds.min.x + bounds.max.x) / 2;
+	const cy = (bounds.min.y + bounds.max.y) / 2;
+	return {
+		center: { x: 0, y: 0 },
+		// SVG y points down, world y up
+		points: points.map((p) => ({ x: (p.x - cx) * scale, y: (cy - p.y) * scale, z: 0, r: FORM_RADIUS })),
+	};
 }
 
 // The name, centred on the element the page marks with
