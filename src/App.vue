@@ -1,8 +1,5 @@
 <script setup>
-import { gsap } from "gsap";
-import * as THREE from "three";
-import { SVGLoader } from "three/examples/jsm/loaders/SVGLoader";
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import VueCommand, {
 	createQuery,
 	createStdout,
@@ -13,6 +10,7 @@ import VueCommand, {
 import "vue-command/dist/vue-command.css";
 import ContactForm from "./components/ContactForm.vue";
 import DesktopIcon from "./components/DesktopIcon.vue";
+import ParticleField from "./components/ParticleField.vue";
 import ProjectsWindow from "./components/ProjectsWindow.vue";
 import Taskbar from "./components/Taskbar.vue";
 import TechsWindow from "./components/TechsWindow.vue";
@@ -22,6 +20,7 @@ import { getBioHTML, getTechs, getTimeline, socialsHTML } from "./data";
 import { projects } from "./projects";
 import { $t, getCvUrl } from "./i18n";
 import { techsFormatter, timelineFormatter } from "./lib/formatters";
+import { particleSettings } from "./lib/particleSettings";
 import {
 	anyVisible,
 	closeWindow,
@@ -33,328 +32,9 @@ import {
 	toggleFromDesktop,
 } from "./lib/windows";
 
-// THREE/TROIS.JS STUFF
+// PARTICLES
 
-const renderer = ref(null);
-const camera = ref(null);
-const box = ref(null);
-const light = ref(null);
-const particles = ref(null);
-const meshKey = ref(0);
-
-const particlesAmount = ref(1000);
-const mouseEffectRange = ref(250);
-const mouseEffectAmplitude = ref(1);
-
-const particlesStates = ref([]);
-const targetPositions = ref([]);
-
-let hoverInterval;
-let hoverTimeout;
-let isHovering;
-
-let lastOpened;
-
-function handleMouseMove(event) {
-	box.value.mesh.rotation.x =
-		2 * (event.clientY / document.body.clientHeight) - 1;
-	box.value.mesh.rotation.y =
-		2 * (event.clientX / document.body.clientWidth) - 1;
-
-	light.value.light.position.x = event.clientX;
-	light.value.light.position.y = event.clientY;
-	light.value.light.position.z = 3;
-
-	const mouseX = event.clientX - document.body.clientWidth / 2;
-	const mouseY = -(event.clientY - document.body.clientHeight / 2);
-	const rangeSquared = Math.pow(Number(mouseEffectRange.value), 2);
-	const amplitude = Number(mouseEffectAmplitude.value) / 100;
-
-	const particlesMesh = particles.value.mesh;
-	particlesStates.value.forEach((state, i) => {
-		// Calculate squared distance between particle and mouse position
-		const dx = mouseX - state.position.x;
-		const dy = mouseY - state.position.y;
-		const distanceSquared = dx * dx + dy * dy;
-
-		// Check if particle is within the mouse effect range
-		if (distanceSquared < rangeSquared) {
-			// Apply amplitude to move particle away from cursor
-			const effectStrength = amplitude * (1 - distanceSquared / rangeSquared);
-			state.position.x -= dx * effectStrength;
-			state.position.y -= dy * effectStrength;
-		}
-
-		// Update dummy object and instance matrix
-		dummy.position.set(state.position.x, state.position.y, state.position.z);
-		dummy.updateMatrix();
-		particlesMesh.setMatrixAt(i, dummy.matrix);
-	});
-
-	// Update InstanceMatrix only once
-	particlesMesh.instanceMatrix.needsUpdate = true;
-}
-
-const handleCameraResize = () => {
-	const { innerWidth, innerHeight } = window;
-
-	particlesAmount.value = Math.ceil(
-		((innerWidth * innerHeight) / (2560 * 1440)) * 1000
-	);
-	camera.value.camera.aspect = innerWidth / innerHeight;
-	camera.value.camera.position.z = calculateCameraZ(50, innerHeight);
-	camera.value.camera.updateProjectionMatrix();
-};
-
-function calculateCameraZ(fov = 50, height) {
-	const vFOV = (fov * Math.PI) / 180; // Convert FOV to radians
-	return height / (2 * Math.tan(vFOV / 2)); // Calculate Z distance for the camera
-}
-
-const dummy = new THREE.Object3D();
-
-const initParticles = () => {
-	particlesStates.value = Array.from({ length: particlesAmount.value }, () => ({
-		position: {
-			x:
-				document.body.clientWidth * Math.random() -
-				document.body.clientWidth / 2,
-			y:
-				document.body.clientHeight * Math.random() -
-				document.body.clientHeight / 2,
-			z: 0,
-		},
-		rotation: {
-			x: 0,
-			y: 0,
-			z: 0,
-		},
-	}));
-
-	particlesStates.value.forEach((state, i) => {
-		dummy.position.set(state.position.x, state.position.y, state.position.z);
-		dummy.updateMatrix();
-		particles.value.mesh.setMatrixAt(i, dummy.matrix);
-	});
-
-	particles.value.mesh.instanceMatrix.needsUpdate = true;
-};
-
-const loadSVGShape = async (svgPath) => {
-	const loader = new SVGLoader();
-	const data = await loader.loadAsync(svgPath);
-
-	const paths = data.paths;
-	targetPositions.value = []; // Clear previous positions if any
-
-	const boundingBox = new THREE.Box2();
-
-	// let holesCounter = 0;
-	// let shapesCounter = 0;
-
-	paths.forEach((path, i, a) => {
-		const shapes = SVGLoader.createShapes(path);
-		shapes.forEach((shape, i, b) => {
-			// Get the points for each shape
-			const outerPoints = shape.getSpacedPoints(
-				Math.floor(particlesAmount.value / 2 / a.length / b.length) - 1
-			);
-
-			// shapesCounter +=
-			// 	Math.floor(particlesAmount.value / 2 / a.length / b.length) - 1;
-
-			// Push points to target positions
-			outerPoints.forEach((point) => {
-				boundingBox.expandByPoint(point);
-				targetPositions.value.push({
-					x: point.x,
-					y: -point.y,
-					z: 0,
-				});
-			});
-
-			shape.holes.forEach((hole, i, c) => {
-				// holesCounter +=
-				// 	Math.floor(
-				// 		particlesAmount.value / 2 / a.length / b.length / c.length
-				// 	) - 1;
-				const holePoints = hole.getSpacedPoints(
-					Math.floor(
-						particlesAmount.value / 2 / a.length / b.length / c.length
-					) - 1
-				);
-				targetPositions.value.push(
-					...holePoints.map((pt) => ({ x: pt.x, y: -pt.y, z: 0 }))
-				);
-			});
-		});
-	});
-
-	// console.log("HOLES: " + holesCounter);
-	// console.log("SHAPES: " + shapesCounter);
-	// console.log("TOTAL POINTS: " + (holesCounter + shapesCounter));
-	// console.log("TOTAL PARTICLES: " + particlesAmount.value);
-
-	const width = boundingBox.max.x - boundingBox.min.x;
-	const height = boundingBox.max.y - boundingBox.min.y;
-
-	const desiredSize = Math.ceil(
-		Math.min(window.innerHeight, window.innerWidth) / 2
-	);
-	const scaleFactor = desiredSize / Math.max(width, height);
-
-	const centerOffsetX = -(boundingBox.min.x + boundingBox.max.x) / 2;
-	const centerOffsetY = -(boundingBox.min.y + boundingBox.max.y) / 2;
-
-	targetPositions.value = targetPositions.value.map(({ x, y, z }) => ({
-		x: (x + centerOffsetX) * scaleFactor,
-		y: (y - centerOffsetY) * scaleFactor,
-		z,
-	}));
-};
-
-const moveParticlesToTarget = () => {
-	if (!isHovering && !lastOpened) return;
-
-	const targetDummy = new THREE.Object3D();
-	for (let i = 0; i < targetPositions.value.length; i++) {
-		const { x, y, z } = targetPositions.value[i];
-		gsap.to(particlesStates.value[i].position, {
-			duration: 0.5,
-			x,
-			y,
-			z,
-			onUpdate: () => {
-				targetDummy.position.set(
-					particlesStates.value[i].position.x,
-					particlesStates.value[i].position.y,
-					particlesStates.value[i].position.z
-				);
-				targetDummy.updateMatrix();
-				particles.value.mesh.setMatrixAt(i, targetDummy.matrix);
-			},
-			ease: "power1.out",
-		});
-	}
-	// not needed: already in render loop
-	// particles.value.mesh.instanceMatrix.needsUpdate = true;
-};
-
-const onHoverIcon = async (iconRef) => {
-	isHovering = true;
-
-	switch (iconRef) {
-		case "contact":
-			await loadSVGShape("/mail.svg");
-			break;
-		case "cv":
-			await loadSVGShape("/cv.svg");
-			break;
-		case "projects":
-			await loadSVGShape("/projects.svg");
-			break;
-		case "terminal":
-			await loadSVGShape("/terminal_dark.svg");
-			break;
-		case "techs":
-			await loadSVGShape("/techs_dark.svg");
-			break;
-
-		default:
-			return;
-	}
-
-	moveParticlesToTarget();
-	hoverTimeout = setTimeout(() => {
-		moveParticlesToTarget();
-		clearInterval(hoverInterval);
-		hoverInterval = setInterval(() => moveParticlesToTarget(), 150);
-	}, "500");
-};
-
-const onLeaveIcon = () => {
-	isHovering = false;
-
-	clearInterval(hoverInterval);
-	clearTimeout(hoverTimeout);
-
-	if (lastOpened) onHoverIcon(lastOpened);
-
-	for (let i = 0; i < particlesAmount.value; i++) {
-		gsap.killTweensOf(particlesStates.value[i].position);
-	}
-
-	const targetDummy = new THREE.Object3D();
-	for (let i = 0; i < targetPositions.value.length; i++) {
-		gsap.to(particlesStates.value[i].position, {
-			duration: 0.5,
-			x:
-				document.body.clientWidth * Math.random() -
-				document.body.clientWidth / 2,
-			y:
-				document.body.clientHeight * Math.random() -
-				document.body.clientHeight / 2,
-			z: 0,
-			onUpdate: () => {
-				targetDummy.position.set(
-					particlesStates.value[i].position.x,
-					particlesStates.value[i].position.y,
-					particlesStates.value[i].position.z
-				);
-				targetDummy.updateMatrix();
-				particles.value.mesh.setMatrixAt(i, targetDummy.matrix);
-			},
-			ease: "none",
-		});
-	}
-	// not needed: already in render loop
-	// particles.value.mesh.instanceMatrix.needsUpdate = true;
-};
-
-onMounted(() => {
-	handleCameraResize();
-	initParticles();
-
-	window.addEventListener("resize", handleCameraResize);
-
-	renderer?.value?.onBeforeRender(() => {
-		document.onmousemove = handleMouseMove;
-
-		particlesStates.value.forEach((state, i, array) => {
-			if (state.position.x >= document.body.clientWidth / 2) {
-				state.position.x = -document.body.clientWidth / 2;
-			} else {
-				state.position.x += (1 / array.length) * i;
-			}
-
-			if (state.position.y >= document.body.clientHeight / 2) {
-				state.position.y = -document.body.clientHeight / 2;
-			} else {
-				state.position.y += (1 / array.length) * i;
-			}
-
-			state.rotation.x += 0.01;
-			state.rotation.y += 0.01;
-			state.rotation.z += 0.01;
-
-			dummy.position.set(state.position.x, state.position.y, state.position.z);
-			dummy.rotation.set(state.rotation.x, state.rotation.y, state.rotation.z);
-			dummy.updateMatrix();
-			particles.value.mesh.setMatrixAt(i, dummy.matrix);
-		});
-
-		particles.value.mesh.instanceMatrix.needsUpdate = true;
-	});
-});
-
-onUnmounted(() => {
-	window.removeEventListener("resize", handleCameraResize);
-});
-
-watch(particlesAmount, () => {
-	meshKey.value++;
-	initParticles();
-});
+const field = ref(null);
 
 // VUE-COMMAND STUFF
 
@@ -397,25 +77,20 @@ const hoveredInfo = computed(() => iconByKey(hoveredIcon.value));
 
 function onIconEnter(icon) {
 	hoveredIcon.value = icon.key;
-	onHoverIcon(icon.key);
+	field.value?.hover(icon.key);
 }
 function onIconLeave(icon) {
 	if (hoveredIcon.value !== icon.key) return;
 	hoveredIcon.value = null;
-	onLeaveIcon();
+	field.value?.leave();
 }
 // Keyboard focus behaves like hover; mouse-click focus doesn't
 function onIconFocus(event, icon) {
 	if (event.target.matches(":focus-visible")) onIconEnter(icon);
 }
 
-// The particles form the focused window's glyph (hovering an icon takes priority)
-watch(focusedKey, (key) => {
-	lastOpened = iconByKey(key) ? key : null;
-	if (hoveredIcon.value) return;
-	if (lastOpened) onHoverIcon(lastOpened);
-	else onLeaveIcon();
-});
+// The particles form the focused window's glyph (a hovered icon takes priority)
+watch(focusedKey, (key) => field.value?.setActive(iconByKey(key) ? key : null));
 
 // OTHER STUFF
 
@@ -433,38 +108,7 @@ function toggleAbout() {
 
 <template>
 	<body>
-		<Renderer
-			ref="renderer"
-			:resize="'window'"
-			pointer
-			alpha
-			class="testg"
-			aria-hidden="true"
-		>
-			<Camera ref="camera" :position="{ z: 1500 }" :aspect="16 / 9" />
-			<Scene>
-				<PointLight ref="light" color="#00ffff" />
-				<Box
-					ref="box"
-					:rotation="{ y: Math.PI / 4, z: Math.PI / 4 }"
-					:position="{ z: 100000 }"
-					widthSegments="5"
-					heightSegments="5"
-					depthSegments="5"
-					:size="100"
-				>
-					<BasicMaterial :props="{ wireframe: true }" color="#04D9FF" />
-				</Box>
-				<InstancedMesh
-					:key="meshKey"
-					ref="particles"
-					:count="Number(particlesAmount)"
-				>
-					<TetrahedronGeometry />
-					<BasicMaterial :props="{ wireframe: true }" color="#04D9FF" />
-				</InstancedMesh>
-			</Scene>
-		</Renderer>
+		<ParticleField ref="field" />
 		<!-- Idle: prompt, (space for the particle name), tagline, hint -->
 		<Transition name="fade">
 			<section
@@ -695,7 +339,7 @@ function toggleAbout() {
 							id="particlesAmount"
 							min="10"
 							max="10000"
-							v-model="particlesAmount"
+							v-model.number="particleSettings.amount"
 						/>
 						<label
 							class="text-ink"
@@ -710,8 +354,7 @@ function toggleAbout() {
 							id="mouseEffectRange"
 							min="10"
 							max="500"
-							:value="mouseEffectRange"
-							@input="(event) => (mouseEffectRange = event.target.value)"
+							v-model.number="particleSettings.mouseRange"
 						/>
 						<label
 							class="text-ink"
@@ -726,8 +369,7 @@ function toggleAbout() {
 							id="mouseEffectAmplitude"
 							min="0"
 							max="10"
-							:value="mouseEffectAmplitude"
-							@input="(event) => (mouseEffectAmplitude = event.target.value)"
+							v-model.number="particleSettings.mouseAmplitude"
 						/>
 						<label
 							class="text-ink"
