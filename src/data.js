@@ -106,6 +106,7 @@ export const techs = {
 		},
 
 		Devops: {
+			"GitHub Actions": null,
 			Cloudflare: null,
 			Docker: null,
 			Linux: null,
@@ -116,7 +117,7 @@ export const techs = {
 
 		Tests: { Cypress: null, Jest: null, Mocha: null, Puppeteer: null },
 
-		[$t("Data.techs.tools")]: { ESLint: null, Prettier: null, VSCode: null },
+		[$t("Data.techs.tools")]: { "Claude Code": null, ESLint: null, Prettier: null, VSCode: null },
 
 		[$t("Data.techs.misc")]: {
 			GraphQL: null,
@@ -124,6 +125,10 @@ export const techs = {
 			Postman: null,
 			SVN: null,
 		},
+	},
+
+	AI: {
+		"Llama.cpp": null,
 	},
 
 	[$t("Data.techs.projectManagement")]: {
