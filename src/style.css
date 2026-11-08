@@ -82,7 +82,8 @@ body {
   height: 100%;
 }
 
-canvas {
+/* Background particle canvas (other canvases size themselves) */
+.particle-layer canvas {
   position: fixed;
   top: 0;
   left: 0;

@@ -115,6 +115,16 @@ const keys = {
 			fr: "Cliquez sur une techno pour voir où je l'ai utilisée.",
 		},
 		openInProjects: { en: "Open in projects", fr: "Ouvrir dans les projets" },
+		hintGraph: {
+			en: "Switch to graph to watch the particles rebuild the stack.",
+			fr: "Passez en graphe pour voir les particules reconstruire la stack.",
+		},
+		graphLabel: { en: "Technology graph", fr: "Graphe des technologies" },
+		graphPickCategory: { en: "Pick a category.", fr: "Choisissez une catégorie." },
+		graphPickTech: {
+			en: "Pick a tech to see where I used it.",
+			fr: "Choisissez une techno pour voir où je l'ai utilisée.",
+		},
 		notes: {
 			openglStlounge: {
 				en: "Wrote its own renderer: an EGL context and GLES 3.0 pipeline that runs ShaderToy shaders, with substitute textures and desktop audio as input.",
