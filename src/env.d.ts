@@ -1,9 +1,10 @@
 /// <reference types="vite/client" />
 
-interface importmetaenv {
+// Types for the app's VITE_* environment variables (merged into Vite's own)
+interface ImportMetaEnv {
   readonly VITE_FORM_ENDPOINT: string;
 }
 
-interface importmeta {
-  readonly env: importmetaenv;
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
 }
