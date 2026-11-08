@@ -240,7 +240,7 @@ function toggleAbout() {
 					</template>
 					<template #prompt>
 						<span class="term-user">durandarthur@MONOLITH</span
-						><span class="term-path">:~/code/personal/portfolio$</span>&nbsp;
+						><span class="term-path">:~/code/portfolio$</span>&nbsp;
 					</template>
 				</vue-command>
 			</WindowFrame>
