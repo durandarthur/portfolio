@@ -40,7 +40,8 @@ const GLYPH_BUDGET = 240; // particles along an icon glyph's lines
 const NAME_COLOR = "#22D3EE";
 const SOLID_AT = 0.6; // share of the flight after which they turn solid
 // The name assembles from left to right, as if typed after "whoami".
-// NAME_SPEED speeds up both the left-to-right sweep and each flight.
+// On page load it takes TYPE_MS + FORM_MS; every later time (after a hover
+// or a window) it runs NAME_SPEED times faster, both sweep and flight.
 const TYPE_MS = 1200;
 const NAME_SPEED = 1.5;
 // Once formed, a few name particles briefly swell and brighten at random:
@@ -56,7 +57,7 @@ const FORMATION_POOL = Math.max(NAME_BUDGET, GLYPH_BUDGET);
 // Timed ease-out tweens (like gsap's power1.out): fast start, gentle stop
 const FORM_MS = 800; // into a glyph
 const SCATTER_MS = 700; // out of a glyph, then the particle drifts again
-const SETTLE_MS = 1400; // back into place after an icon stops being hovered
+const SETTLE_MS = 1400; // glyph particles scattering back after a hover ends
 const RETURN_MS = 500; // back into the glyph after a mouse push
 const easeOut = (p) => 1 - (1 - p) * (1 - p);
 
@@ -449,6 +450,7 @@ let activeKey = null;
 let formationKey = null;
 let formation = null; // { points, center }
 let request = 0;
+let nameFormedBefore = false;
 
 // Durations: snappy when a formation starts, slower when settling back
 // after a hover ends
@@ -473,8 +475,11 @@ async function updateFormation({ formMs = FORM_MS, scatterMs = SCATTER_MS } = {}
 	const minX = Math.min(...xs);
 	const spanX = Math.max(...xs) - minX || 1;
 	const naming = key === "name";
-	const delayOf = (p) => (naming ? (TYPE_MS * (p.x - minX)) / spanX / NAME_SPEED : 0);
-	const flightMs = naming ? formMs / NAME_SPEED : formMs;
+	// The name: its own timing, slower the very first time (page load)
+	const speed = nameFormedBefore ? NAME_SPEED : 1;
+	if (naming) nameFormedBefore = true;
+	const delayOf = (p) => (naming ? (TYPE_MS * (p.x - minX)) / spanX / speed : 0);
+	const flightMs = naming ? FORM_MS / speed : formMs;
 	states.forEach((s, i) => {
 		if (i < points.length)
 			tweenTo(s, points[i], flightMs, { local: true, delay: delayOf(points[i]) });
@@ -606,7 +611,7 @@ defineExpose({
 	},
 	leave() {
 		hoverKey = null;
-		updateFormation({ formMs: SETTLE_MS, scatterMs: SETTLE_MS });
+		updateFormation({ scatterMs: SETTLE_MS });
 	},
 	// The focused window's app, or null
 	setActive(key) {
