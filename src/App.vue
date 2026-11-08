@@ -2,7 +2,7 @@
 import { gsap } from "gsap";
 import * as THREE from "three";
 import { SVGLoader } from "three/examples/jsm/loaders/SVGLoader";
-import { onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch, watchEffect } from "vue";
 import VueCommand, {
 	createQuery,
 	createStdout,
@@ -15,10 +15,22 @@ import { VueWinBox } from "vue-winbox";
 import ContactForm from "./components/ContactForm.vue";
 import DesktopIcon from "./components/DesktopIcon.vue";
 import ProjectCard from "./components/ProjectCard.vue";
+import Taskbar from "./components/Taskbar.vue";
 import TechTreeNode from "./components/TechTreeNode.vue";
+import WelcomeNotice from "./components/WelcomeNotice.vue";
 import { getBioHTML, getTechs, getTimeline, socialsHTML } from "./data";
-import { $t, getCvUrl } from "./i18n";
+import { $t, getCvUrl, lang } from "./i18n";
 import { techsFormatter, timelineFormatter } from "./lib/formatters";
+import {
+	anyVisible,
+	closeWindow,
+	focusWindow,
+	focusedKey,
+	isOpenHere,
+	isVisible,
+	minimizeWindow,
+	toggleFromDesktop,
+} from "./lib/windows";
 
 const isMobile = () => window.innerWidth < 500;
 
@@ -368,6 +380,7 @@ const commands = {
 };
 
 // WINBOX STUFF
+// WinBox only displays what the window store (lib/windows.js) says.
 
 const globalOptions = {
 	autosize: "true",
@@ -377,80 +390,48 @@ const globalOptions = {
 	height: "60%",
 };
 
-const contactRef = ref();
-const contactOptions = {
-	title: $t("App.contactForm"),
-	onclose: function (force) {
-		contactRef.value.winbox.hide(true);
-		if (lastOpened === this.id) {
-			lastOpened = null;
-			onLeaveIcon();
-		}
+function appWindowOptions(key, extra = {}) {
+	return {
+		onclose() {
+			closeWindow(key);
+			return true; // keep the WinBox, it's only hidden
+		},
+		onfocus() {
+			focusWindow(key);
+		},
+		onminimize() {
+			// Minimised windows live in the taskbar, not WinBox's own dock
+			this.minimize(false);
+			minimizeWindow(key);
+		},
+		...globalOptions,
+		...extra,
+	};
+}
 
-		return true;
-	},
-	...globalOptions,
-};
+const contactRef = ref();
+const contactOptions = appWindowOptions("contact", {
+	title: $t("App.contactForm"),
+});
 
 const CVRef = ref();
-const CVOptions = {
-	title: "Curriculum Vitae",
-	onclose: function (force) {
-		CVRef.value.winbox.hide(true);
-		if (lastOpened === this.id) {
-			lastOpened = null;
-			onLeaveIcon();
-		}
-
-		return true;
-	},
-	...globalOptions,
-};
+const CVOptions = appWindowOptions("cv", { title: "Curriculum Vitae" });
 
 const projectsRef = ref();
-const projectsOptions = {
+const projectsOptions = appWindowOptions("projects", {
 	title: $t("App.myProjects"),
-	onclose: function (force) {
-		projectsRef.value.winbox.hide(true);
-		if (lastOpened === this.id) {
-			lastOpened = null;
-			onLeaveIcon();
-		}
-
-		return true;
-	},
-	...globalOptions,
-};
+});
 
 const terminalRef = ref();
-const terminalOptions = {
+const terminalOptions = appWindowOptions("terminal", {
 	title: "bash: durandarthur@MONOLITH",
-	onclose: function (force) {
-		terminalRef.value.winbox.hide(true);
-		if (lastOpened === this.id) {
-			lastOpened = null;
-			onLeaveIcon();
-		}
-		return true;
-	},
-	...globalOptions,
-};
+});
 
 const techsRef = ref();
-const techsOptions = {
+const techsOptions = appWindowOptions("techs", {
 	title: "Technologies",
-	onclose: function (force) {
-		techsRef.value.winbox.hide(true);
-		if (lastOpened === this.id) {
-			lastOpened = null;
-			onLeaveIcon();
-		}
-		// onLeaveIcon(techsRef?.value.winbox?.id);
-		return true;
-	},
-	...globalOptions,
 	maxwidth: "1400px",
-};
+});
 
 const creditsRef = ref();
 const creditsOptions = {
@@ -463,54 +444,110 @@ const creditsOptions = {
 	...globalOptions,
 };
 
+// WinBox titles are set once, so follow language changes by hand
+watch(lang, () => {
+	contactRef.value?.winbox?.setTitle($t("App.contactForm"));
+	projectsRef.value?.winbox?.setTitle($t("App.myProjects"));
+	creditsRef.value?.winbox?.setTitle($t("App.about"));
+});
+
+// DESKTOP ICONS
+
+const desktopIcons = [
+	{ key: "contact", icon: "/icons/contact.svg", win: contactRef },
+	{ key: "cv", icon: "/icons/cv.svg", win: CVRef },
+	{ key: "projects", icon: "/icons/projects.svg", win: projectsRef },
+	{ key: "terminal", icon: "/icons/terminal.svg", win: terminalRef },
+	{ key: "techs", icon: "/icons/techs.svg", win: techsRef },
+];
+// Translated desktop label
+const iconLabel = (key) => $t(`App.apps.${key}.label`);
+const iconByKey = (key) => desktopIcons.find((icon) => icon.key === key);
+
+const hoveredIcon = ref(null);
+const hoveredInfo = computed(() => iconByKey(hoveredIcon.value));
+
+function onIconEnter(icon) {
+	hoveredIcon.value = icon.key;
+	onHoverIcon(icon.win.value.winbox.id);
+}
+function onIconLeave(icon) {
+	if (hoveredIcon.value !== icon.key) return;
+	hoveredIcon.value = null;
+	onLeaveIcon();
+}
+// Keyboard focus behaves like hover; mouse-click focus doesn't
+function onIconFocus(event, icon) {
+	if (event.target.matches(":focus-visible")) onIconEnter(icon);
+}
+
+function sizeWindow(winbox) {
+	if (isMobile()) return;
+	winbox.resize(
+		Math.max(0.6 * window.innerWidth, 500),
+		Math.max(0.6 * window.innerHeight, 200)
+	);
+}
+
+// Show / hide / focus the WinBoxes to match the store
+watchEffect(() => {
+	desktopIcons.forEach((icon) => {
+		const winbox = icon.win.value?.winbox;
+		if (!winbox) return;
+		const visible = isVisible(icon.key);
+		if (visible && winbox.hidden) {
+			sizeWindow(winbox);
+			winbox.show();
+		} else if (!visible && !winbox.hidden) {
+			winbox.hide();
+		}
+	});
+	const focused = iconByKey(focusedKey.value);
+	focused?.win.value?.winbox?.focus();
+});
+
+// The particles form the focused window's glyph (hovering an icon takes priority)
+watch(focusedKey, (key) => {
+	lastOpened = key ? iconByKey(key).win.value.winbox.id : null;
+	if (hoveredIcon.value) return;
+	if (lastOpened) onHoverIcon(lastOpened);
+	else onLeaveIcon();
+});
+
 // OTHER STUFF
 
-function onIconClicked(ref) {
-	if (!isMobile()) {
-		if (ref?.winbox?.id === creditsRef?.value?.winbox?.id) {
-			ref?.winbox?.hide(!ref?.winbox?.hidden);
-			if (!ref?.winbox?.hidden) {
-				ref?.winbox?.resize(
-					Math.max(0.6 * window.innerWidth, 500),
-					Math.max(0.6 * window.innerHeight, 200)
-				);
+const showNotice = ref(true);
 
-				ref?.winbox?.move("center", "center");
-				creditsRef.value.winbox.resize = false;
-				creditsRef.value.winbox.move = false;
-			}
-			return;
-		}
-		ref?.winbox?.resize(
-			Math.max(0.6 * window.innerWidth, 500),
-			Math.max(0.6 * window.innerHeight, 200)
-		);
+function openFromNotice(key) {
+	if (!isVisible(key)) toggleFromDesktop(key);
+	else focusWindow(key);
+}
+
+function toggleAbout() {
+	const winbox = creditsRef.value?.winbox;
+	if (!winbox) return;
+	winbox.hide(!winbox.hidden);
+	if (!winbox.hidden && !isMobile()) {
+		sizeWindow(winbox);
+		winbox.move("center", "center");
+		winbox.resize = false;
+		winbox.move = false;
 	}
-
-	lastOpened = ref.winbox.id;
-	onHoverIcon(ref.winbox.id);
-
-	ref?.winbox?.hide(!ref?.winbox?.hidden);
 }
-
-function onBarIconClicked(ref) {
-	ref?.winbox?.minimize(!ref?.winbox?.min);
-}
-
-const time = ref(new Date().toLocaleTimeString());
-
-function setTime() {
-	time.value = new Date().toLocaleTimeString();
-}
-
-setInterval(() => setTime(), 1000);
 </script>
 
 <template>
 	<body>
-		<Renderer ref="renderer" :resize="'window'" pointer class="testg">
+		<Renderer
+			ref="renderer"
+			:resize="'window'"
+			pointer
+			alpha
+			class="testg"
+			aria-hidden="true"
+		>
 			<Camera ref="camera" :position="{ z: 1500 }" :aspect="16 / 9" />
-			<Scene background="black">
+			<Scene>
 				<PointLight ref="light" color="#00ffff" />
 				<Box
 					ref="box"
@@ -533,88 +570,65 @@ setInterval(() => setTime(), 1000);
 				</InstancedMesh>
 			</Scene>
 		</Renderer>
-		<main class="flex">
-			<div class="flex flex-col content-start flex-wrap w-screen h-[85vh]">
-				<DesktopIcon
-					@iconClicked="onIconClicked(contactRef)"
-					@mouseenter="onHoverIcon(contactRef.winbox.id)"
-					@mouseleave="onLeaveIcon"
-				>
-					<template #text> Contact </template>
-					<template #image>
-						<img
-							src="/mail_dark.svg"
-							width="200"
-							alt=""
-							class="hover:p-4 hover:rounded-3xl"
-						/>
-					</template>
-				</DesktopIcon>
+		<!-- Idle: prompt, (space for the particle name), tagline, hint -->
+		<Transition name="fade">
+			<section
+				v-if="!hoveredIcon && !anyVisible"
+				class="desktop-idle"
+				aria-labelledby="desktop-title"
+			>
+				<p class="desktop-idle__prompt">
+					<span class="text-accent">arthur@portfolio</span>:~$ whoami<span
+						class="desktop-idle__cursor"
+						aria-hidden="true"
+					></span>
+				</p>
+				<h1 id="desktop-title" class="sr-only">Arthur Durand</h1>
+				<div class="desktop-idle__name-space" aria-hidden="true"></div>
+				<p class="desktop-idle__tagline">{{ $t("App.desktop.tagline") }}</p>
+				<p class="desktop-idle__hint">
+					<span class="chip chip--key">{{ $t("App.desktop.hintClick") }}</span>
+					<span>{{ $t("App.desktop.hintOpen") }}</span>
+					<span class="text-ink-faint" aria-hidden="true">·</span>
+					<span>{{ $t("App.desktop.hintType") }}</span>
+					<span class="chip chip--cmd">help</span>
+					<span>{{ $t("App.desktop.hintTerminal") }}</span>
+				</p>
+			</section>
+		</Transition>
 
-				<DesktopIcon
-					@iconClicked="onIconClicked(CVRef)"
-					@mouseenter="onHoverIcon(CVRef.winbox.id)"
-					@mouseleave="onLeaveIcon"
-				>
-					<template #text> CV </template>
-					<template #image>
-						<img
-							src="/cv_dark.svg"
-							width="200"
-							alt=""
-							class="hover:p-4 hover:rounded-3xl"
-						/>
-					</template>
-				</DesktopIcon>
-
-				<DesktopIcon
-					@iconClicked="onIconClicked(projectsRef)"
-					@mouseenter="onHoverIcon(projectsRef.winbox.id)"
-					@mouseleave="onLeaveIcon"
-				>
-					<template #text> {{ $t("App.projectsIconLabel") }} </template>
-					<template #image>
-						<img
-							src="/projects.svg"
-							width="200"
-							alt=""
-							class="hover:p-4 hover:rounded-3xl"
-						/>
-					</template>
-				</DesktopIcon>
-
-				<DesktopIcon
-					@iconClicked="onIconClicked(terminalRef)"
-					@mouseenter="onHoverIcon(terminalRef.winbox.id)"
-					@mouseleave="onLeaveIcon"
-				>
-					<template #text> Terminal </template>
-					<template #image>
-						<img
-							src="/terminal_dark.svg"
-							width="200"
-							alt=""
-							class="hover:p-4 hover:rounded-3xl"
-						/>
-					</template>
-				</DesktopIcon>
-
-				<DesktopIcon
-					@iconClicked="onIconClicked(techsRef)"
-					@mouseenter="onHoverIcon(techsRef.winbox.id)"
-					@mouseleave="onLeaveIcon"
-				>
-					<template #text> Techs </template>
-					<template #image>
-						<img
-							src="/techs.svg"
-							width="200"
-							alt=""
-							class="hover:p-4 hover:rounded-3xl"
-						/>
-					</template>
-				</DesktopIcon>
+		<!-- Hover: caption around the particle glyph -->
+		<Transition name="fade">
+			<div v-if="hoveredInfo && !anyVisible" class="desktop-hover">
+				<p class="desktop-hover__name" aria-hidden="true">
+					A R T H U R &#160; D U R A N D
+				</p>
+				<div class="desktop-hover__caption">
+					<p class="desktop-hover__title">{{ iconLabel(hoveredInfo.key) }}</p>
+					<p class="desktop-hover__desc">
+						{{ $t(`App.desktop.descriptions.${hoveredInfo.key}`) }}
+					</p>
+					<p class="desktop-hover__hint">{{ $t("App.desktop.hoverHint") }}</p>
+				</div>
 			</div>
+		</Transition>
+
+		<main>
+			<nav aria-label="Desktop" class="desktop-icons">
+				<DesktopIcon
+					v-for="icon in desktopIcons"
+					:key="icon.key"
+					:icon="icon.icon"
+					:label="iconLabel(icon.key)"
+					:active="isOpenHere(icon.key)"
+					:dimmed="!!hoveredIcon && hoveredIcon !== icon.key"
+					@open="toggleFromDesktop(icon.key)"
+					@mouseenter="onIconEnter(icon)"
+					@mouseleave="onIconLeave(icon)"
+					@focus="onIconFocus($event, icon)"
+					@blur="onIconLeave(icon)"
+				/>
+			</nav>
 
 			<VueWinBox ref="contactRef" :options="contactOptions" @onmove="onMove">
 				<ContactForm />
@@ -651,7 +665,7 @@ setInterval(() => setTime(), 1000);
 					:commands="commands"
 					:history="history"
 					class="w-full h-full"
-					font="Roboto Mono"
+					font="JetBrains Mono"
 				>
 					<template #bar>
 						<div></div>
@@ -860,101 +874,187 @@ setInterval(() => setTime(), 1000);
 			</VueWinBox>
 		</main>
 
-		<footer
-			class="h-[90px] bg-gray-900 rounded-2xl fixed bottom-0 flex flex-row w-full justify-center items-center gap-x-10 mx-8 mb-8"
-		>
-			<div class="w-1/5 !justify-start">
-				<span
-					class="text-5xl rounded-3xl p-5 aspect-square text-center bg-[#04d9ff] text-gray-900 font-semibold hover:brightness-110 hover:cursor-pointer hover:text-white transition duration-300"
-					@click="onIconClicked(creditsRef)"
-					>ⓘ</span
-				>
-			</div>
-			<div class="w-3/5">
-				<img
-					v-if="!contactRef?.winbox?.hidden"
-					src="/mail.png"
-					alt=""
-					@click="onBarIconClicked(contactRef)"
-				/>
-				<img
-					v-if="!CVRef?.winbox?.hidden"
-					src="/resume.png"
-					alt=""
-					@click="onBarIconClicked(CVRef)"
-				/>
-				<img
-					v-if="!projectsRef?.winbox?.hidden"
-					src="/projects.png"
-					alt=""
-					@click="onBarIconClicked(projectsRef)"
-				/>
-				<img
-					v-if="!terminalRef?.winbox?.hidden"
-					src="/terminal.png"
-					alt=""
-					@click="onBarIconClicked(terminalRef)"
-				/>
-				<img
-					v-if="!techsRef?.winbox?.hidden"
-					src="/atomic.png"
-					alt=""
-					@click="onBarIconClicked(techsRef)"
-				/>
-			</div>
+		<WelcomeNotice
+			v-if="showNotice"
+			@open-cv="openFromNotice('cv')"
+			@dismiss="showNotice = false"
+		/>
 
-			<div class="w-1/5 !justify-end mr-8">
-				<p class="select-none text-[#04d9ff] text-lg time">{{ time }}</p>
-			</div>
-		</footer>
+		<Taskbar :apps="desktopIcons" @about="toggleAbout" />
 	</body>
 </template>
 
 <style scoped>
-img {
-	filter: invert(72%) sepia(49%) saturate(4291%) hue-rotate(148deg)
-		brightness(106%) contrast(100%);
-	transition-duration: 0.2s;
-	transition-property: padding;
-}
-img:hover {
-	filter: none;
-	background-color: #04d9ff;
-	overflow: visible;
-	transition-duration: 0.5s;
-	transition-property: padding;
-}
-
-footer {
-	width: calc(100% - 4rem);
-}
-
-footer div {
-	height: 100%;
+/* ── Desktop ───────────────────────────────────────── */
+.desktop-icons {
+	position: absolute;
+	left: 28px;
+	top: 28px;
+	z-index: 1;
 	display: flex;
+	flex-direction: column;
+	flex-wrap: wrap;
+	align-content: flex-start;
+	gap: 22px;
+	max-height: calc(100vh - 28px - 104px);
+}
+
+.desktop-idle {
+	position: absolute;
+	inset: 0 0 104px 0;
+	/* keeps centred text clear of the icon column (28 + 88 + 16) */
+	padding: 0 132px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 22px;
+	text-align: center;
+	pointer-events: none;
+}
+.desktop-idle__prompt {
+	font-size: 15px;
+	color: var(--text-muted);
+}
+.desktop-idle__cursor {
+	display: inline-block;
+	width: 9px;
+	height: 17px;
+	margin-left: 6px;
+	vertical-align: -3px;
+	background: var(--cyan);
+}
+.desktop-idle__name-space {
+	width: min(1080px, 100%);
+	height: 130px;
+}
+.desktop-idle__tagline {
+	font-size: 20px;
+	line-height: 1.5;
+	color: var(--text);
+}
+.desktop-idle__hint {
+	margin-top: 8px;
+	font-size: 12px;
+	color: var(--text-muted);
+	display: flex;
+	flex-wrap: wrap;
 	justify-content: center;
 	align-items: center;
+	gap: 10px;
+}
+/* Exception to the no-chip rule, kept as in the mockup */
+.chip {
+	padding: 3px 8px;
+	border-radius: 6px;
+}
+.chip--key {
+	border: 1px solid rgba(122, 139, 163, 0.45);
+	color: var(--text);
+}
+.chip--cmd {
+	background: rgba(34, 211, 238, 0.1);
+	color: var(--cyan);
 }
 
-footer div img {
-	margin: 10px;
-	padding: 1rem;
-	background-color: #04d9ff;
-	filter: none;
-	border-radius: 1.2rem;
-	overflow: visible;
-	height: 100%;
+/* Placed around the particle glyph, which is centred on the viewport and
+   min(vw, vh) / 2 across (see loadSVGShape). */
+.desktop-hover {
+	--glyph-half: min(25vw, 25vh);
+	position: absolute;
+	inset: 0;
+	padding: 0 132px;
+	text-align: center;
+	pointer-events: none;
+}
+.desktop-hover__name {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: calc(50vh + var(--glyph-half) + 26px);
+	font-size: 13px;
+	letter-spacing: 0.3em;
+	color: var(--text-faint);
+}
+.desktop-hover__caption {
+	position: absolute;
+	left: 132px;
+	right: 132px;
+	top: min(calc(50vh + var(--glyph-half) + 26px), calc(100vh - 104px - 124px));
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+}
+.desktop-hover__title {
+	font-size: 34px;
+	font-weight: 800;
+	letter-spacing: -0.01em;
+	color: var(--cyan);
+}
+.desktop-hover__desc {
+	font-size: 16px;
+	color: var(--text);
+}
+.desktop-hover__hint {
+	margin-top: 4px;
+	font-size: 12px;
+	color: var(--text-muted);
 }
 
-footer img:hover {
-	cursor: pointer;
-	filter: brightness(110%);
+/* Phones: icons become a row at the top */
+@media (max-width: 767px) {
+	.desktop-icons {
+		left: 12px;
+		right: 12px;
+		top: 12px;
+		flex-direction: row;
+		justify-content: center;
+		gap: 4px;
+		max-height: none;
+	}
+	.desktop-idle {
+		inset: 0 0 88px 0;
+		padding: 100px 16px 0;
+		gap: 16px;
+	}
+	.desktop-idle__name-space {
+		height: 80px;
+	}
+	.desktop-idle__tagline {
+		font-size: 16px;
+	}
+	.desktop-hover {
+		padding: 0 16px;
+	}
+	.desktop-hover__caption {
+		left: 16px;
+		right: 16px;
+	}
+	.desktop-hover__title {
+		font-size: 26px;
+	}
+}
+
+.fade-enter-active,
+.fade-leave-active {
+	transition: opacity 0.2s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+	opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+	.fade-enter-active,
+	.fade-leave-active {
+		transition: none;
+	}
 }
 
 ul,
 .time,
 .version {
-	font-family: "Roboto Mono", monospace;
+	font-family: var(--font-mono);
 }
 
 input[type="range"] {
