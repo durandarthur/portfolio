@@ -182,10 +182,10 @@ function labelStyle(label) {
 				class="graph__crumb"
 				@click="focused = null"
 			>
-				{{ $t("App.apps.techs.label") }}
+				{{ $t("App.apps.techs.label") }}/
 			</button>
 			<span v-else class="graph__crumb is-current" aria-current="location">
-				{{ $t("App.apps.techs.label") }}
+				{{ $t("App.apps.techs.label") }}/
 			</span>
 			<span v-if="focused" class="graph__crumb is-current" aria-current="location">
 				{{ $t(`Techs.folders.${focused}`) }}

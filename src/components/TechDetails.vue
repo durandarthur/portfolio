@@ -31,7 +31,7 @@ const contexts = computed(() =>
 <template>
 	<div class="details">
 		<span class="details__path">
-			{{ $t("App.apps.techs.label") }}{{ $t(`Techs.folders.${tech.category}`) }}
+			{{ $t("App.apps.techs.label") }}/{{ $t(`Techs.folders.${tech.category}`) }}
 		</span>
 
 		<div class="details__head">

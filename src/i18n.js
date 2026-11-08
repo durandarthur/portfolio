@@ -271,7 +271,7 @@ const keys = {
 				title: { en: "CV.pdf", fr: "CV.pdf" },
 			},
 			projects: {
-				label: { en: "projects/", fr: "projets/" },
+				label: { en: "projects", fr: "projets" },
 				title: { en: "~/projects", fr: "~/projets" },
 			},
 			terminal: {
@@ -279,7 +279,7 @@ const keys = {
 				title: { en: "terminal", fr: "terminal" },
 			},
 			techs: {
-				label: { en: "techs/", fr: "technos/" },
+				label: { en: "techs", fr: "technos" },
 				title: { en: "~/techs", fr: "~/technos" },
 			},
 		},

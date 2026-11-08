@@ -27,7 +27,7 @@ export const techsTreeFormatter = () => {
     ...CATEGORIES.map((cat) => 3 + folderName(cat).length),
     ...CATEGORIES.flatMap((cat) => cat.techs.map((t) => 8 + t.name.length))
   );
-  const lines = [span("term-folder", $t("App.apps.techs.label"))];
+  const lines = [span("term-folder", $t("App.apps.techs.label") + "/")];
 
   CATEGORIES.forEach((cat, ci) => {
     const lastCat = ci === CATEGORIES.length - 1;
