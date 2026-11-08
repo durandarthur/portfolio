@@ -40,12 +40,17 @@ const field = ref(null);
 
 const history = ref(newDefaultHistory());
 
-// Closing the terminal clears it (minimising keeps it).
-// "splice" keeps the array vue-command watches.
+// Closing the terminal clears it (minimising keeps it) by remounting
+// vue-command with a fresh history. Replacing the history alone isn't
+// enough: vue-command keys entries by position and every prompt is the same
+// component, so it would reuse the old, already-submitted (disabled) prompt.
+const terminalKey = ref(0);
 watch(
 	() => windows.terminal?.open,
 	(open, wasOpen) => {
-		if (wasOpen && !open) history.value.splice(0, history.value.length, ...newDefaultHistory());
+		if (!wasOpen || open) return;
+		history.value = newDefaultHistory();
+		terminalKey.value++;
 	}
 );
 const commands = {
@@ -224,6 +229,7 @@ function toggleAbout() {
 				icon="/icons/terminal.svg"
 			>
 				<vue-command
+					:key="terminalKey"
 					:commands="commands"
 					:history="history"
 					class="terminal w-full h-full"
