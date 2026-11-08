@@ -1,0 +1,116 @@
+/* Design tokens and the shared frame / active-state components.
+   Ported from public/tokens.css (design handoff). */
+
+:root {
+  /* Surfaces */
+  --bg: radial-gradient(ellipse 80% 70% at 50% 42%, #0A1424 0%, #04070E 55%, #010204 100%);
+  --panel: rgba(10, 17, 30, .94);      /* taskbar, notification */
+  --window: #0A111E;                    /* window body */
+  --window-header: rgba(34, 211, 238, .04);
+  --card: #0E1726;
+  --card-featured: #111C2E;
+  --divider: rgba(34, 211, 238, .12);
+
+  /* Cyan scale (accent + icon facets) */
+  --cyan: #22D3EE;
+  --cyan-300: #67E8F9;
+  --cyan-200: #A5F3FC;
+  --cyan-600: #0891B2;
+  --cyan-700: #0E7490;
+  --cutout: #04131A;   /* details cut into icons */
+  --seam: #04070E;     /* 0.5px stroke between icon facets */
+
+  /* Text */
+  --text-strong: #E6F7FF;
+  --text: #C9D6E3;
+  --text-body: #A9B8C9;
+  --text-muted: #7A8BA3;
+  --text-faint: #3B4A60;   /* separators, tree lines */
+  --text-tag: #7FB8CC;     /* "C++ / SDL / ..." lines */
+  --on-cyan: #03050A;      /* text on solid cyan */
+
+  /* "Where I used it" tags in the Techs tree */
+  --tag-work: #22D3EE;
+  --tag-internship: #A5F3FC;
+  --tag-side: #E6F7FF;
+  --tag-school: #94A3B8;
+  --tag-learning: #FBBF24;
+
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --glow: drop-shadow(0 0 12px rgba(34, 211, 238, .65));
+  --glow-hover: drop-shadow(0 0 10px rgba(34, 211, 238, .55));
+}
+
+/* ── Cut-corner frame ────────────────────────────────────────────
+   Markup:  <div class="frame frame--window"><div class="frame__body">…</div></div>
+   The wrapper draws the cyan corner marks (it is NOT clipped);
+   the body is clipped. Never add a border. */
+.frame {
+  --cut: 14px;
+  --mark: 9px;
+  --fill: var(--panel);
+  position: relative;
+}
+.frame__body {
+  height: 100%;
+  background: var(--fill);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)),
+                     calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+.frame::before,
+.frame::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  width: var(--mark);
+  height: var(--mark);
+  background: var(--cyan);
+  pointer-events: none;
+}
+.frame::before { left: 0; top: 0; clip-path: polygon(0 0, 100% 0, 0 100%); }
+.frame::after { right: 0; bottom: 0; clip-path: polygon(100% 0, 100% 100%, 0 100%); }
+
+.frame--window {
+  --cut: 18px; --mark: 12px; --fill: var(--window);
+  /* drop-shadow follows the clipped shape; box-shadow would not */
+  filter: drop-shadow(0 30px 50px rgba(0, 0, 0, .65));
+}
+.frame--card { --cut: 12px; --mark: 8px; --fill: var(--card); }
+.frame--card::before,
+.frame--card::after { display: none; }
+.frame--card.frame--featured { --fill: var(--card-featured); }
+.frame--card.frame--featured::before { display: block; }   /* top-left mark only */
+.frame--image { --cut: 8px; }
+.frame--image::before,
+.frame--image::after { display: none; }
+
+/* ── Active state: cyan text + slanted underline bar ─────────────
+   Use for tabs/toggles (tree/graph), language (FR/EN),
+   and the open-app indicator in the taskbar (use --bar: 3px there). */
+.active-bar {
+  --bar: 2px;
+  position: relative;
+  color: var(--cyan);
+  font-weight: 700;
+}
+.active-bar::after {
+  content: "";
+  position: absolute;
+  /* the mockups vary the offsets per component */
+  left: var(--bar-inset, 6px); right: var(--bar-inset, 6px); bottom: var(--bar-bottom, 6px);
+  height: var(--bar);
+  background: var(--cyan);
+  clip-path: polygon(var(--bar) 0, 100% 0, calc(100% - var(--bar)) 100%, 0 100%);
+}
+
+/* Slanted solid tag, e.g. "featured" */
+.tag-slanted {
+  padding: 3px 11px;
+  background: var(--cyan);
+  color: var(--on-cyan);
+  font-size: 11px;
+  font-weight: 700;
+  clip-path: polygon(5px 0, 100% 0, calc(100% - 5px) 100%, 0 100%);
+}
+
+:focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }

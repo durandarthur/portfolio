@@ -37,7 +37,7 @@ const props = defineProps({
 * {
 	background-color: #111316;
 	color: aliceblue;
-	font-family: "Roboto Mono", monospace;
+	font-family: var(--font-mono);
 }
 
 h2 {

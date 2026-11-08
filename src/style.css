@@ -1,5 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -15,7 +14,7 @@
 }
 
 .wb-title {
-  font-family: "Roboto Mono", monospace;
+  font-family: var(--font-mono);
 }
 
 .wb-body {
@@ -64,12 +63,14 @@
 
 html {
   position: absolute;
-  background-color: black;
+  background-color: #010204;
+  background-image: var(--bg);
+  color: var(--text-strong);
   height: 100vh;
   width: 100vw;
   scrollbar-color: slategray transparent;
   scrollbar-width: thin;
-  font-family: "Roboto", sans-serif;
+  font-family: var(--font-mono);
 }
 
 body {
@@ -79,10 +80,6 @@ body {
 
 #app {
   height: 100%;
-}
-
-footer {
-  width: calc(100% - 1rem);
 }
 
 canvas {
