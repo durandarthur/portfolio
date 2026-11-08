@@ -34,6 +34,18 @@ const FORM_RADIUS = 2.5; // px, particles in a glyph
 const STRAGGLERS = 60;
 const STRAGGLER_DIST = [0.09, 0.7];
 const STRAGGLER_Z = 500; // depth spread, px
+// Bokeh: a few very close, out-of-focus particles near the edges.
+// [x, y] as fractions of the screen, radius in px.
+const BOKEH = [
+	[0.86, 0.37, 24],
+	[0.82, 0.84, 34],
+	[0.39, 0.08, 20],
+	[0.97, 0.62, 20],
+	[0.61, 0.92, 16],
+];
+const BOKEH_OPACITY = 0.35;
+const BOKEH_Z = 0.5; // × camera distance in front of z = 0
+const PARTICLE_COLOR = "#04D9FF";
 // Fog: far particles fade towards this colour, up to 85% at full depth
 const FOG_COLOR = 0x061020;
 const FOG_MAX = 0.85;
@@ -112,7 +124,86 @@ function onResize() {
 	cam.updateProjectionMatrix();
 	// Fog grows with distance from the camera: none at z = 0, FOG_MAX at full depth
 	scene.value.scene.fog = new THREE.Fog(FOG_COLOR, camDist, camDist + depth() / FOG_MAX);
+	placeBokeh();
 	refreshFormation();
+}
+
+// ── Bokeh ────────────────────────────────────────────────────────
+// Sprites sharing one pre-blurred triangle texture: no blur pass needed.
+const BOKEH_TEXTURE_SIZE = 128;
+const BOKEH_SHAPE_RADIUS = 36; // triangle radius inside the texture
+let bokeh = [];
+
+function makeBokehTexture() {
+	const size = BOKEH_TEXTURE_SIZE;
+	const canvas = document.createElement("canvas");
+	canvas.width = canvas.height = size;
+	const ctx = canvas.getContext("2d");
+	// Draw off-canvas and keep only the blurred shadow (ctx.filter isn't in Safari)
+	const offset = size * 4;
+	ctx.shadowOffsetX = offset;
+	ctx.shadowBlur = 14;
+	ctx.shadowColor = PARTICLE_COLOR;
+	ctx.beginPath();
+	for (let i = 0; i < 3; i++) {
+		const a = -Math.PI / 2 + (i * 2 * Math.PI) / 3;
+		const x = size / 2 - offset + Math.cos(a) * BOKEH_SHAPE_RADIUS;
+		const y = size / 2 + Math.sin(a) * BOKEH_SHAPE_RADIUS;
+		i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+	}
+	ctx.closePath();
+	ctx.lineWidth = 7;
+	ctx.strokeStyle = PARTICLE_COLOR;
+	ctx.fillStyle = "rgba(4, 217, 255, 0.25)";
+	ctx.fill();
+	ctx.stroke();
+	return new THREE.CanvasTexture(canvas);
+}
+
+function createBokeh() {
+	const texture = makeBokehTexture();
+	bokeh = BOKEH.map(([fx, fy, radius], i) => {
+		const material = new THREE.SpriteMaterial({
+			map: texture,
+			transparent: true,
+			opacity: BOKEH_OPACITY,
+			depthTest: false,
+			depthWrite: false,
+			fog: false,
+		});
+		const angle = Math.random() * Math.PI * 2;
+		material.rotation = angle;
+		const sprite = new THREE.Sprite(material);
+		sprite.renderOrder = 10;
+		scene.value.scene.add(sprite);
+		return {
+			sprite,
+			fx,
+			fy,
+			radius,
+			angle,
+			speed: (i % 2 ? 1 : -1) * (0.04 + Math.random() * 0.04), // rad/s
+		};
+	});
+}
+
+function placeBokeh() {
+	const z = camDist * BOKEH_Z;
+	const k = perspective(z);
+	const { innerWidth: w, innerHeight: h } = window;
+	for (const b of bokeh) {
+		b.sprite.position.set((b.fx * w - w / 2) / k, -(b.fy * h - h / 2) / k, z);
+		b.sprite.scale.setScalar(((b.radius * BOKEH_TEXTURE_SIZE) / BOKEH_SHAPE_RADIUS) / k);
+	}
+}
+
+function disposeBokeh() {
+	for (const b of bokeh) {
+		b.sprite.removeFromParent();
+		b.sprite.material.dispose();
+	}
+	bokeh[0]?.sprite.material.map.dispose();
+	bokeh = [];
 }
 
 // ── Mouse: push nearby particles away ────────────────────────────
@@ -246,7 +337,10 @@ function frame() {
 
 	const now = performance.now();
 	const still = reducedMotion.matches;
-	if (!still) spin += 0.01;
+	if (!still) {
+		spin += 0.01;
+		for (const b of bokeh) b.sprite.material.rotation = b.angle + (now / 1000) * b.speed;
+	}
 
 	const w = halfWidth();
 	const h = halfHeight();
@@ -294,6 +388,7 @@ watch(
 
 onMounted(() => {
 	initParticles();
+	createBokeh();
 	onResize();
 	window.addEventListener("resize", onResize);
 	document.addEventListener("mousemove", onMouseMove);
@@ -303,6 +398,7 @@ onMounted(() => {
 onUnmounted(() => {
 	window.removeEventListener("resize", onResize);
 	document.removeEventListener("mousemove", onMouseMove);
+	disposeBokeh();
 });
 
 defineExpose({
@@ -349,7 +445,7 @@ defineExpose({
 			</Box>
 			<InstancedMesh :key="meshKey" ref="particles" :count="Number(settings.amount)">
 				<TetrahedronGeometry />
-				<BasicMaterial :props="{ wireframe: true }" color="#04D9FF" />
+				<BasicMaterial :props="{ wireframe: true }" :color="PARTICLE_COLOR" />
 			</InstancedMesh>
 		</Scene>
 	</Renderer>
