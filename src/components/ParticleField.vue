@@ -36,6 +36,9 @@ const NAME_RADIUS = 2.4; // px at 100px text
 const NAME_BUDGET = 480; // particles along the edges
 const NAME_MIN_SPACING = 5; // px, so small screens don't pile particles up
 const GLYPH_BUDGET = 240; // particles along an icon glyph's lines
+// Name particles turn into solid, brighter tetrahedra as they land
+const NAME_COLOR = "#22D3EE";
+const SOLID_AT = 0.6; // share of the flight after which they turn solid
 // Extra particles for the formations (name, glyphs), on top of the star
 // field's own amount, so the field keeps its density while they form
 const FORMATION_POOL = Math.max(NAME_BUDGET, GLYPH_BUDGET);
@@ -64,6 +67,7 @@ const camera = ref(null);
 const box = ref(null);
 const light = ref(null);
 const particles = ref(null);
+const nameParticles = ref(null); // solid mesh for the name
 const scene = ref(null);
 const meshKey = ref(0);
 
@@ -81,6 +85,7 @@ const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 let states = [];
 let spin = 0;
 const dummy = new THREE.Object3D();
+const HIDDEN = new THREE.Matrix4().makeScale(0, 0, 0);
 
 // ── Camera ───────────────────────────────────────────────────────
 // The camera sits where 1 world unit = 1 CSS px at z = 0.
@@ -465,7 +470,9 @@ function refreshFormation() {
 // ── Frame loop ───────────────────────────────────────────────────
 function frame() {
 	const mesh = particles.value?.mesh;
-	if (!mesh || document.hidden) return;
+	const solidMesh = nameParticles.value?.mesh;
+	if (!mesh || !solidMesh || document.hidden) return;
+	const naming = formationKey === "name";
 
 	const now = performance.now();
 	const still = reducedMotion.matches;
@@ -489,8 +496,9 @@ function frame() {
 
 	for (let i = 0; i < count; i++) {
 		const s = states[i];
+		let p = 1;
 		if (s.target) {
-			const p = s.dur > 0 ? Math.min(1, (now - s.t0) / s.dur) : 1;
+			p = s.dur > 0 ? Math.min(1, (now - s.t0) / s.dur) : 1;
 			const e = easeOut(p);
 			const t = s.local && f ? toWorld(s.target) : s.target;
 			s.x = s.from.x + (t.x - s.from.x) * e;
@@ -512,9 +520,13 @@ function frame() {
 		dummy.rotation.set(spin, spin, spin);
 		dummy.scale.setScalar(s.r);
 		dummy.updateMatrix();
-		mesh.setMatrixAt(i, dummy.matrix);
+		// Each particle shows in one mesh: solid once it has landed in the name
+		const solid = naming && s.local && s.target && p >= SOLID_AT;
+		mesh.setMatrixAt(i, solid ? HIDDEN : dummy.matrix);
+		solidMesh.setMatrixAt(i, solid ? dummy.matrix : HIDDEN);
 	}
 	mesh.instanceMatrix.needsUpdate = true;
+	solidMesh.instanceMatrix.needsUpdate = true;
 }
 
 let defocusTimer;
@@ -596,6 +608,10 @@ defineExpose({
 				<InstancedMesh :key="meshKey" ref="particles" :count="particleCount()">
 					<TetrahedronGeometry />
 					<BasicMaterial :props="{ wireframe: true }" :color="PARTICLE_COLOR" />
+				</InstancedMesh>
+				<InstancedMesh :key="`name-${meshKey}`" ref="nameParticles" :count="particleCount()">
+					<TetrahedronGeometry />
+					<BasicMaterial :color="NAME_COLOR" />
 				</InstancedMesh>
 			</Scene>
 		</Renderer>
