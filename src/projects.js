@@ -27,7 +27,7 @@ export const projects = [
 		name: "portfolio",
 		metaKey: "Projects.portfolio.meta",
 		tags: ["web"],
-		image: null, // [screenshot]
+		image: "/portfolio-thumbnail.webp",
 		stack: ["Vue 3", "Vite", "three.js", "Tailwind", "WebGL"],
 		link: { href: "https://github.com/durandarthur/portfolio", label: "github" },
 	},
