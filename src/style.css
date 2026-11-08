@@ -13,19 +13,23 @@
   }
 }
 
-.wb-title {
+/* Terminal (vue-command) in the window palette */
+.vue-command .vue-command__history {
+  background-color: var(--window);
+  color: var(--text);
   font-family: var(--font-mono);
 }
-
-.wb-body {
-  background-color: #111316;
+.vue-command .vue-command__query input,
+.vue-command .vue-command__query__input {
+  font-family: var(--font-mono);
+  font-size: 13px;
 }
 
 /* width */
 ::-webkit-scrollbar {
   width: 3px;
   height: 3px;
-  background: #111316;
+  background: transparent;
 }
 
 /* Track */
@@ -36,8 +40,7 @@
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #04d9ff;
-  border-radius: 5px;
+  background: var(--cyan-700);
 }
 
 /* Handle on hover */
@@ -54,11 +57,8 @@
 }
 
 ::selection {
-  background: #04d9ff;
-}
-
-::-moz-selection {
-  background: #04d9ff;
+  background: var(--cyan);
+  color: var(--on-cyan);
 }
 
 html {
@@ -89,22 +89,6 @@ canvas {
   z-index: -9999;
   width: 100vw;
   height: 100vh;
-}
-
-.winbox {
-  background: #111316;
-  /* border: 1px solid transparent;
-  transition: border 1s; */
-}
-
-/* .winbox:focus-within {
-  border: 1px solid #04d9ff;
-  transition: border 1s;
-} */
-
-.wb-header {
-  border-bottom: 1px solid #04d9ff;
-  background-color: black;
 }
 
 /* .wb-body > div {

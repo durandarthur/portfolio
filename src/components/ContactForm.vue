@@ -97,7 +97,7 @@ function sendMail() {
 		</div>
 
 		<textarea
-			class="message p-4 border-t border-slate-700"
+			class="message p-4 border-t border-[rgba(34,211,238,0.12)]"
 			name="message"
 			id="message"
 			cols="30"
@@ -133,15 +133,15 @@ textarea {
 	outline: none;
 }
 * {
-	background-color: #111316;
-	color: aliceblue;
+	background-color: var(--window);
+	color: var(--text-strong);
 }
 
 /* animation that plays on mail sent */
 .loader {
 	margin-block: auto;
 	border-radius: 25%;
-	border: 5px solid #04d9ff;
+	border: 5px solid var(--cyan);
 	aspect-ratio: 1;
 	height: 50%;
 	min-height: 24px;

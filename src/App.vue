@@ -2,7 +2,7 @@
 import { gsap } from "gsap";
 import * as THREE from "three";
 import { SVGLoader } from "three/examples/jsm/loaders/SVGLoader";
-import { computed, onMounted, onUnmounted, ref, watch, watchEffect } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import VueCommand, {
 	createQuery,
 	createStdout,
@@ -11,15 +11,15 @@ import VueCommand, {
 	textFormatter,
 } from "vue-command";
 import "vue-command/dist/vue-command.css";
-import { VueWinBox } from "vue-winbox";
 import ContactForm from "./components/ContactForm.vue";
 import DesktopIcon from "./components/DesktopIcon.vue";
 import ProjectCard from "./components/ProjectCard.vue";
 import Taskbar from "./components/Taskbar.vue";
 import TechTreeNode from "./components/TechTreeNode.vue";
 import WelcomeNotice from "./components/WelcomeNotice.vue";
+import WindowFrame from "./components/WindowFrame.vue";
 import { getBioHTML, getTechs, getTimeline, socialsHTML } from "./data";
-import { $t, getCvUrl, lang } from "./i18n";
+import { $t, getCvUrl } from "./i18n";
 import { techsFormatter, timelineFormatter } from "./lib/formatters";
 import {
 	anyVisible,
@@ -31,8 +31,6 @@ import {
 	minimizeWindow,
 	toggleFromDesktop,
 } from "./lib/windows";
-
-const isMobile = () => window.innerWidth < 500;
 
 // THREE/TROIS.JS STUFF
 
@@ -245,19 +243,19 @@ const onHoverIcon = async (iconRef) => {
 	isHovering = true;
 
 	switch (iconRef) {
-		case contactRef?.value.winbox?.id:
+		case "contact":
 			await loadSVGShape("/mail.svg");
 			break;
-		case CVRef?.value.winbox?.id:
+		case "cv":
 			await loadSVGShape("/cv.svg");
 			break;
-		case projectsRef?.value.winbox?.id:
+		case "projects":
 			await loadSVGShape("/projects.svg");
 			break;
-		case terminalRef?.value.winbox?.id:
+		case "terminal":
 			await loadSVGShape("/terminal_dark.svg");
 			break;
-		case techsRef?.value.winbox?.id:
+		case "techs":
 			await loadSVGShape("/techs_dark.svg");
 			break;
 
@@ -379,89 +377,18 @@ const commands = {
 	socials: () => createStdout(textFormatter(socialsHTML, true)),
 };
 
-// WINBOX STUFF
-// WinBox only displays what the window store (lib/windows.js) says.
-
-const globalOptions = {
-	autosize: "true",
-	class: "modern",
-	hidden: true,
-	width: "60%",
-	height: "60%",
-};
-
-function appWindowOptions(key, extra = {}) {
-	return {
-		onclose() {
-			closeWindow(key);
-			return true; // keep the WinBox, it's only hidden
-		},
-		onfocus() {
-			focusWindow(key);
-		},
-		onminimize() {
-			// Minimised windows live in the taskbar, not WinBox's own dock
-			this.minimize(false);
-			minimizeWindow(key);
-		},
-		...globalOptions,
-		...extra,
-	};
-}
-
-const contactRef = ref();
-const contactOptions = appWindowOptions("contact", {
-	title: $t("App.contactForm"),
-});
-
-const CVRef = ref();
-const CVOptions = appWindowOptions("cv", { title: "Curriculum Vitae" });
-
-const projectsRef = ref();
-const projectsOptions = appWindowOptions("projects", {
-	title: $t("App.myProjects"),
-});
-
-const terminalRef = ref();
-const terminalOptions = appWindowOptions("terminal", {
-	title: "bash: durandarthur@MONOLITH",
-});
-
-const techsRef = ref();
-const techsOptions = appWindowOptions("techs", {
-	title: "Technologies",
-	maxwidth: "1400px",
-});
-
-const creditsRef = ref();
-const creditsOptions = {
-	title: $t("App.about"),
-	modal: true,
-	onclose: function (force) {
-		creditsRef.value.winbox.hide(true);
-		return true;
-	},
-	...globalOptions,
-};
-
-// WinBox titles are set once, so follow language changes by hand
-watch(lang, () => {
-	contactRef.value?.winbox?.setTitle($t("App.contactForm"));
-	projectsRef.value?.winbox?.setTitle($t("App.myProjects"));
-	creditsRef.value?.winbox?.setTitle($t("App.about"));
-});
-
 // DESKTOP ICONS
 
 const desktopIcons = [
-	{ key: "contact", icon: "/icons/contact.svg", win: contactRef },
-	{ key: "cv", icon: "/icons/cv.svg", win: CVRef },
-	{ key: "projects", icon: "/icons/projects.svg", win: projectsRef },
-	{ key: "terminal", icon: "/icons/terminal.svg", win: terminalRef },
-	{ key: "techs", icon: "/icons/techs.svg", win: techsRef },
+	{ key: "contact", icon: "/icons/contact.svg" },
+	{ key: "cv", icon: "/icons/cv.svg" },
+	{ key: "projects", icon: "/icons/projects.svg" },
+	{ key: "terminal", icon: "/icons/terminal.svg" },
+	{ key: "techs", icon: "/icons/techs.svg" },
 ];
 // Translated desktop label
 const iconLabel = (key) => $t(`App.apps.${key}.label`);
+const iconTitle = (key) => $t(`App.apps.${key}.title`);
 const iconByKey = (key) => desktopIcons.find((icon) => icon.key === key);
 
 const hoveredIcon = ref(null);
@@ -469,7 +396,7 @@ const hoveredInfo = computed(() => iconByKey(hoveredIcon.value));
 
 function onIconEnter(icon) {
 	hoveredIcon.value = icon.key;
-	onHoverIcon(icon.win.value.winbox.id);
+	onHoverIcon(icon.key);
 }
 function onIconLeave(icon) {
 	if (hoveredIcon.value !== icon.key) return;
@@ -481,34 +408,9 @@ function onIconFocus(event, icon) {
 	if (event.target.matches(":focus-visible")) onIconEnter(icon);
 }
 
-function sizeWindow(winbox) {
-	if (isMobile()) return;
-	winbox.resize(
-		Math.max(0.6 * window.innerWidth, 500),
-		Math.max(0.6 * window.innerHeight, 200)
-	);
-}
-
-// Show / hide / focus the WinBoxes to match the store
-watchEffect(() => {
-	desktopIcons.forEach((icon) => {
-		const winbox = icon.win.value?.winbox;
-		if (!winbox) return;
-		const visible = isVisible(icon.key);
-		if (visible && winbox.hidden) {
-			sizeWindow(winbox);
-			winbox.show();
-		} else if (!visible && !winbox.hidden) {
-			winbox.hide();
-		}
-	});
-	const focused = iconByKey(focusedKey.value);
-	focused?.win.value?.winbox?.focus();
-});
-
 // The particles form the focused window's glyph (hovering an icon takes priority)
 watch(focusedKey, (key) => {
-	lastOpened = key ? iconByKey(key).win.value.winbox.id : null;
+	lastOpened = iconByKey(key) ? key : null;
 	if (hoveredIcon.value) return;
 	if (lastOpened) onHoverIcon(lastOpened);
 	else onLeaveIcon();
@@ -524,15 +426,7 @@ function openFromNotice(key) {
 }
 
 function toggleAbout() {
-	const winbox = creditsRef.value?.winbox;
-	if (!winbox) return;
-	winbox.hide(!winbox.hidden);
-	if (!winbox.hidden && !isMobile()) {
-		sizeWindow(winbox);
-		winbox.move("center", "center");
-		winbox.resize = false;
-		winbox.move = false;
-	}
+	toggleFromDesktop("about");
 }
 </script>
 
@@ -630,15 +524,34 @@ function toggleAbout() {
 				/>
 			</nav>
 
-			<VueWinBox ref="contactRef" :options="contactOptions" @onmove="onMove">
+			<WindowFrame
+				app-key="contact"
+				:title="iconTitle('contact')"
+				icon="/icons/contact.svg"
+			>
 				<ContactForm />
-			</VueWinBox>
+			</WindowFrame>
 
-			<VueWinBox ref="CVRef" :options="CVOptions" @onmove="onMove">
-				<iframe :src="getCvUrl()" frameborder="0"></iframe>
-			</VueWinBox>
+			<WindowFrame
+				app-key="cv"
+				:title="iconTitle('cv')"
+				icon="/icons/cv.svg"
+				:height="0.85"
+			>
+				<iframe
+					:src="getCvUrl()"
+					title="Curriculum Vitae"
+					class="block w-full h-full border-0"
+				></iframe>
+			</WindowFrame>
 
-			<VueWinBox ref="projectsRef" :options="projectsOptions" @onmove="onMove">
+			<WindowFrame
+				app-key="projects"
+				:title="iconTitle('projects')"
+				icon="/icons/projects.svg"
+				:width="960"
+				:height="680"
+			>
 				<div class="grid gap-4 grid-cols-1 p-4">
 					<ProjectCard
 						:title="$t('App.ffReworkTitle')"
@@ -658,9 +571,13 @@ function toggleAbout() {
 						{{ $t("App.stLoungeDetail") }}
 					</ProjectCard>
 				</div>
-			</VueWinBox>
+			</WindowFrame>
 
-			<VueWinBox ref="terminalRef" :options="terminalOptions" @onmove="onMove">
+			<WindowFrame
+				app-key="terminal"
+				:title="iconTitle('terminal')"
+				icon="/icons/terminal.svg"
+			>
 				<vue-command
 					:commands="commands"
 					:history="history"
@@ -674,34 +591,33 @@ function toggleAbout() {
 						durandarthur@MONOLITH:~/code/personal/portfolio$&nbsp;
 					</template>
 				</vue-command>
-			</VueWinBox>
+			</WindowFrame>
 
-			<VueWinBox ref="techsRef" :options="techsOptions" @onMove="onMove">
+			<WindowFrame
+				app-key="techs"
+				:title="iconTitle('techs')"
+				icon="/icons/techs.svg"
+				:width="960"
+				:height="680"
+			>
 				<TechTreeNode :node="getTechs()" />
-			</VueWinBox>
+			</WindowFrame>
 
-			<VueWinBox ref="creditsRef" :options="creditsOptions">
-				<div class="w-full h-full bg-[#111316] text-white p-8">
+			<WindowFrame app-key="about" :title="$t('App.about')">
+				<div class="w-full p-8 text-ink">
 					<h2 class="text-xl mb-4">{{ $t("App.moreInfo.credits") }}:</h2>
-					<ul class="list-disc list-inside marker:text-[#04d9ff] mb-4">
-						<li>
-							<a
-								href="https://github.com/wobsoriano/vue-winbox"
-								class="underline underline-offset-2 hover:text-[#04d9ff]"
-								>Vue-WinBox</a
-							>
-						</li>
+					<ul class="list-disc list-inside marker:text-[#22D3EE] mb-4">
 						<li>
 							<a
 								href="https://github.com/ndabAP/vue-command"
-								class="underline underline-offset-2 hover:text-[#04d9ff]"
+								class="underline underline-offset-2 hover:text-[#22D3EE]"
 								>Vue-Command</a
 							>
 						</li>
 						<li>
 							<a
 								href="https://troisjs.github.io/"
-								class="underline hover:text-[#04d9ff]"
+								class="underline hover:text-[#22D3EE]"
 								>Trois.js</a
 							>
 						</li>
@@ -718,7 +634,7 @@ function toggleAbout() {
 						<li class="flex mb-4">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
-								fill="#04d9ff"
+								fill="#22D3EE"
 								viewBox="0 0 22 22"
 								strokeWidth="{1.5}"
 								stroke="#000000"
@@ -733,17 +649,17 @@ function toggleAbout() {
 
 							<a
 								href="mailto:durandarthur09@outlook.fr"
-								class="underline underline-offset-2 hover:text-[#04d9ff]"
+								class="underline underline-offset-2 hover:text-[#22D3EE]"
 								>durandarthur09@outlook.fr</a
 							>
 						</li>
 						<li class="flex mb-4">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
-								fill="#04d9ff"
+								fill="#22D3EE"
 								viewBox="0 0 24 24"
 								strokeWidth="{1.5}"
-								stroke="#04d9ff"
+								stroke="#22D3EE"
 								class="w-6 h-6 mr-2"
 							>
 								<path
@@ -780,7 +696,7 @@ function toggleAbout() {
 									text-anchor="none"
 								>
 									<path d="M0,192v-192h192v192z" fill="none"></path>
-									<g fill="#04d9ff">
+									<g fill="#22D3EE">
 										<g id="surface1">
 											<path
 												d="M156,0h-120c-19.875,0 -36,16.125 -36,36v120c0,19.875 16.125,36 36,36h120c19.875,0 36,-16.125 36,-36v-120c0,-19.875 -16.125,-36 -36,-36zM59.36539,162.98077h-29.82693l-0.17307,-89.30769h29.82692zM43.70192,61.99038h-0.17308c-9.75,0 -16.03846,-6.72115 -16.03846,-15.08653c0,-8.56731 6.49039,-15.0577 16.41347,-15.0577c9.92308,0 16.00961,6.49038 16.21153,15.0577c0,8.36538 -6.31731,15.08653 -16.41346,15.08653zM162.77885,162.98077h-30.08654v-48.51923c0,-11.74039 -3.11538,-19.73077 -13.61538,-19.73077c-8.01923,0 -12.34615,5.39423 -14.42308,10.61538c-0.77885,1.875 -0.98077,4.44231 -0.98077,7.06731v50.56731h-30.23077l-0.17308,-89.30769h30.23077l0.17308,12.60577c3.86538,-5.97116 10.29808,-14.42308 25.70192,-14.42308c19.09616,0 33.37501,12.46154 33.37501,39.25961v51.86539z"
@@ -791,7 +707,7 @@ function toggleAbout() {
 							</svg>
 							<a
 								href="https://www.linkedin.com/in/arthur-durand-developpeur-web/"
-								class="underline underline-offset-2 hover:text-[#04d9ff]"
+								class="underline underline-offset-2 hover:text-[#22D3EE]"
 								>LinkedIn</a
 							>
 						</li>
@@ -806,7 +722,7 @@ function toggleAbout() {
 							v-model="particlesAmount"
 						/>
 						<label
-							class="text-white"
+							class="text-ink"
 							for="particlesAmount"
 							v-text="$t('App.moreInfo.particlesAmount')"
 						></label>
@@ -822,7 +738,7 @@ function toggleAbout() {
 							@input="(event) => (mouseEffectRange = event.target.value)"
 						/>
 						<label
-							class="text-white"
+							class="text-ink"
 							for="mouseEffectRange"
 							v-text="$t('App.moreInfo.mouseRadius')"
 						></label>
@@ -838,7 +754,7 @@ function toggleAbout() {
 							@input="(event) => (mouseEffectAmplitude = event.target.value)"
 						/>
 						<label
-							class="text-white"
+							class="text-ink"
 							for="mouseEffectAmplitude"
 							v-text="$t('App.moreInfo.effectStrength')"
 						></label>
@@ -846,7 +762,7 @@ function toggleAbout() {
 					<p class="mt-12">
 						{{ $t("App.moreInfo.pleaseReportBugs") }}
 					</p>
-					<p class="flex m-4 w-full text-[#04d9ff] version text-right">
+					<p class="flex m-4 w-full text-[#22D3EE] version text-right">
 						<a
 							class="flex items-start ml-auto underline underline-offset-2"
 							href="https://github.com/durandarthur/portfolio"
@@ -871,7 +787,7 @@ function toggleAbout() {
 						</a>
 					</p>
 				</div>
-			</VueWinBox>
+			</WindowFrame>
 		</main>
 
 		<WelcomeNotice
@@ -1058,6 +974,6 @@ ul,
 }
 
 input[type="range"] {
-	accent-color: #04d9ff;
+	accent-color: var(--cyan);
 }
 </style>

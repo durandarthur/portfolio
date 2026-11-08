@@ -32,6 +32,12 @@ const keys = {
 		noWindows: { en: "no windows open", fr: "aucune fenêtre ouverte" },
 		language: { en: "Language", fr: "Langue" },
 	},
+	Window: {
+		minimize: { en: "Minimize", fr: "Réduire" },
+		maximize: { en: "Maximize", fr: "Agrandir" },
+		restore: { en: "Restore", fr: "Restaurer" },
+		close: { en: "Close", fr: "Fermer" },
+	},
 	Notice: {
 		label: { en: "Welcome", fr: "Bienvenue" },
 		kicker: { en: "notification", fr: "notification" },
