@@ -13,12 +13,13 @@ import VueCommand, {
 import "vue-command/dist/vue-command.css";
 import ContactForm from "./components/ContactForm.vue";
 import DesktopIcon from "./components/DesktopIcon.vue";
-import ProjectCard from "./components/ProjectCard.vue";
+import ProjectsWindow from "./components/ProjectsWindow.vue";
 import Taskbar from "./components/Taskbar.vue";
 import TechTreeNode from "./components/TechTreeNode.vue";
 import WelcomeNotice from "./components/WelcomeNotice.vue";
 import WindowFrame from "./components/WindowFrame.vue";
 import { getBioHTML, getTechs, getTimeline, socialsHTML } from "./data";
+import { projects } from "./projects";
 import { $t, getCvUrl } from "./i18n";
 import { techsFormatter, timelineFormatter } from "./lib/formatters";
 import {
@@ -551,26 +552,9 @@ function toggleAbout() {
 				icon="/icons/projects.svg"
 				:width="960"
 				:height="680"
+				:subtitle="$t('Projects.count').replace('{n}', projects.length)"
 			>
-				<div class="grid gap-4 grid-cols-1 p-4">
-					<ProjectCard
-						:title="$t('App.ffReworkTitle')"
-						imageLink="fanfictionrework-thumbnail.png"
-						link="https://demo.fanfiction-rework.com/"
-					>
-						{{ $t("App.ffReworkDetail") }}
-					</ProjectCard>
-				</div>
-				<div class="grid gap-4 grid-cols-1 p-4">
-					<ProjectCard
-						:title="$t('App.stLoungeTitle')"
-						imageLink="stlounge-thumbnail.png"
-						link="https://github.com/durandarthur/stlounge"
-						:linkText="$t('ProjectCard.repoLink')"
-					>
-						{{ $t("App.stLoungeDetail") }}
-					</ProjectCard>
-				</div>
+				<ProjectsWindow />
 			</WindowFrame>
 
 			<WindowFrame

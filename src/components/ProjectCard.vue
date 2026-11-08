@@ -1,69 +1,179 @@
 <script setup>
+import { computed } from "vue";
 import { $t } from "../i18n";
 
 const props = defineProps({
-	title: {
-		required: true,
-		type: String,
-	},
-	imageLink: {
-		required: true,
-		type: String,
-	},
-	link: {
-		required: false,
-		type: String,
-	},
-	linkText: {
-		type: String,
-	},
+	project: { type: Object, required: true },
+	featured: { type: Boolean, default: false },
 });
+
+const name = computed(() =>
+	props.project.nameKey ? $t(props.project.nameKey) : props.project.name
+);
+const meta = computed(() =>
+	props.project.metaKey ? $t(props.project.metaKey) : props.project.meta
+);
 </script>
 
 <template>
-	<div class="max-w-sm w-full lg:max-w-full lg:flex">
-		<div
-			class="border-l border-r border-white rounded-2xl h-48 h-auto w-48 flex-none bg-cover bg-center text-center overflow-hidden mr-1"
-			:style="{ 'background-image': 'url(' + imageLink + ')' }"
-			title="Project thumbnail"
-		></div>
-		<div
-			class="border-b border-t border-[#04D9FF] rounded-2xl p-4 flex flex-col justify-between leading-normal ml-1"
-		>
-			<div class="mb-8">
-				<div class="text-[#04D9FF] font-bold text-xl mb-2">{{ title }}</div>
-				<p class="text-white text-base">
-					<slot></slot>
-				</p>
+	<div class="card frame frame--card" :class="{ 'frame--featured': featured, 'is-featured': featured }">
+		<article class="frame__body card__body">
+			<div class="card__media frame frame--image">
+				<div class="frame__body card__media-body">
+					<img
+						v-if="project.image"
+						:src="project.image"
+						:alt="$t('Projects.screenshotAlt').replace('{name}', name)"
+						loading="lazy"
+					/>
+					<span v-else class="card__placeholder">[screenshot]</span>
+				</div>
 			</div>
-			<div
-				class="flex items-center w-full text-[#04D9FF] underline underline-offset-2"
-				id="projectLink"
-				v-if="link"
-			>
+
+			<div class="card__text">
+				<div class="card__head">
+					<span v-if="featured" class="tag-slanted">{{ $t("Projects.featured") }}</span>
+					<h3 class="card__title">{{ name }}</h3>
+					<span class="card__spacer"></span>
+					<a
+						v-if="featured && project.link"
+						class="card__link"
+						:href="project.link.href"
+						target="_blank"
+						rel="noopener noreferrer"
+						>{{ $t(`Projects.links.${project.link.label}`) }} ↗</a
+					>
+					<span v-else-if="meta" class="card__meta">{{ meta }}</span>
+				</div>
+				<p class="card__desc">{{ $t(`Projects.${project.key}.desc`) }}</p>
+				<p class="card__stack">
+					<template v-for="(tech, i) in project.stack" :key="tech">
+						<span v-if="i > 0" class="card__sep" aria-hidden="true"> / </span>
+						<span>{{ tech }}</span>
+					</template>
+				</p>
 				<a
-					class="flex w-full items-start"
-					:href="link"
+					v-if="!featured && project.link"
+					class="card__link"
+					:href="project.link.href"
 					target="_blank"
 					rel="noopener noreferrer"
+					>{{ $t(`Projects.links.${project.link.label}`) }} ↗</a
 				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke-width="1.5"
-						stroke="currentColor"
-						class="size-6 h-5 mr-1"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
-						/>
-					</svg>
-					<p v-text="props.linkText ?? $t('ProjectCard.websiteLink')"></p>
-				</a>
 			</div>
-		</div>
+		</article>
 	</div>
 </template>
+
+<style scoped>
+.card__body {
+	box-sizing: border-box;
+	padding: 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+.is-featured .card__body {
+	padding: 18px;
+	flex-direction: row;
+	gap: 20px;
+}
+
+.card__media {
+	height: 120px;
+	flex-shrink: 0;
+}
+.is-featured .card__media {
+	width: 250px;
+	height: 168px;
+}
+.card__media-body {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background:
+		radial-gradient(circle, rgba(34, 211, 238, 0.35) 0 1px, transparent 1.5px) 0 0 / 10px 10px,
+		#0a1220;
+}
+.card__media-body img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+.card__placeholder {
+	font-size: 12px;
+	color: var(--text-muted);
+}
+
+.card__text {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+.is-featured .card__text {
+	gap: 12px;
+}
+.card__head {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+.is-featured .card__head {
+	gap: 12px;
+}
+.card__title {
+	margin: 0;
+	font-size: 16px;
+	font-weight: 800;
+	color: var(--text-strong);
+}
+.is-featured .card__title {
+	font-size: 20px;
+}
+.card__spacer {
+	flex: 1;
+}
+.card__meta {
+	font-size: 11px;
+	color: var(--text-muted);
+	white-space: nowrap;
+}
+.card__desc {
+	margin: 0;
+	font-size: 13px;
+	line-height: 1.6;
+	color: var(--text-body);
+}
+.card__stack {
+	margin: 0;
+	font-size: 12px;
+	color: var(--text-tag);
+}
+.card__sep {
+	color: var(--text-faint);
+}
+.card__link {
+	align-self: flex-start;
+	font-size: 12px;
+	color: var(--cyan);
+	text-decoration: none;
+	white-space: nowrap;
+}
+.card__link:hover {
+	color: var(--cyan-300);
+}
+
+/* Narrow window: the featured card stacks like the others */
+@container projects (max-width: 560px) {
+	.is-featured .card__body {
+		flex-direction: column;
+		gap: 14px;
+	}
+	.is-featured .card__media {
+		width: auto;
+	}
+}
+</style>

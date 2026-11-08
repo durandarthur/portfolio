@@ -32,6 +32,44 @@ const keys = {
 		noWindows: { en: "no windows open", fr: "aucune fenêtre ouverte" },
 		language: { en: "Language", fr: "Langue" },
 	},
+	// FR strings in Projects: translated, to review.
+	Projects: {
+		count: { en: "— {n} items", fr: "— {n} éléments" },
+		filter: { en: "filter", fr: "filtre" },
+		filters: {
+			all: { en: "all", fr: "tous" },
+			web: { en: "web", fr: "web" },
+			desktop: { en: "desktop", fr: "bureau" },
+			ai: { en: "ai", fr: "ia" },
+			work: { en: "work", fr: "pro" },
+		},
+		featured: { en: "featured", fr: "à la une" },
+		screenshotAlt: { en: "{name} screenshot", fr: "Capture d'écran de {name}" },
+		links: {
+			github: { en: "github", fr: "github" },
+			demo: { en: "demo", fr: "démo" },
+		},
+		stlounge: {
+			desc: {
+				en: "A lightweight Linux app that plays ShaderToy shaders in a window — playlists, crossfades, favorites and audio-reactive shaders from desktop audio. Own renderer, no Electron.",
+				fr: "Une application Linux légère qui joue des shaders ShaderToy dans une fenêtre — playlists, fondus enchaînés, favoris et shaders réactifs à l'audio du bureau. Moteur de rendu maison, sans Electron.",
+			},
+		},
+		// Shortened from App.ffReworkDetail
+		ffrework: {
+			desc: {
+				en: "A rework of the famous collaborative writing website: file downloads, Word to HTML conversion, WebSockets and SSO. Deployed on a Hetzner VPS with Docker, nginx and a Cloudflare domain.",
+				fr: "Une refonte du célèbre site d'écriture collaborative : téléchargement de fichiers, conversion Word vers HTML, WebSockets et SSO. Déployé sur un VPS Hetzner avec Docker, nginx et un domaine Cloudflare.",
+			},
+		},
+		portfolio: {
+			meta: { en: "you are here", fr: "vous êtes ici" },
+			desc: {
+				en: "This portfolio: a desktop in the browser, with a particle field that reshapes into whatever you point at.",
+				fr: "Ce portfolio : un bureau dans le navigateur, avec un champ de particules qui prend la forme de ce que vous pointez.",
+			},
+		},
+	},
 	Window: {
 		minimize: { en: "Minimize", fr: "Réduire" },
 		maximize: { en: "Maximize", fr: "Agrandir" },
