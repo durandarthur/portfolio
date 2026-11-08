@@ -331,5 +331,8 @@ onUnmounted(() => {
 	.win__header {
 		padding-left: 18px;
 	}
+	.win__subtitle {
+		display: none;
+	}
 }
 </style>

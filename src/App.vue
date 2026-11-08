@@ -15,7 +15,7 @@ import ContactForm from "./components/ContactForm.vue";
 import DesktopIcon from "./components/DesktopIcon.vue";
 import ProjectsWindow from "./components/ProjectsWindow.vue";
 import Taskbar from "./components/Taskbar.vue";
-import TechTreeNode from "./components/TechTreeNode.vue";
+import TechsWindow from "./components/TechsWindow.vue";
 import WelcomeNotice from "./components/WelcomeNotice.vue";
 import WindowFrame from "./components/WindowFrame.vue";
 import { getBioHTML, getTechs, getTimeline, socialsHTML } from "./data";
@@ -577,15 +577,7 @@ function toggleAbout() {
 				</vue-command>
 			</WindowFrame>
 
-			<WindowFrame
-				app-key="techs"
-				:title="iconTitle('techs')"
-				icon="/icons/techs.svg"
-				:width="960"
-				:height="680"
-			>
-				<TechTreeNode :node="getTechs()" />
-			</WindowFrame>
+			<TechsWindow />
 
 			<WindowFrame app-key="about" :title="$t('App.about')">
 				<div class="w-full p-8 text-ink">
