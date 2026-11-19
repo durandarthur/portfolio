@@ -69,6 +69,18 @@ const keys = {
 				fr: "Ce portfolio : un bureau dans le navigateur, avec un champ de particules qui prend la forme de ce que vous pointez.",
 			},
 		},
+		jpreplace: {
+			desc: {
+				en: "Local AI Google Lens style translator for Japanese to English translation.",
+				fr: 'Un programme d\'IA locale pour un traducteur jp->en style "Google Lens".',
+			},
+		},
+		ytsummarize: {
+			desc: {
+				en: "Automatic AI note-taking and summarizing for YouTube videos. Local LLM and Claude supported",
+				fr: "Un programme IA de prise de notes automatique pour vidéos YouTube. Fonctionne avec un LLM local ou avec Claude",
+			},
+		},
 	},
 	// FR strings in Techs: translated, to review.
 	Techs: {
@@ -132,7 +144,10 @@ const keys = {
 			en: "Include techs only used in projects built with Claude Code",
 			fr: "Inclure les technos utilisées seulement dans des projets faits avec Claude Code",
 		},
-		graphPickCategory: { en: "Pick a category.", fr: "Choisissez une catégorie." },
+		graphPickCategory: {
+			en: "Pick a category.",
+			fr: "Choisissez une catégorie.",
+		},
 		graphPickTech: {
 			en: "Pick a tech to see where I used it.",
 			fr: "Choisissez une techno pour voir où je l'ai utilisée.",
@@ -144,7 +159,10 @@ const keys = {
 			},
 		},
 		learningName: { en: "Learning", fr: "En apprentissage" },
-		learningText: { en: "Currently learning this technology, or recently learned it.", fr: "J'apprends actuellement cette technologie, ou je l'ai récemment apprise." }
+		learningText: {
+			en: "Currently learning this technology, or recently learned it.",
+			fr: "J'apprends actuellement cette technologie, ou je l'ai récemment apprise.",
+		},
 	},
 	Window: {
 		minimize: { en: "Minimize", fr: "Réduire" },
@@ -297,9 +315,18 @@ const keys = {
 				fr: "cliquez pour ouvrir · ↵ au clavier",
 			},
 			descriptions: {
-				contact: { en: "Email contact form.", fr: "Formulaire de contact par mail." },
-				cv: { en: "View and download my resume in your browser's PDF viewer.", fr: "Visionnez et téléchargez mon CV dans le visualiseur PDF de votre navigateur." },
-				projects: { en: "A list of projects I've built.", fr: "Une liste de projets que j'ai réalisés." },
+				contact: {
+					en: "Email contact form.",
+					fr: "Formulaire de contact par mail.",
+				},
+				cv: {
+					en: "View and download my resume in your browser's PDF viewer.",
+					fr: "Visionnez et téléchargez mon CV dans le visualiseur PDF de votre navigateur.",
+				},
+				projects: {
+					en: "A list of projects I've built.",
+					fr: "Une liste de projets que j'ai réalisés.",
+				},
 				terminal: { en: "Interactive terminal.", fr: "Terminal interactif." },
 				techs: {
 					en: "Stack, tools, and what I'm learning right now.",

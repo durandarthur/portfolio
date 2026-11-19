@@ -29,6 +29,32 @@ export const projects = [
 		tags: ["web"],
 		image: "/portfolio-thumbnail.webp",
 		stack: ["Vue 3", "Vite", "three.js", "Tailwind", "WebGL"],
-		link: { href: "https://github.com/durandarthur/portfolio", label: "github" },
+		link: {
+			href: "https://github.com/durandarthur/portfolio",
+			label: "github",
+		},
+	},
+	{
+		key: "jpreplace",
+		name: "jpreplace",
+		meta: "2026",
+		tags: ["ai"],
+		image: "/jpreplace-thumbnail.png",
+		stack: ["Python", "PySide6", "PP-OCRv6", "PlaMo 3 Translate"],
+		link: {
+			href: "https://github.com/durandarthur/jpreplace",
+			label: "github",
+		},
+	},
+	{
+		key: "ytsummarize",
+		name: "ytsummarize",
+		meta: "2026",
+		tags: ["ai"],
+		stack: ["Python", "Local LLM API"],
+		link: {
+			href: "https://github.com/durandarthur/ytsummarize",
+			label: "github",
+		},
 	},
 ];
